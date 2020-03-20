@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_rectangle_menu_item">
+    <sp_rectangle_menu_item action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <color>default</color>
+        <condition/>
+        <display_1/>
+        <display_2/>
+        <display_date/>
+        <filter/>
+        <glyph/>
+        <hint/>
+        <kb_article/>
+        <kb_category/>
+        <kb_topic/>
+        <label>My Delegates</label>
+        <order>600</order>
+        <record_script/>
+        <sc_cat_item/>
+        <sc_category/>
+        <short_description/>
+        <sp_page display_value="wow_delegates">f46be3b8db84bb0016a5f40b0c961937</sp_page>
+        <sp_rectangle_menu display_value="Wow &quot;My Area&quot;">d2685741dbbf93c087e2f3de3b961931</sp_rectangle_menu>
+        <sp_rectangle_menu_item/>
+        <sys_class_name>sp_rectangle_menu_item</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-09-17 14:47:49</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>4d288d6edba0a34016a5f40b0c961930</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>Mes Délégués</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_rectangle_menu_item_4d288d6edba0a34016a5f40b0c961930</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:48</sys_updated_on>
+        <table/>
+        <type>page</type>
+        <url/>
+        <url_target/>
+        <x_mono2_wow_background_color/>
+        <x_mono2_wow_description/>
+        <x_mono2_wow_icon/>
+        <x_mono2_wow_icon_color/>
+        <x_mono2_wow_image/>
+        <x_mono2_wow_text_color/>
+    </sp_rectangle_menu_item>
+    <sys_translated_text action="delete_multiple" query="documentkey=4d288d6edba0a34016a5f40b0c961930"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>hint</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:32</sys_created_on>
+        <sys_id>ecd5757bdb3c8010b62a80e23996199e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:32</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>hint</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:48</sys_created_on>
+        <sys_id>ac477537db7c8010b62a80e2399619e6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:48</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>label</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:32</sys_created_on>
+        <sys_id>a8d5757bdb3c8010b62a80e23996199c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:32</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value>Meine Delegierten</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>label</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:48</sys_created_on>
+        <sys_id>6c477537db7c8010b62a80e2399619e3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:48</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value>Mes Délégués</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:32</sys_created_on>
+        <sys_id>e8d5757bdb3c8010b62a80e239961998</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:32</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:48</sys_created_on>
+        <sys_id>64477537db7c8010b62a80e2399619de</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:48</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>x_mono2_wow_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:32</sys_created_on>
+        <sys_id>68d5757bdb3c8010b62a80e23996199a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:32</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>4d288d6edba0a34016a5f40b0c961930</documentkey>
+        <fieldname>x_mono2_wow_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:48</sys_created_on>
+        <sys_id>20477537db7c8010b62a80e2399619e1</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:48</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+</record_update>

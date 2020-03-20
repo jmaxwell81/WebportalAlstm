@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css>#wow-header {&#13;
+  .search {&#13;
+    display: none;&#13;
+  }&#13;
+  &#13;
+  .logo {&#13;
+    transform: scale(1.5);&#13;
+  }&#13;
+}&#13;
+&#13;
+main.body {&#13;
+  padding-top: 0;&#13;
+}&#13;
+&#13;
+.welcome {&#13;
+  .image {&#13;
+    margin-right: 0%;&#13;
+    pointer-events: none;&#13;
+    transform: scale(3.5);&#13;
+    transform-origin: 100% 32%!important;&#13;
+    z-index: -1;&#13;
+  }&#13;
+}</css>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_home</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-05 15:42:44</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>9579ab38db84bb0016a5f40b0c961900</sys_id>
+        <sys_mod_count>29</sys_mod_count>
+        <sys_name>wow_home</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_9579ab38db84bb0016a5f40b0c961900</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:42:31</sys_updated_on>
+        <title>Welcome to the Wow Portal!</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=9579ab38db84bb0016a5f40b0c961900"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:42:31</sys_created_on>
+        <sys_id>6062f5f7dbb88010b62a80e2399619b5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:42:31</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:20:34</sys_created_on>
+        <sys_id>d35d2d3fdbb48010b62a80e239961967</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:20:34</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:42:31</sys_created_on>
+        <sys_id>e462f1b3dbb88010b62a80e239961926</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:42:31</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:20:34</sys_created_on>
+        <sys_id>df5d2d3fdbb48010b62a80e239961962</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:20:34</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>title</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:42:31</sys_created_on>
+        <sys_id>6462f5f7dbb88010b62a80e2399619b2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:42:31</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Willkommen auf dem Wow Portal!</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>9579ab38db84bb0016a5f40b0c961900</documentkey>
+        <fieldname>title</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:20:34</sys_created_on>
+        <sys_id>135d2d3fdbb48010b62a80e239961965</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:20:38</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Bienvenue sur Le Portail Wow!</value>
+    </sys_translated_text>
+</record_update>

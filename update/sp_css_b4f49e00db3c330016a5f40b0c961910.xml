@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css">
+    <sp_css action="INSERT_OR_UPDATE">
+        <css>/* --- Fonts --- */&#13;
+&#13;
+html, body {&#13;
+  font-family: $font-family-body, 'SourceSansPro', Arial, sans-serif;&#13;
+  font-size: 14px;&#13;
+  font-size: $font-size-body;&#13;
+  font-weight: $font-weight-body;&#13;
+  word-break: break-word;&#13;
+}&#13;
+&#13;
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {&#13;
+  font-family: $font-family-headings, $font-family-body, 'SourceSansPro', Arial, sans-serif;&#13;
+  font-weight: $font-weight-headings;&#13;
+}&#13;
+&#13;
+b, strong {&#13;
+  font-weight: $font-weight-bold;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Layout --- */&#13;
+&#13;
+* {&#13;
+  outline: none!important; /* to be reviewed */&#13;
+}&#13;
+&#13;
+section.page {&#13;
+  overflow-x: hidden; /* IE 11 overflow fix */&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+}&#13;
+&#13;
+main.body {&#13;
+  flex: 1 0 auto;&#13;
+  padding-bottom: 10rem;&#13;
+  padding-top: 2rem;&#13;
+  position: relative;&#13;
+}&#13;
+&#13;
+main.body + footer,&#13;
+section.page &gt; footer {&#13;
+  flex-shrink: 0;&#13;
+}&#13;
+&#13;
+.container {&#13;
+  max-width: $container-lg;&#13;
+  width: 100%!important;&#13;
+}&#13;
+&#13;
+.material-icons {&#13;
+  font-size: 1em;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Panels --- */&#13;
+&#13;
+.panel {&#13;
+  border-radius: 0;&#13;
+  box-shadow: $panel-shadow;&#13;
+}&#13;
+&#13;
+.panel .panel,&#13;
+.modal .panel {&#13;
+  box-shadow: none;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Buttons --- */&#13;
+&#13;
+.btn svg {&#13;
+  height: 1.333rem;&#13;
+  margin-right: .5em;&#13;
+  width: 1.333rem;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Notifications --- */&#13;
+&#13;
+#uiNotificationContainer {&#13;
+  margin: 0;&#13;
+  padding: 0!important;&#13;
+  position: relative;&#13;
+  width: 100%;&#13;
+  &#13;
+  .dismiss-notifications {&#13;
+    color: $white;&#13;
+    font-size: 1.5rem;&#13;
+    margin-left: auto;&#13;
+    padding: 0;&#13;
+    padding-left: .5em;&#13;
+    position: relative;&#13;
+    right: 0;&#13;
+    top: 0;&#13;
+    &#13;
+    &amp;, &amp;:hover {&#13;
+      text-decoration: none;&#13;
+    }&#13;
+  }&#13;
+  &#13;
+  .alert {&#13;
+    border-radius: 0;&#13;
+    margin: 0!important;&#13;
+  }&#13;
+}&#13;
+&#13;
+.alert {&#13;
+  align-items: center;&#13;
+  display: flex;&#13;
+  &#13;
+  &amp;, a, a:hover, a:focus, a:visited {&#13;
+    color: $white;&#13;
+  }&#13;
+  &#13;
+  a {&#13;
+    text-decoration: underline;&#13;
+  }&#13;
+  &#13;
+  span + a {&#13;
+    margin-left: .25em;&#13;
+  }&#13;
+&#13;
+  .fa {&#13;
+    color: $white;&#13;
+    font-size: 1.5rem;&#13;
+    margin-right: .5em!important;&#13;
+  }&#13;
+&#13;
+  &gt;span:not(.fa) {&#13;
+    font-size: 1.1rem;&#13;
+  }&#13;
+&#13;
+  i.fa {&#13;
+    font-size: 1.5rem;&#13;
+    margin-left: auto;&#13;
+    padding-left: .5em;&#13;
+  }&#13;
+&#13;
+  &amp;.alert-success {&#13;
+    background-color: $brand-success;&#13;
+    border-color: $brand-success;&#13;
+  }&#13;
+  &#13;
+  &amp;.alert-warning {&#13;
+    background-color: $brand-warning;&#13;
+    border-color: $brand-warning;&#13;
+  }&#13;
+&#13;
+  &amp;.alert-danger {&#13;
+    background-color: $brand-danger;&#13;
+    border-color: $brand-danger;&#13;
+  }&#13;
+&#13;
+  &amp;.alert-info {&#13;
+    background-color: $white;&#13;
+    border-color: $brand-info;&#13;
+    color: $brand-info !important;&#13;
+  }&#13;
+}&#13;
+&#13;
+&#13;
+/* --- IE / Edge --- */&#13;
+&#13;
+.windows.chrome {&#13;
+  .stack-navigator {&#13;
+    position: relative;&#13;
+  }&#13;
+}</css>
+        <name>Wow Base</name>
+        <sys_class_name>sp_css</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-09 08:31:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>b4f49e00db3c330016a5f40b0c961910</sys_id>
+        <sys_mod_count>45</sys_mod_count>
+        <sys_name>Wow Base</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_css_b4f49e00db3c330016a5f40b0c961910</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-03 14:10:55</sys_updated_on>
+    </sp_css>
+</record_update>

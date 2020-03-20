@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="DELETE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>1</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">de4ce8abdbe740909a88b1b2399619e7</sp_column>
+        <sp_widget display_value="Wow Welcome">76e2fdfcdb27d78087e2f3de3b961939</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>964ce8abdbe740909a88b1b2399619eb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_964ce8abdbe740909a88b1b2399619eb</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:26</sys_updated_on>
+        <title/>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"message": {
+		"value": "Welcome to the End User Portal",
+		"displayValue": "Welcome to the End User Portal"
+	},
+	"image": {
+		"value": "d92276f2dbfe7b00b62a80e2399619f7",
+		"displayValue": "jumping_people.png"
+	},
+	"justify": {
+		"value": "left",
+		"displayValue": "left"
+	},
+	"reducedHeight": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"showAdvert": {
+		"value": "false",
+		"displayValue": "false"
+	},
+	"enableParallax": {
+		"value": "true",
+		"displayValue": "true"
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="DELETE" query="documentkey=964ce8abdbe740909a88b1b2399619eb"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_instance_964ce8abdbe740909a88b1b2399619eb</name>
+        <order/>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sp_instance"&gt;&lt;sp_instance action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;class_name/&gt;&lt;color&gt;default&lt;/color&gt;&lt;css/&gt;&lt;glyph/&gt;&lt;id/&gt;&lt;order&gt;1&lt;/order&gt;&lt;roles/&gt;&lt;short_description/&gt;&lt;size&gt;md&lt;/size&gt;&lt;sp_column display_value="1"&gt;de4ce8abdbe740909a88b1b2399619e7&lt;/sp_column&gt;&lt;sp_widget display_value="Wow Welcome"&gt;76e2fdfcdb27d78087e2f3de3b961939&lt;/sp_widget&gt;&lt;sys_class_name&gt;sp_instance&lt;/sys_class_name&gt;&lt;sys_created_by&gt;Warren&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2020-03-20 10:50:26&lt;/sys_created_on&gt;&lt;sys_customer_update&gt;false&lt;/sys_customer_update&gt;&lt;sys_id&gt;964ce8abdbe740909a88b1b2399619eb&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name/&gt;&lt;sys_package display_value="Wow Portal" source="x_mono2_wow"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_replace_on_upgrade&gt;false&lt;/sys_replace_on_upgrade&gt;&lt;sys_scope display_value="Wow Portal"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_scope&gt;&lt;sys_update_name&gt;sp_instance_964ce8abdbe740909a88b1b2399619eb&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;Warren&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2020-03-20 10:50:26&lt;/sys_updated_on&gt;&lt;title/&gt;&lt;url/&gt;&lt;widget_parameters&gt;&lt;![CDATA[{
+	"message": {
+		"value": "Welcome to the End User Portal",
+		"displayValue": "Welcome to the End User Portal"
+	},
+	"image": {
+		"value": "d92276f2dbfe7b00b62a80e2399619f7",
+		"displayValue": "jumping_people.png"
+	},
+	"justify": {
+		"value": "left",
+		"displayValue": "left"
+	},
+	"reducedHeight": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"showAdvert": {
+		"value": "false",
+		"displayValue": "false"
+	},
+	"enableParallax": {
+		"value": "true",
+		"displayValue": "true"
+	}
+}]]&gt;&lt;/widget_parameters&gt;&lt;/sp_instance&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=964ce8abdbe740909a88b1b2399619eb"/&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>50050251</payload_hash>
+        <record_name/>
+        <reverted_from/>
+        <source>90598c75db5fcc10363e8a5039961958</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:26</sys_created_on>
+        <sys_id>5e4ce8abdbe740909a88b1b2399619ee</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170f790ccbf0000001</sys_recorded_at>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:26</sys_updated_on>
+        <type>Instance</type>
+        <update_guid>1e4ce8abbae740908a5f436edcc6baed</update_guid>
+        <update_guid_history>1e4ce8abbae740908a5f436edcc6baed:50050251</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-20 16:24:58">645da42fdbe740909a88b1b2399619cd</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:54:58</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_instance">sp_instance</sys_db_object>
+        <sys_id>0c2b350695be4f2490205039dd905710</sys_id>
+        <sys_metadata>964ce8abdbe740909a88b1b2399619eb</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_instance_964ce8abdbe740909a88b1b2399619eb</sys_update_name>
+        <sys_update_version display_value="sp_instance_964ce8abdbe740909a88b1b2399619eb">5e4ce8abdbe740909a88b1b2399619ee</sys_update_version>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:54:58</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

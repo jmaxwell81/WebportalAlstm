@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="ref_ac_columns_search=true,ref_ac_columns=full_category,ref_auto_completer=AJAXTableCompleter" audit="false" label="Catégorie des bases de connaissances" max_length="40" name="kb_category" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Wow Icon" max_length="32" name="x_mono2_wow_icon" reference="x_mono2_wow_icon" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Icon color" max_length="32" name="x_mono2_wow_icon_color" reference="x_mono2_wow_color" type="reference"/>
+        <index name="index">
+            <element name="x_mono2_wow_icon_color"/>
+        </index>
+        <index name="index2">
+            <element name="x_mono2_wow_icon"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_portal">
+    <sp_portal action="INSERT_OR_UPDATE">
+        <css_variables>$brand-primary: #244991;&#13;
+$body-bg: #fff;&#13;
+$state-success-text: #5cb85c;&#13;
+$sp-homepage-bg: #fff;&#13;
+$sp-navbar-divider-color: #1f2f68;&#13;
+$text-color: #333333;&#13;
+$sp-logo-margin-y: .5rem;&#13;
+$navbar-inverse-link-hover-color: #ffffff;&#13;
+$panel-bg: #fff;&#13;
+$brand-success: #5cb85c;&#13;
+$navbar-inverse-bg: #24387f;&#13;
+$brand-warning: #f08b4e;&#13;
+$brand-danger: #E24242;&#13;
+$sp-tagline-color: #717171;&#13;
+$navbar-inverse-link-color: #ffffff;&#13;
+$brand-info: #5bc0de;&#13;
+$link-color: #244991;&#13;
+$sp-logo-margin-x: 1rem;&#13;
+$btn-default-bg: #fff;&#13;
+$text-muted: #aeafb2;&#13;
+</css_variables>
+        <default>false</default>
+        <homepage display_value="wow_home_asp2">afcee423db2b40909a88b1b2399619c1</homepage>
+        <icon/>
+        <kb_knowledge_base/>
+        <kb_knowledge_page display_value="wow_knowledge">dddce3f8db84bb0016a5f40b0c96196b</kb_knowledge_page>
+        <login_page/>
+        <logo/>
+        <notfound_page/>
+        <quick_start_config/>
+        <sc_catalog/>
+        <sc_catalog_page display_value="wow_stack">b53debb8db84bb0016a5f40b0c9619db</sc_catalog_page>
+        <sc_category_page/>
+        <sp_chat_queue/>
+        <sp_rectangle_menu display_value="Wow &quot;My Area&quot;">d2685741dbbf93c087e2f3de3b961931</sp_rectangle_menu>
+        <sqanda_knowledge_base/>
+        <sys_class_name>sp_portal</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 11:01:31</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>20dea823db2b40909a88b1b2399619b3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Alstom WOW</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_portal_20dea823db2b40909a88b1b2399619b3</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 11:01:31</sys_updated_on>
+        <theme display_value="Alstom (WOW) (Wow)">10dea823db2b40909a88b1b23996199b</theme>
+        <title>Alstom WOW</title>
+        <ts_index_group/>
+        <url_suffix>asp2</url_suffix>
+        <x_mono2_wow_contact_info><![CDATA[<p>Based on the impact and urgency this looks like a serious issue. You should call the Service Desk on +<strong>44 (0)1234 567890</strong>. Alternatively, please review your impact and urgency selections.</p>]]></x_mono2_wow_contact_info>
+        <x_mono2_wow_copyright_notice>Copyright Computacenter plc. All rights reserved.</x_mono2_wow_copyright_notice>
+        <x_mono2_wow_external_chat_url/>
+        <x_mono2_wow_footer_menu display_value="Wow Footer Menu">c5b4327cdbe7d78087e2f3de3b96195b</x_mono2_wow_footer_menu>
+        <x_mono2_wow_incident_cat_item display_value="PC Performance Issue">c6d873b8dbaf8c10363e8a503996196c</x_mono2_wow_incident_cat_item>
+        <x_mono2_wow_news_kb display_value="Knowledge">dfc19531bf2021003f07e2c1ac0739ab</x_mono2_wow_news_kb>
+    </sp_portal>
+    <sys_translated_text action="delete_multiple" query="documentkey=20dea823db2b40909a88b1b2399619b3"/>
+</record_update>

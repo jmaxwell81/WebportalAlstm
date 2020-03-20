@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>standard</category>
+        <client_script><![CDATA[function attachMate($scope, nowAttachmentHandler, $rootScope, spUtil, spModal, $log, spAriaUtil) {
+	$scope.errorMessages = [];
+	$scope.attachmentHandler = new nowAttachmentHandler(setAttachments, appendError);
+	$scope.data.action = "";
+
+	spUtil.recordWatch($scope, "sys_attachment", "table_sys_id=" + $scope.data.sys_id, function(name, data) {
+		$scope.attachmentHandler.getAttachmentList();
+	});
+
+	$scope.$evalAsync(function() {
+		$scope.attachmentHandler.setParams($scope.data.table, $scope.data.sys_id, 1024 * 1024 * $scope.data.maxAttachmentSize);
+		$scope.attachmentHandler.getAttachmentList();
+	})
+
+	$scope.hasAttachments = function() {
+		return $scope.attachments && $scope.attachments.length != 0;
+	}
+
+	$scope.canWrite = function() {
+		return $scope.data.canWrite;
+	}
+
+	$scope.confirmDeleteAttachment = function(attachment) {
+		spModal.confirm("${wow_confirm_delete_attachment}").then(function() {
+			$scope.attachmentHandler.deleteAttachment(attachment);
+		})
+	}
+
+	$scope.$on('dialog.upload_too_large.show', function(e){
+		$log.error($scope.data.largeAttachmentMsg);
+		spUtil.addErrorMessage($scope.data.largeAttachmentMsg);
+	});
+
+	$scope.$on('added_attachment', function(evt) {
+		$scope.data.action = "added";
+		spUtil.update($scope);
+	});
+
+	$scope.$on('sp.record.can_write', function(evt, answer) {
+		$scope.data.canWrite = answer;
+	});
+
+	function appendError(error) {
+		$scope.errorMessages.push(error);
+		spUtil.addErrorMessage(error.msg + error.fileName);
+	}
+
+	function setAttachments(attachments, action) {
+		if ($scope.submitting == true)
+			return;
+
+		$scope.attachments = attachments;
+		if (!action)
+			return;
+
+		if (action === "added") {
+			spAriaUtil.sendLiveMessage($scope.data.attachmentSuccessMsg);
+		}
+
+		$scope.data.action = action;
+		spUtil.update($scope);
+	}
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.attachments-heading {
+  align-items: center;
+  display: flex;
+  margin-bottom: 1rem;
+
+  .title {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.drop-zone {
+  border: 2px dashed lighten($text-muted, 10%);
+  padding: 1rem;
+  text-align: center;
+}
+
+.attachment-preview {
+  display:flex;
+  align-items:flex-start;
+
+  i {
+    margin-right:1rem;
+    font-size:2rem;
+    color: $text-muted;
+  }
+
+  .thumbnail {
+    display: none;
+  }
+
+  .tools {
+    display: none;
+  }
+
+  .file-name {
+    a {
+      color: $text-color;
+    }
+  }
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-ticket-attachments</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Ticket Attachments</name>
+        <option_schema>[{"hint":"ID of referenced record","name":"record_id","section":"Data","label":"Record ID","type":"string"},{"hint":"Table name of referenced record","name":"record_table","section":"Data","label":"Record Table","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+	var sys_id = data.sys_id = (input && input.sys_id) ? input.sys_id : (options.recordId || $sp.getParameter('sys_id'));
+	var table = (input && input.table) ? input.table : (options.recordTable || $sp.getParameter('table'));
+
+	table = data.table = getActualTable(table, sys_id);
+
+	data.maxAttachmentSize = parseInt(gs.getProperty('com.glide.attachment.max_size', 1024));
+	if (isNaN(data.maxAttachmentSize))
+		data.maxAttachmentSize = 24;
+
+	data.largeAttachmentMsg = gs.getMessage('wow_invalid_attachment_max_size_{0}', "" + data.maxAttachmentSize + "MB");
+	data.attachmentSuccessMsg = gs.getMessage('wow_attachment_uploaded');
+
+	if (!table || !sys_id)
+		return;
+
+	var gr = new GlideRecord(table);
+	if (!gr.isValid())
+		return;
+
+	if (!gr.get(sys_id))
+		return;
+
+	if (input && input.action == 'deleted') {
+		gr.comments = input.action + " an attachment";
+		gr.update();
+	}
+
+	data.canWrite = gr.canWrite();
+	data.canAttach = gs.hasRole(gs.getProperty('glide.attachment.role')) &&
+		(new GlideRecord(table)).getAttribute('no_attachment') != 'true' && util.getBoolean(gr.getValue('active'));
+	data.canRead = gr.canRead();
+
+	function getActualTable(table, sys_id) {
+		var gr = new GlideRecord(table);
+
+		if (gr.get(sys_id) && gr.getValue('sys_class_name'))
+			return gr.getValue('sys_class_name');
+
+		return table;
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-10 12:14:14</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>f8a8fcdadbb75b00ec3ab9836b96193a</sys_id>
+        <sys_mod_count>32</sys_mod_count>
+        <sys_name>Wow Ticket Attachments</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_f8a8fcdadbb75b00ec3ab9836b96193a</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-24 14:29:51</sys_updated_on>
+        <template><![CDATA[<div ng-if="data.canRead">
+
+  <div class="attachments-heading">
+    <h4 class="title">${wow_attachments}</h4>
+    <div ng-if="::(data.canWrite && data.canAttach)">
+      <sp-attachment-button></sp-attachment-button>
+    </div>
+  </div>
+
+  <!-- small device - hide body unless there are attachments -->
+  <div ng-class="{'hidden-xs': !hasAttachments()}">
+    <div ng-if="data.canWrite && data.canAttach" ng-file-drop="attachmentHandler.onFileSelect($files)" class="sp-attachments">
+      <div class="drop-zone" ng-show="!hasAttachments()">
+        <em>${wow_dropzone}</em>
+      </div>
+
+      <div class="attachment-preview">
+        <i ng-if="hasAttachments()" class="material-icons" aria-hidden="true">save</i>
+        <now-attachments-list template="sp_attachment" />
+      </div>
+
+    </div>
+
+    <div ng-if="!data.canWrite || !data.canAttach" class="sp-attachments">
+      <div class="no-attachments" ng-show="!hasAttachments()">
+        <em>${wow_no_attachments}</em>
+      </div>
+      <now-attachments-list template="sp_attachment" />
+    </div>
+
+  </div>
+
+  <!-- no attachments msg at phone size when can't write -->
+  <div class="visible-xs-block" ng-if="!hasAttachments() && (!data.canWrite || !data.canAttach)">
+    <div class="sp-no-attachments text-center text-muted">
+      <em>${wow_no_attachments}</em>
+    </div>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

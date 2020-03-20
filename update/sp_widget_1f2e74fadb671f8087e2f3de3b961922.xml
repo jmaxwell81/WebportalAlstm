@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $location, WowBreadcrumbService) {
+	var c = this;
+	var homepageId = c.data.homepageId;
+
+	updateBreadcrumbs();
+
+	$scope.$on('page_change', updateBreadcrumbs);
+
+	function updateBreadcrumbs() {
+		c.data.breadcrumbs = WowBreadcrumbService.updateBreadcrumbs($location.url(), homepageId);
+		c.server.update().then(function() {
+			$scope.breadcrumbs = c.data.breadcrumbs;
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>ul {
+  align-items: center;
+  display: flex;
+  @include wow-list-reset;
+  padding: 1rem 0;
+
+  li {
+    align-items: center;
+    display: inline-flex;
+    white-space: nowrap;
+    font-size: .9rem;
+
+    a {
+      color: $text-color;
+      opacity: .7;
+      transition: opacity .2s ease-out;
+
+      &amp;:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
+    }
+
+    span {
+      color: $text-color;
+    }
+
+    &amp;.divider {
+      padding: 0 .5em;
+
+      i {
+        font-size: 1.5em;
+        opacity: .5;
+      }
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-breadcrumbs</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Breadcrumbs</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var portal = $sp.getPortalRecord();
+	var pageId = $sp.getParameter('id');
+	var homepageId = data.homepageId = portal.getDisplayValue('homepage');
+
+	if (input)
+		data.breadcrumbs = getBreadcrumbs(input.breadcrumbs);
+
+
+	function getBreadcrumbs(breadcrumbs) {
+		if (breadcrumbs.length == 0)
+			return breadcrumbs;
+
+		// set the labels and return
+		breadcrumbs = breadcrumbs.map(function(bc){
+			var pageId = bc.params.id || homepageId,
+					sys_id = bc.params.sys_id;
+
+			bc.label = getBreadcrumbLabel(pageId, sys_id, bc.params);
+
+			return bc;
+		});
+
+
+		// if we've got breadcrumbs, make sure the home page is always the first one
+		if (breadcrumbs.length > 0) {
+			var firstCrumb = breadcrumbs[0];
+
+			if (typeof firstCrumb.params.id != 'undefined' && firstCrumb.params.id != homepageId) {
+				var homeCrumb = {
+					url: "/" + portal.getValue('url_suffix'),
+					label: gs.getMessage('wow_home'),
+					params: {
+						id: homepageId
+					}
+				}
+
+				breadcrumbs.unshift(homeCrumb);
+			}
+		}
+
+		return breadcrumbs;
+	}
+
+
+	function getBreadcrumbLabel(pageId, sys_id, params) {
+
+		switch (pageId) {
+			case homepageId:
+				return gs.getMessage('wow_home');
+
+			case 'kb_article':
+				var gr = new GlideRecord('kb_knowledge');
+
+				if (gr.get(sys_id))
+					return gr.getDisplayValue();
+
+				break;
+
+			case 'sc_category':
+				var gr = new GlideRecord('sc_category');
+
+				if (gr.get(sys_id))
+					return gr.getDisplayValue();
+
+				break;
+
+			case 'sc_cat_item':
+				var gr = new GlideRecord('sc_cat_item');
+
+				if (gr.get(sys_id))
+					return gr.getDisplayValue();
+
+				break;
+
+			default:
+				var gr = new GlideRecord('sp_page');
+				gr.addQuery('id', pageId);
+				gr.query();
+
+				while (gr.next())
+					return gr.getDisplayValue('title');
+
+				break;
+		}
+
+		return gs.getMessage('wow_unknown_page');
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-30 15:39:43</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>1f2e74fadb671f8087e2f3de3b961922</sys_id>
+        <sys_mod_count>66</sys_mod_count>
+        <sys_name>Wow Breadcrumbs</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_1f2e74fadb671f8087e2f3de3b961922</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-21 11:02:52</sys_updated_on>
+        <template><![CDATA[<ul ng-if="breadcrumbs.length > 1">
+
+  <li ng-if="breadcrumbs.length > 1" ng-repeat-start="item in breadcrumbs">
+    <a ng-if="!$last" ng-href="{{item.url}}">{{item.label}}</a>
+    <span ng-if="$last">{{item.label}}</span>
+  </li>
+
+  <li class="divider" ng-if="!$last" ng-repeat-end>/</li>
+
+</ul>]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal) {
+	var c = this;
+
+	if (c.data.approval) {
+		$scope.approval = c.data.approval;
+	}
+
+	$scope.showActivityModal = function(event) {
+		$scope.modal = $uibModal.open({
+			appendTo: $("." + this.widget.directiveName),
+			templateUrl: 'wowTicketActivity.html',
+			scope: $scope
+		});
+
+		// catch dismiss event (esc key or outside modal click)
+		$scope.modal.result.then(function() {}, function () {
+			c.data.activityFeed.data.mergedEntries = [];
+		});
+	}
+
+	$scope.closeActivityModal = function () {
+		$scope.modal.close();
+
+		// catch close event
+		$scope.modal.result.then(function () {
+			c.data.activityFeed.data.mergedEntries = [];
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+@include wow-ticket-layout();
+
+$border-radius: 5px;
+
+.product {
+  align-items: flex-start;
+  border: 1px solid darken($panel-bg, 10%);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+
+  &amp;:first-child {
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+  }
+
+  &gt;h4 {
+    margin-bottom: 1.5rem;
+  }
+
+  &gt; li:first-child {
+    flex-grow: 1;
+  }
+
+  &gt; li:not(:first-child) {
+    text-align: center;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  &gt; li &gt; span {
+    color: $text-muted;
+    text-transform: uppercase;
+  }
+}
+
+.summary {
+  background-color: darken($panel-bg, 5%);
+  border-bottom-left-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+
+  label {
+    color: $text-muted;
+    margin: 0;
+  }
+
+  strong {
+    font-weight: 500;
+    font-weight: normal;
+    margin-left: .5rem;
+  }
+}
+
+.variables {
+  @include wow-variables();
+
+  &amp;,
+  li,
+  li div,
+  li div span {
+    width: 100%;
+  }
+}
+
+
+/* embedded widget overriddes */
+
+.approval-actions {
+  margin-bottom: 3rem;
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    @include wow-button();
+    margin-bottom: .5rem;
+    width: 100%;
+  }
+
+  .info-button {
+    display: none;
+  }
+
+  &gt;div {
+    margin-top: 1rem;
+  }
+}
+
+@include wow-modal(600px);
+
+.activity-feed {
+  @include wow-mini-feed();
+
+  .activity-btn {
+    @include wow-button();
+    width: 100%;
+
+    i {
+      color: inherit;
+      font-size: 1.5rem;
+      margin-left: .5rem;
+    }
+  }
+}
+
+// 'usePanel = false' styles
+
+.panel-transparent {
+
+  main {
+
+    &gt; .details {
+      background-color: $white;
+      border-radius: $border-radius;
+      box-shadow: 0 20px 20px rgba(0, 0, 0, 0.075);
+      padding: 2rem;
+
+      .product {
+        background-color: $white;
+        border: 1px solid transparent;
+        padding: 0;
+      }
+
+      .summary {
+        background-color: $white;
+        border-top: 1px solid darken($panel-bg, 10%);
+        padding: 2rem .5rem 1rem;
+      }
+    }
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Approval</name>
+        <option_schema>[{"name":"showActivityInModal","section":"other","default_value":"true","label":"Show activity in modal?","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var sys_id = $sp.getParameter('sys_id');
+	var ticketsHelper = new WowTickets();
+	var util = new WowUtil();
+
+	options.showActivityInModal = options.showActivityInModal == "true";
+
+	data.approval = ticketsHelper.getApproval(sys_id);
+
+	if (data.approval) {
+		data.activityFeed = $sp.getWidget('wow-activity-feed', {
+			sys_id: sys_id,
+			table: 'sysapproval_approver'
+		});
+
+		data.actionsWidget = $sp.getWidget('wow-approval-actions', {
+			hide_info_button: false,
+			sys_id: sys_id
+		});
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-07 04:35:12</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>c0a23305dbff93c087e2f3de3b9619e4</sys_id>
+        <sys_mod_count>192</sys_mod_count>
+        <sys_name>Wow Approval</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_c0a23305dbff93c087e2f3de3b9619e4</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 16:03:18</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <section ng-if="approval" class="approval">
+
+    <h1>${wow_approval_for} <span>#{{approval.number}}</span></h1>
+
+    <ul class="info">
+      <li>
+        <label>${wow_requested_by}:</label>
+        <span>{{approval.items[0].requestor}}</span>
+      </li>
+      <li ng-if="approval.items.length == 1">
+        <label>${wow_date_requested}:</label>
+        <span>{{approval.items[0].opened | wowDate}}</span>
+      </li>
+      <li ng-if="approval.items.length > 1">
+        <label>${wow_date_requested}:</label>
+        <span>{{approval.opened | wowDate}}</span>
+      </li>
+    </ul>
+
+    <main>
+      <div class="details">
+
+        <div ng-repeat="item in approval.items" class="product">
+
+          <h4>{{item.name || item.shortDescription}}</h4>
+
+          <ul class="variables">
+
+            <li ng-if="item.variables.length == 0">
+              <label>${wow_description}</label>
+              <span ng-bind-html="item.description | nl2br"></span>
+            </li>
+
+            <li ng-repeat="variable in item.variables" ng-hide="variable.display_value == 'false'">
+              <div ng-switch="variable.display_value" >
+                <div ng-switch-when="true" ng-style="variable.display_value && {'flex-direction':'row'}">
+                  <i class="material-icons check">check</i>{{variable.label}}
+                </div>
+                <div ng-switch-default>
+                  <label>{{variable.label}}</label>
+                  <span>{{variable.display_value}}</span>
+                </div>
+              </div>
+            </li>
+
+            <li ng-if="item.justification">
+              <label>${wow_justification}</label>
+              <span ng-bind-html="item.justification | nl2br"></span>
+            </li>
+
+           	<li ng-if="item.startDate">
+              <label>${wow_start_date}</label>
+              <span>{{item.startDate}}</span>
+            </li>
+
+            <li ng-if="item.endDate">
+              <label>${wow_end_date}</label>
+              <span>{{item.endDate}}</span>
+            </li>
+
+            <li ng-if="item.plannedStartDate">
+              <label>${wow_planned_start_date}</label>
+              <span>{{item.plannedStartDate}}</span>
+            </li>
+
+            <li ng-if="item.plannedEndDate">
+              <label>${wow_planned_end_date}</label>
+              <span>{{item.plannedEndDate}}</span>
+            </li>
+
+            <li ng-if="item.implementationPlan">
+              <label>${wow_implementation_plan}</label>
+              <span ng-bind-html="item.implementationPlan | nl2br"></span>
+            </li>
+
+            <li ng-if="item.backoutPlan">
+              <label>${wow_backout_plan}</label>
+              <span ng-bind-html="item.backoutPlan | nl2br"></span>
+            </li>
+
+            <li ng-if="item.riskAssessment">
+              <label>${wow_risk_analysis}</label>
+              <span ng-bind-html="item.riskAssessment | nl2br"></span>
+            </li>
+
+            <li ng-if="item.risk">
+              <label>${wow_risk}</label>
+              <span>{{item.risk}}</span>
+            </li>
+
+            <li ng-if="item.impact">
+              <label>${wow_impact}</label>
+              <span>{{item.impact}}</span>
+            </li>
+
+            <li ng-if="item.priority">
+              <label>${wow_priority}</label>
+              <span>{{item.priority}}</span>
+            </li>
+
+            <li ng-if="item.urgency">
+              <label>${wow_urgency}</label>
+              <span>{{item.urgency}}</span>
+            </li>
+
+            <li ng-if="item.affectedProducts">
+              <label>${wow_affected_products}</label>
+              <span>{{item.affectedProducts}}</span>
+            </li>
+
+            <li ng-if="item.affectedServices">
+              <label>${wow_affected_services}</label>
+              <span>{{item.affectedServices}}</span>
+            </li>
+
+            <li ng-if="item.applicationEnvironment">
+              <label>${wow_application_environment}</label>
+              <span>{{item.applicationEnvironment}}</span>
+            </li>
+
+            <li ng-if="item.deploymentMethod">
+              <label>${wow_deployment_method}</label>
+              <span>{{item.deploymentMethod}}</span>
+            </li>
+
+            <li ng-if="item.rollbackInstructions">
+              <label>${wow_rollback_instructions}</label>
+              <span>{{item.rollbackInstructions | nl2br}}</span>
+            </li>
+
+            <li ng-if="item.expectedStart">
+              <label>${wow_expected_start}</label>
+              <span>{{item.expectedStart}}</span>
+            </li>
+
+            <li ng-if="item.dueDate">
+              <label>${wow_due_date}</label>
+              <span>{{item.dueDate}}</span>
+            </li>
+
+
+          </ul>
+
+        </div>
+
+        <div class="summary">
+          <div>
+            <label>${wow_state}:</label>
+            <strong>{{approval.state}}</strong>
+          </div>
+        </div>
+
+      </div>
+      <aside>
+
+        <div class="approval-actions">
+          <h3>${wow_action_required}</h3>
+          <sp-widget widget="data.actionsWidget"></sp-widget>
+        </div>
+
+        <div class="activity-feed">
+          <div ng-if="!options.showActivityInModal">
+            <h3>${wow_activity}</h3>
+            <sp-widget widget="data.activityFeed"></sp-widget>
+          </div>
+          <button class="btn btn-default activity-btn" ng-if="options.showActivityInModal" ng-click="showActivityModal()">
+            ${wow_show_activity}
+            <i class="material-icons">notifications_active</i>
+          </button>
+        </div>
+
+      </aside>
+    </main>
+
+  </section>
+
+  <section ng-if="!approval">${wow_no_record}</section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

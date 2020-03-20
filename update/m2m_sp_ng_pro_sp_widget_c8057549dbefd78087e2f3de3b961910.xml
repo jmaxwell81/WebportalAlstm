@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_ng_pro_sp_widget">
+    <m2m_sp_ng_pro_sp_widget action="INSERT_OR_UPDATE">
+        <sp_angular_provider display_value="wowDropdownMenu">ad512ba2dbbd5b008e94764cbf96196a</sp_angular_provider>
+        <sp_widget display_value="Wow Search">aa547949dbefd78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>m2m_sp_ng_pro_sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-25 09:09:52</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>c8057549dbefd78087e2f3de3b961910</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>wowDropdownMenu.Wow Search</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>m2m_sp_ng_pro_sp_widget_c8057549dbefd78087e2f3de3b961910</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-05 14:46:38</sys_updated_on>
+    </m2m_sp_ng_pro_sp_widget>
+</record_update>

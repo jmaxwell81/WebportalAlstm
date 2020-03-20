@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_widget_dependency">
+    <m2m_sp_widget_dependency action="INSERT_OR_UPDATE">
+        <sp_dependency display_value="Material Icons">0b0d312adb7efb400ef45682ca961956</sp_dependency>
+        <sp_widget display_value="Wow Content Grid">90287874dba3d78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>m2m_sp_widget_dependency</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-07-25 11:15:57</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>7d2e7d2adb7efb400ef45682ca96197b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Wow Icons.Wow Content Grid</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>m2m_sp_widget_dependency_7d2e7d2adb7efb400ef45682ca96197b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-25 11:15:57</sys_updated_on>
+    </m2m_sp_widget_dependency>
+</record_update>

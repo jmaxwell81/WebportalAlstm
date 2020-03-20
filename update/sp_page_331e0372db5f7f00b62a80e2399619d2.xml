@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css/>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_appointments</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-20 08:15:23</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>331e0372db5f7f00b62a80e2399619d2</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>wow_appointments</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_331e0372db5f7f00b62a80e2399619d2</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:40:02</sys_updated_on>
+        <title>Appointments</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=331e0372db5f7f00b62a80e2399619d2"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:39:45</sys_created_on>
+        <sys_id>10c1f533dbb88010b62a80e239961922</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:39:45</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:16:09</sys_created_on>
+        <sys_id>ee5c65b7dbb48010b62a80e2399619e8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:16:09</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:39:45</sys_created_on>
+        <sys_id>d8c1b5ffdb788010b62a80e239961959</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:39:45</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:16:09</sys_created_on>
+        <sys_id>5e5c2d3bdb748010b62a80e2399619dd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:16:09</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>title</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:39:45</sys_created_on>
+        <sys_id>14c1f533dbb88010b62a80e23996191f</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:40:02</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Termine</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>331e0372db5f7f00b62a80e2399619d2</documentkey>
+        <fieldname>title</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:16:09</sys_created_on>
+        <sys_id>2e5c65b7dbb48010b62a80e2399619e6</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:16:12</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Rendez-vous</value>
+    </sys_translated_text>
+</record_update>

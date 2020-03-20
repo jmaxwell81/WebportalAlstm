@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, wowUtil) {
+  var c = this;
+
+	$scope.enableParallax = c.options.enableParallax && !wowUtil.isInternetExploder();
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.welcome {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
+  position: relative;
+
+  &amp;.reduced-height {
+    height: auto; // override vw heights
+  }
+
+  &amp;.left {
+    align-items: flex-start;
+
+    .image {
+      background-position: 100% 100%;
+      transform-origin: 100% 100%;
+    }
+  }
+
+  &amp;.center {
+    align-items: center;
+    
+    .title,
+    .subtitle {
+	    text-align: center;
+    }
+
+    .image {
+      background-position: 50% 100%;
+      transform-origin: 50% 100%;
+    }
+  }
+
+  &amp;.right {
+    align-items: flex-end;
+
+    .image {
+      background-position: 0% 100%;
+      transform-origin: 0 100%;
+    }
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    height: auto;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    height: 40vw;
+    max-height: 450px;
+    min-height: auto;
+  }
+}
+
+.title {
+  color: $text-color;
+  color: $foreground-text;
+  font-size: 3rem;
+  font-weight: 600;
+  font-weight: $font-weight-headings;
+
+  @media screen and (min-width: $screen-sm-min) {
+    font-size: 4rem;
+  }
+}
+
+.subtitle {
+  color: $text-color;
+  color: $foreground-text;
+}
+
+a {
+  text-decoration: underline;
+
+  .advert &amp; {
+    color: inherit!important;
+  }
+}
+
+.banner {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+
+  &amp;.parallax {
+    will-change: scroll-position;
+  }
+}
+
+.image {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-size: contain;
+  background-position: 50% 30%;
+  background-repeat: no-repeat;
+
+  @media screen and (max-width: $screen-xs-max) {
+    display: none;
+  }
+}
+
+.content {
+  position: relative;
+
+  @media screen and (max-width: $screen-xs-max) {
+    width: 100%;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    max-width: 50%;
+    min-width: 400px;
+  }
+}
+
+@media screen and (max-width: $screen-xs) {
+  div[widget] {
+    width: 100%;
+  }
+}
+
+.typeahead {
+  width: 100%;
+
+  @media screen and (min-width: $screen-sm-min) {
+    width: 400px;
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    width: 450px;
+  }
+
+  .close-search {
+    display: none;
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-welcome</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+	var pageElement = document.querySelector('.sp-scroll');
+
+	if (scope.enableParallax) {
+		scope.$on('$destroy', function() {
+			$(pageElement).off('scroll', parallax);
+		});
+
+		$(pageElement).scroll(parallax);
+	}
+
+	function parallax() {
+		var viewportHeight = pageElement.offsetHeight;
+		var pageHeight = pageElement.scrollHeight;
+		var scrollTop = pageElement.scrollTop;
+		var scrollPercent = (scrollTop / (pageHeight - viewportHeight)) * 100;
+
+		$('.banner.parallax', element).css('transform', 'translateY('+(scrollPercent/2)+'%)');
+	}
+
+ }]]></link>
+        <name>Wow Welcome</name>
+        <option_schema>[{"name":"message","section":"Presentation","label":"Message","type":"string"},{"displayValue":"Images","hint":"Welcome image","name":"image","section":"Presentation","label":"Image","type":"reference","value":"db_image","ed":{"reference":"db_image"}},{"hint":"How should welcome content be aligned","name":"justify","section":"Presentation","label":"Justify content","type":"choice","choices":[{"label":"left","value":"left"},{"label":"center","value":"center"},{"label":"right","value":"right"}]},{"name":"reducedHeight","section":"Presentation","label":"Reduced height","type":"boolean"},{"name":"showAdvert","section":"Presentation","label":"Show advert","type":"boolean"},{"name":"enableParallax","section":"Presentation","label":"Parallax on scroll?","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+
+	options.reducedHeight = options.reducedHeight == 'true';
+	options.justify = options.justify || 'left';
+	options.image = util.getImage(options.image) || null;
+	options.message = gs.getMessage(options.message || 'wow_welcome_message');
+	options.showAdvert = options.showAdvert == 'true';
+	options.enableParallax = options.enableParallax == 'true';
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-24 14:22:18</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>76e2fdfcdb27d78087e2f3de3b961939</sys_id>
+        <sys_mod_count>199</sys_mod_count>
+        <sys_name>Wow Welcome</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_76e2fdfcdb27d78087e2f3de3b961939</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-13 15:08:38</sys_updated_on>
+        <template><![CDATA[<div class="welcome {{options.justify}}" ng-class="{'reduced-height': options.reducedHeight}">
+  <div class="banner" ng-class="{'parallax': options.enableParallax}">
+    <div class="image" ng-style="{'background-image': 'url({{options.image}})'}"></div>
+  </div>
+  <div class="content">
+    <h1 class="title">${wow_hello} {{::user.first_name}}</h1>
+    <h4 class="subtitle">
+      {{::options.message}}
+      <span ng-if="options.showAdvert" class="advert"><br>${wow_designed_by} <a href="https://servicenow.monochrome.co.uk/" target="_blank">Monochrome</a></span>
+    </h4>
+    <widget id="wow-searchbar"></widget>
+  </div>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

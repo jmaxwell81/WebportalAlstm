@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>standard</category>
+        <client_script><![CDATA[function ($scope, $element, $timeout, $http, cabrillo, $rootScope, spUtil) {
+	$scope.locationSupported = !!navigator.geolocation;
+
+	$scope.requested = false;
+
+	$scope.isNative = false;
+	if (cabrillo.isNative())
+		$scope.isNative = true;
+
+	$rootScope.$broadcast("sp.show_location_icon");
+
+	$scope.getLocation = function() {
+		$rootScope.$broadcast("location.sharing.start");
+		$scope.requested = true;
+		$scope.status = $scope.data.askingMsg;
+
+		if (cabrillo.isNative()) {
+			cabrillo.geolocation.getCurrentLocation().then(function(o) {
+				$scope.data.cabrilloloc = o;
+				$scope.position = {};
+				$scope.position.coords = {};
+				$scope.position.coords.latitude = o.coordinate.latitude;
+				$scope.position.coords.longitude = o.coordinate.longitude;
+				spLoadMaps(); // in sp.geo.js
+			});
+		}
+
+		else
+			navigator.geolocation.getCurrentPosition(gotLocation, error, {timeout: 10000});
+	}
+
+	function gotLocation(pos) {
+		$scope.position = pos;
+		$scope.$digest();
+		spLoadMaps(); // in sp.geo.js
+	}
+
+	function error(msg) {
+		if (msg.code == 1) {
+			alert($scope.data.enableMsg);
+			$scope.status = $scope.data.notEnabledMsg;
+		}
+
+		else if (msg.code == 2 || msg.code == 3) {
+			$scope.status = $scope.data.notDeterminedMsg;
+			$rootScope.$broadcast("location.sharing.end");
+		}
+
+		$scope.$digest();
+	}
+
+	$scope.$on('check_in_location', function(evt) {
+		$scope.getLocation()
+	});
+
+	CustomEvent.observe('map.initialized', function() {
+		if (!$scope.position)
+			return;
+
+		$scope.mapInit = true;
+		$scope.$digest();
+
+		var position = $scope.position;
+		console.log(position);
+		$scope.data.lat = position.coords.latitude;
+		$scope.data['long'] = position.coords.longitude;
+
+		$scope.latlng = new google.maps.LatLng($scope.data.lat, $scope.data['long']);
+		var geocoder = new google.maps.Geocoder();
+
+		geocoder.geocode({'latLng': $scope.latlng}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				if (results[0]) {
+					$scope.address = results[0].formatted_address;
+					$scope.data.address = results[0].formatted_address;
+					$scope.$digest();
+
+					$scope.data.geodata = {};
+					$scope.data.geodata["latitude"] = $scope.data.lat;
+					$scope.data.geodata["longitude"] = $scope.data['long'];
+					$scope.data.geodata["address"] = results[0].formatted_address;
+					$scope.data.geodata["sys_user"] = $scope.data.userId;
+
+					$scope.phoneHome();
+				}
+
+				else
+					$scope.address = "Street address not found";
+			}
+		});
+
+		var mapOptions = {
+			scrollwheel: false,
+			zoom : 17,
+			center : $scope.latlng,
+			mapTypeControl : true,
+			navigationControlOptions : {
+				style : google.maps.NavigationControlStyle.SMALL
+			},
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+
+		var target = $element.find(".sp-geo-canvas-container")[0];
+		$scope.status = $scope.data.fetchingMapMsg;
+		$scope.map = new google.maps.Map(target, mapOptions);
+
+		var R = 6371; // kilometers
+		var radius = .25; // 100 meter circle
+		// first-cut bounding box (in degrees)
+
+		$scope.data.maxLat = $scope.data.lat + rad2deg(radius/R);
+		$scope.data.minLat = $scope.data.lat - rad2deg(radius/R);
+		// compensate for degrees longitude getting smaller with increasing latitude
+		$scope.data.maxLon = $scope.data['long'] + rad2deg(radius/R/Math.cos(deg2rad($scope.data.lat)));
+		$scope.data.minLon = $scope.data['long'] - rad2deg(radius/R/Math.cos(deg2rad($scope.data.lat)));
+		$scope.submit();
+
+		var marker = new google.maps.Marker({
+			position : $scope.latlng,
+			map : $scope.map,
+			title : $scope.data.youAreHereMsg
+		});
+
+		var cir = {
+			strokeColor: '#00FF00',
+			strokeOpacity: 0.8,
+			strokeWeight: 1,
+			fillColor: '#00FF00',
+			fillOpacity: 0.15,
+			map: $scope.map,
+			center: $scope.latlng,
+			radius: Math.sqrt(20000)
+		};
+		var circle = new google.maps.Circle(cir);
+		$rootScope.$broadcast("location.sharing.end");
+	});
+
+	$scope.phoneHome = function() {
+		var dataURL = spUtil.getWidgetURL($scope);
+		$http.post(dataURL, $scope.data).success(function(response) {
+			$scope.data.address = "";
+			$scope.data.geodata = {};
+		});
+	}
+
+	$scope.submit = function(map, latlng) {
+		var dataURL = spUtil.getWidgetURL($scope);
+		$http.post(dataURL, $scope.data).success(function(response) {
+			angular.extend($scope.data, response.result.data);
+
+			if (!$scope.data.others)
+				return;
+
+			for (var i = 0; i < $scope.data.others.length; i++) {
+				var u = $scope.data.others[i];
+				var ll = new google.maps.LatLng(u.lat, u.lon);
+				var ic = "/images/google_map_man_" + (i+1) + ".gif";
+				var marker = new google.maps.Marker({
+					icon: ic,
+					position : ll,
+					map : $scope.map,
+					title: u.name
+				});
+
+			}
+		});
+	}
+
+	function rad2deg(rad) {
+		return rad * 57.2957795;
+	}
+
+	function deg2rad(deg) {
+		return deg * 0.0174532925;
+	}
+}
+
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css>h4 {
+  margin-bottom: 1.2rem;
+}
+
+.panel {
+  padding: 0;
+  min-height: 45px;
+  height: 100%;
+  border: none;
+  overflow: hidden;
+  box-shadow: none;
+  margin-bottom: 0;
+
+  a {
+    color: darken($text-muted, 10%);
+    font-size: .9rem;
+    padding: .9rem 0;
+    display: flex;
+    align-items: center;
+
+    i {
+      font-size: 2rem;
+      margin-right: 1rem;
+      color:#A4AAB3;
+    }
+
+    .share-text {
+      font-size: 1rem;
+      font-weight: bold;
+      color: darken($text-muted, 40);
+    }
+  }
+
+  .panel-heading {
+    padding: 12px 15px;
+
+    &amp;:nth(2) {
+      padding-bottom: 0;
+    }
+  }
+
+  .panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+
+    i {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-right: .5rem;
+    }
+
+    &amp;.success {
+      color: $brand-success;
+    }
+  }
+}
+
+.spinner {
+  @include wow-spinner($brand-primary);
+  width: 40px;
+  margin: 5px auto 0;
+}
+
+.sp-geo-canvas-container {
+  height: 300px;
+  width: 100%;
+}
+
+.map-icon {
+  vertical-align: bottom;
+  height: 30px;
+  padding: 4px 0px 4px 4px;
+}  </css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-ticket-location</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Ticket Location</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	data.askingMsg = gs.getMessage('wow_requesting_browser_location');
+	data.notEnabledMsg = gs.getMessage('wow_location_services_disabled');
+	data.notDeterminedMsg = gs.getMessage('wow_location_not_determined');
+	data.enableMsg = gs.getMessage('wow_enable_location_services_prompt');
+	data.fetchingMapMsg = gs.getMessage('wow_fetching_map');
+	data.youAreHereMsg = gs.getMessage('wow_you_are_here');
+
+	var gr = $sp.getRecord(options.table, options.sys_id);
+	data.canRead = gr.canRead();
+	data.canWrite = gr.canWrite();
+	data.table = gr.getTableName();
+	data.sys_id = gr.getUniqueValue();
+	data.userId = gs.getUserID();
+
+	if (input) {
+		// add comment w/ checkin address
+		if (typeof input.address != "undefined" && input.address != "") {
+			gr.comments = gs.getMessage('wow_checked_in_from_{0}', input.address);
+			gr.update();
+		}
+
+		// insert GEO Checkin record
+		if (typeof input.geodata != "undefined" && input.geodata != {}) {
+			var geo = new GlideRecord("sys_user_geo_location");
+			geo.latitude = input.geodata.latitude;
+			geo.longitude = input.geodata.longitude;
+			geo.address = input.geodata.address;
+			geo.sys_user = input.geodata.sys_user;
+			geo.insert();
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-10 10:44:48</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>7624e4dadb775b00ec3ab9836b9619bc</sys_id>
+        <sys_mod_count>17</sys_mod_count>
+        <sys_name>Wow Ticket Location</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_7624e4dadb775b00ec3ab9836b9619bc</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-21 11:29:19</sys_updated_on>
+        <template><![CDATA[<div ng-if="data.canRead && data.canWrite" ng-show="locationSupported">
+
+  <div ng-show="!requested" class="panel">
+    <a href="javascript:void(0)" ng-click="getLocation()" title="Check in location">
+      <i class="material-icons">language</i>
+      <span class="share-text">${wow_share_location}</span>
+    </a>
+  </div>
+
+  <div ng-show="requested" class="panel text-center">
+    <div ng-show="!address" class="panel-heading">
+      <div class="spinner">
+        <div class="blob"></div>
+        <div class="blob"></div>
+        <div class="blob"></div>
+      </div>
+    </div>
+
+    <div ng-show="address" class="panel-heading">
+      <h4 class="panel-title success">
+        <i class="material-icons">done</i>
+        ${wow_location_shared}
+      </h4>
+    </div>
+
+    <div ng-show="address" class="geo-address wrapper">
+      <p class="text-muted m-n">{{address}}</p>
+    </div>
+
+    <div id="map-container">
+      <div ng-show="mapInit" class="sp-geo-canvas-container"></div>
+    </div>
+
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

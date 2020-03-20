@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>sc</category>
+        <client_script><![CDATA[function () {
+	var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+.mark-favorite {
+  margin-bottom: 1rem;
+}
+
+.catalog-item {
+  #sc_cat_item {
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+
+    .panel {
+      background-color: transparent!important;
+      border: none!important;
+      box-shadow: none!important;
+      margin: 0!important;
+      overflow: visible;
+      padding: 0!important;
+
+      .wrapper-md {
+        padding: 2rem 0!important;
+
+        @media screen and (min-width: $screen-md-min) {
+          margin-right: 1rem;
+        }
+      }
+
+      .item-header {
+        padding: .5rem 0 2rem!important;
+      }
+    }
+
+    .sc-fixed {
+      max-width: calc(#{$container-lg / 4} - #{$grid-gutter-width / 2} - 2rem);
+      width: calc(23.75vw - 2rem);
+
+      .panel {
+        padding: 0!important;
+      }
+    }
+
+    .sc-item-error-messages {
+      max-height: none;
+      overflow-y: hidden;
+      
+      .alert {
+        border: none;
+        color: $text-color;
+        flex-wrap: wrap;
+        margin: 0!important;
+        padding: 2rem 0!important;
+
+        &gt;span {
+          color: $text-color;
+          display: block;
+          font-weight: $font-weight-bold;
+          margin-bottom: .5em;
+          width: 100%;
+        }
+
+        &gt;div {
+          padding: 0;
+        }
+
+        label {
+          color: $white;
+          display: inline-flex;
+          font-weight: $font-weight-normal;
+          margin-bottom: 0;
+          margin-right: .5em;
+          margin-top: .5em;
+          padding: .5em;
+        }
+      }
+    }
+
+    .btn-primary {
+      @include wow-button();
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-catalog-item</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Catalog Item</name>
+        <option_schema>[{"name":"show_add_cart_button","section":"other","label":"Show Add Cart Button","type":"boolean"},{"hint":"If you turn on this, you will be able to see field validation messages on right side","name":"show_field_validation_messages","default_value":"true","section":"other","label":"Show field validation messages","type":"boolean"},{"hint":"Show Add/Update Wish List buttons","name":"show_add_to_wishlist_button","default_value":"true","section":"other","label":"Show Add/Update Wish List buttons","type":"boolean"},{"hint":"Order item section on top. If you uncheck this, order section will be displayed at bottom of screen","name":"display_cart_on_right","default_value":"true","section":"other","label":"Order Item Section On Top","type":"boolean"},{"hint":"Show item description in few words with an option to read more","name":"show_less_description","default_value":"true","section":"other","label":"Enable Show More/Less for Item description on Mobile","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles>snc_external,snc_internal</roles>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+	var favoritesPage = options.favoritesPage || $sp.getParameter('id');
+	var sys_id = (input && input.sys_id) ? input.sys_id : (options.sys_id || $sp.getParameter('sys_id') || $sp.getParameter('sl_sys_id'));
+
+	options.embedded = (options.embedded == true);
+	options.show_less_description = false;
+
+	data.catalogItem = $sp.getWidget('wow-global-catalog-item', {
+		display_cart_on_right: options.display_cart_on_right,
+		show_add_cart_button: options.show_add_cart_button,
+		show_add_to_wishlist_button: options.show_add_to_wishlist_button,
+		show_field_validation_messages: options.show_field_validation_messages,
+		show_less_description: options.show_less_description,
+		sys_id: sys_id
+	});
+
+	data.markAsFavorite = $sp.getWidget('wow-mark-favorite', {
+		sys_id: sys_id,
+		page: favoritesPage
+	});
+
+})()]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-13 04:51:08</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>9bffeecfdbfb930087e2f3de3b961925</sys_id>
+        <sys_mod_count>136</sys_mod_count>
+        <sys_name>Wow Catalog Item</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_9bffeecfdbfb930087e2f3de3b961925</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-18 15:25:26</sys_updated_on>
+        <template><![CDATA[<div ng-class="{'panel': !options.embedded}">
+
+  <div class="mark-favorite">
+    <sp-widget widget="data.markAsFavorite"></sp-widget>
+  </div>
+
+  <div class="catalog-item">
+    <sp-widget widget="data.catalogItem"></sp-widget>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>1</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="2">24cb4571dbdb0050363e8a50399619a9</sp_column>
+        <sp_widget display_value="HTML">8679ef89cb21120000f8d856634c9c4f</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-02 16:22:59</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>4ecbc9bddb9b0050363e8a503996199f</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_4ecbc9bddb9b0050363e8a503996199f</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 16:25:55</sys_updated_on>
+        <title/>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"html": {
+		"value": "<h4>Holding Page for External Chat widget</h4>",
+		"displayValue": "<h4>Holding Page for External Chat widget</h4>"
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="delete_multiple" query="documentkey=4ecbc9bddb9b0050363e8a503996199f"/>
+</record_update>

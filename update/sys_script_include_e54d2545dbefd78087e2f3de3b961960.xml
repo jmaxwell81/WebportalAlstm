@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowTickets</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowTickets</name>
+        <script><![CDATA[var WowTickets = Class.create();
+WowTickets.REQUEST_RESOLVED = '8';
+WowTickets.prototype = {
+	initialize: function() {
+		this.userId = gs.getUserID();
+		this.delegations = this.getDelegations();
+		this.closedLimit = 30; // fetch tickets closed no more than 30 days ago
+		this.queryLimit = 100; // limit to GlideRecord queries
+		this.filter = null; // awaiting_user filters tickets by those assign to the current user for action
+		this.searchTerm = null;
+		this.filteredIds = [];
+		this.ticketCount = null;
+		this.sortBy = 'latest';
+
+		this.requestStates = {
+			awaitingUser: [
+				WowTickets.REQUEST_RESOLVED
+			],
+			closed: [],
+		};
+
+		this.incidentStates = {
+			awaitingUser: [
+				global.IncidentState.AWAITING_USER_INFO,
+				global.IncidentState.AWAITING_EVIDENCE,
+				global.IncidentState.RESOLVED
+			],
+			closed: []
+		};
+
+		this.taskStates = {
+			awaitingUser: [],
+			closed: []
+		};
+
+		this.supportedApprovals = [
+			'change_request',
+			'rm_task',
+			'sc_request',
+			'sc_req_item'
+		];
+
+		this.supportedTasks = [];
+
+		this.pages = {
+			approval: 'wow_approval',
+			incident: 'wow_incident',
+			requestItem: 'wow_request_item',
+			task: 'wow_ticket'
+		};
+
+		this.labels = {
+			assigned_to_me: gs.getMessage('wow_assigned_to_me'),
+			awaiting_my_input: gs.getMessage('wow_awaiting_my_input'),
+			closed: gs.getMessage('wow_closed'),
+			on_watchlist: gs.getMessage('wow_on_watchlist'),
+			open: gs.getMessage('wow_open'),
+			raised_by_me: gs.getMessage('wow_raised_by_me'),
+			raised_for_me: gs.getMessage('wow_raised_for_me')
+		};
+	},
+
+
+	setSortBy: function(sortBy) {
+		this.sortBy = sortBy;
+	},
+
+
+	setFilter: function(filter) {
+		this.filter = filter;
+	},
+
+
+	setSearchTerm: function(searchTerm) {
+		this.searchTerm = searchTerm;
+	},
+
+
+	setFilteredIds: function(filteredIds) {
+		this.filteredIds = filteredIds || [];
+	},
+
+
+	setQueryLimit: function(queryLimit) {
+		this.queryLimit = queryLimit;
+	},
+
+
+	setClosedLimit: function(closedLimit) {
+		this.closedLimit = closedLimit;
+	},
+
+
+	setUserId: function(userId) {
+		this.userId = userId;
+	},
+
+
+	getTickets: function(startRow, itemsPerPage) {
+		var tickets = [];
+
+		tickets = tickets.concat(this.getRequests());
+		tickets = tickets.concat(this.getIncidents());
+		tickets = tickets.concat(this.getApprovals());
+
+		if (this.supportedTasks.length > 0) {
+			tickets = tickets.concat(this.getTasks('task', [
+				{
+					field: 'sys_class_name',
+					operator: 'IN',
+					value: this.supportedTasks
+				},
+				{
+					field: 'sys_id',
+					operator: 'NOT IN',
+					value: tickets.map(function(ticket) {
+						return ticket.id;
+					})
+				}
+			]));
+		}
+
+		// sort by
+		switch(this.sortBy) {
+			case 'atoz':
+				tickets.sort(function(a, b) {
+					return ('' + a.description).localeCompare(b.description);
+				});
+				break;
+
+			case 'ztoa':
+				tickets.sort(function(a, b) {
+					return ('' + b.description).localeCompare(a.description);
+				});
+				break;
+
+			case 'updated':
+				tickets.sort(function(a, b) {
+					return a.updatedUTC > b.updatedUTC ? -1 : (a.updatedUTC < b.updatedUTC ? 1 : 0);
+				});
+				break;
+
+			default:
+				tickets.sort(function(a, b) {
+					return a.openedUTC > b.openedUTC ? -1 : (a.openedUTC < b.openedUTC ? 1 : 0);
+				});
+				break;
+		}
+
+		// set ticket count
+		this.ticketCount = tickets.length;
+
+		if (startRow >= 0 && itemsPerPage)
+			tickets = tickets.slice(startRow, (startRow + itemsPerPage));
+
+		return tickets;
+	},
+
+
+	getTicketCount: function() {
+		if (this.ticketCount == null)
+			this.ticketCount = this.getRequestsCount() + this.getIncidentsCount() + this.getApprovalsCount();
+
+		return this.ticketCount;
+	},
+
+
+	getRequest: function(sys_id) {
+		var gr = new GlideRecord('sc_req_item');
+
+		if (gr.get(sys_id)) {
+			return this.getRequestVariables(gr);
+		}
+
+		return null;
+	},
+
+
+	getRequests: function() {
+		var requests = [];
+
+		var gr = new GlideRecord('sc_req_item');
+		this.includeRequestsQuery(gr);
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		// sort by
+		switch(this.sortBy) {
+			case 'atoz':
+				gr.orderBy('cat_item');
+				break;
+
+			case 'ztoa':
+				gr.orderByDesc('cat_item');
+				break;
+
+			default:
+				gr.orderByDesc('sys_updated_on');
+				break;
+		}
+
+		gr.query();
+
+		while (gr.next()) {
+			requests.push(this.getRequestVariables(gr));
+		}
+
+		return requests;
+	},
+
+
+	getRequestVariables: function(gr) {
+		return {
+			id: gr.getUniqueValue(),
+			assignedTo: gr.getDisplayValue('assigned_to'),
+			assignmentGroup: gr.getDisplayValue('assignment_group'),
+			description: gr.getDisplayValue('cat_item'),
+			due: gr.getDisplayValue('due_date'),
+			dueUTC: gr.getValue('due_date'),
+			href: '?id='+this.pages.requestItem+'&sys_id=' + gr.getUniqueValue(),
+			icon: 'chat_bubble_outline',
+			item: gr.getValue('cat_item'),
+			number: gr.getDisplayValue('number'),
+			opened: gr.getDisplayValue('opened_at'),
+			openedUTC: gr.getValue('opened_at'),
+			ownership: this.getRequestOwnership(gr),
+			price: gr.getValue('price') != 0 ? gr.getDisplayValue('price') : null,
+			priority: gr.getValue('priority'),
+			quantity: gr.getValue('quantity'),
+			request: {
+				value: gr.getValue('request'),
+				displayValue: gr.getDisplayValue('request')
+			},
+			state: gr.getDisplayValue('state') || gr.getDisplayValue('request.request_state'),
+			subStatus: gr.getDisplayValue('u_sub_status'),
+			table: 'sc_req_item',
+			teamManager: gr.getDisplayValue('assignment_group.manager'),
+			type: this.getTaskType(gr),
+			updated: gr.getDisplayValue('sys_updated_on'),
+			updatedUTC: gr.getValue('sys_updated_on'),
+			variables: $sp.getRecordVariablesArray(gr)
+		};
+	},
+
+
+	getRequestOwnership: function(gr) {
+		if (gr.getValue('opened_by') == this.userId)
+			return this.getLabel('raised_by_me');
+
+		if (gr.getValue('requested_for') == this.userId)
+			return this.getLabel('raised_for_me');
+
+		if (gr.getValue('watch_list') && gr.getValue('watch_list').indexOf(this.userId) != -1)
+			return this.getLabel('on_watchlist');
+
+		return null;
+	},
+
+
+	getRequestsCount: function() {
+		var gr = new GlideAggregate('sc_req_item');
+		this.includeRequestsQuery(gr);
+		gr.addAggregate('COUNT');
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		gr.query();
+
+		if (gr.next())
+			return parseInt(gr.getAggregate('COUNT'));
+
+		return 0;
+	},
+
+
+	includeRequestsQuery: function(gr) {
+		gr.addQuery('opened_by', this.userId)
+			.addOrCondition('request.requested_for', this.userId)
+			.addOrCondition('watch_list','CONTAINS', this.userId);
+
+		if (this.filteredIds.length) {
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+		}
+
+		if (this.searchTerm) {
+			gr.addQuery('cat_item.name', 'CONTAINS', this.searchTerm)
+				.addOrCondition('number', 'CONTAINS', this.searchTerm)
+				.addOrCondition('cat_item', 'CONTAINS', this.searchTerm);
+		}
+
+		switch (this.filter) {
+			case 'awaiting_user':
+				gr.addQuery('state', 'IN', this.requestStates.awaitingUser);
+				break;
+
+			default:
+				gr.addQuery('active', true)
+					.addOrCondition('closed_at', '>=', gs.daysAgo(this.closedLimit));
+				break;
+		}
+	},
+
+
+	getIncident: function(sys_id) {
+		var gr = new GlideRecord('incident');
+
+		if (gr.get(sys_id)) {
+			return this.getIncidentVariables(gr);
+		}
+
+		return null;
+	},
+
+
+	getIncidents: function() {
+		var incidents = [];
+
+		var gr = new GlideRecord('incident');
+		this.includeIncidentsQuery(gr);
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		// sort by
+		switch(this.sortBy) {
+			case 'atoz':
+				gr.orderBy('short_description');
+				break;
+
+			case 'ztoa':
+				gr.orderByDesc('short_description');
+				break;
+
+			default:
+				gr.orderByDesc('sys_updated_on');
+				break;
+		}
+
+		gr.query();
+
+		while (gr.next()) {
+			incidents.push(this.getIncidentVariables(gr));
+		}
+
+		return incidents;
+	},
+
+
+	getIncidentVariables: function(gr) {
+		return {
+			id: gr.getUniqueValue(),
+			assignedTo: gr.getDisplayValue('assigned_to'),
+			assignmentGroup: gr.getDisplayValue('assignment_group'),
+			closed: gr.getDisplayValue('closed_at') || gr.getDisplayValue('resolved_at'),
+			closedUTC: gr.getValue('closed_at') || gr.getValue('resolved_at'),
+			description: gr.getDisplayValue('short_description') || gr.getValue('number'),
+			href: '?id='+this.pages.incident+'&sys_id=' + gr.getUniqueValue(),
+			icon: 'error_outline',
+			impact: gr.getDisplayValue('impact'),
+			number: gr.getDisplayValue('number'),
+			opened: gr.getDisplayValue('opened_at'),
+			openedUTC: gr.getValue('opened_at'),
+			priority: gr.getValue('priority'),
+			resolutionNotes: gr.getValue('close_notes'),
+			state: this.getIncidentState(gr),
+			subStatus: gr.getDisplayValue('u_sub_status'),
+			table: 'incident',
+			teamManager: gr.getDisplayValue('assignment_group.manager'),
+			type: this.getTaskType(gr),
+			updated: gr.getDisplayValue('sys_updated_on'),
+			updatedUTC: gr.getValue('sys_updated_on'),
+			variables: $sp.getRecordVariablesArray(gr)
+		};
+	},
+
+
+	getIncidentState: function(gr) {
+		if (this.incidentStates.awaitingUser.indexOf(gr.getValue('incident_state')) > -1)
+			return this.getLabel('awaiting_my_input');
+
+		if (gr.getValue('active') == false)
+			return this.getLabel('closed');
+
+		return this.getLabel('open');
+	},
+
+
+	getIncidentsCount: function() {
+		var gr = new GlideAggregate('incident');
+		this.includeIncidentsQuery(gr);
+		gr.addAggregate('COUNT');
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		gr.query();
+
+		if (gr.next())
+			return parseInt(gr.getAggregate('COUNT'));
+
+		return 0;
+	},
+
+
+	includeIncidentsQuery: function(gr) {
+		gr.addQuery('caller_id', this.userId)
+			.addOrCondition('opened_by', this.userId)
+			.addOrCondition('watch_list', 'CONTAINS', this.userId);
+
+		if (this.filteredIds.length) {
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+		}
+
+		if (this.searchTerm) {
+			gr.addQuery('short_description', 'CONTAINS', this.searchTerm)
+				.addOrCondition('number', 'CONTAINS', this.searchTerm);
+		}
+
+		switch (this.filter) {
+			case 'awaiting_user':
+				gr.addQuery('active', true);
+				//gr.addQuery('incident_state', 'IN', this.incidentStates.awaitingUser);
+				gr.addEncodedQuery('incident_state=-5^u_sub_status=Customer Action^caller_idDYNAMIC90d1921e5f510100a9ad2572f2b477fe^ORsys_created_by=javascript:gs.getUserName()^NQincident_state=6^caller_idDYNAMIC90d1921e5f510100a9ad2572f2b477fe^ORsys_created_by=javascript:gs.getUserName()');
+				//gs.info('***SI WowTickets 427 query : '+gr.getEncodedQuery());
+
+				//gr.addQuery('incident_state', 'IN', this.incidentStates.awaitingUser).addOrCondition('incident_state',-5).addQuery('u_sub_status','-5');
+				break;
+
+			default:
+				gr.addQuery('active', true)
+					.addOrCondition('closed_at', '>=', gs.daysAgo(this.closedLimit))
+					.addOrCondition('resolved_at', '>=', gs.daysAgo(this.closedLimit));
+				break;
+		}
+	},
+
+
+	getApproval: function(sys_id) {
+		var gr = new GlideRecord('sysapproval_approver');
+
+		if (gr.get(sys_id)) {
+			var task = this.getRecordBeingApproved(gr);
+			if (!task.isValidRecord())
+				return null;
+
+			return this.getApprovalVariables(gr, task);
+		}
+
+		return null;
+	},
+
+
+	getApprovals: function() {
+		var approvals = [];
+
+		var gr = new GlideRecord('sysapproval_approver');
+		this.includeApprovalsQuery(gr);
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		gr.orderByDesc('sys_updated_on');
+		gr.query();
+
+		while (gr.next()) {
+			var task = this.getRecordBeingApproved(gr);
+			if (!task.isValidRecord())
+				continue;
+
+			approvals.push(this.getApprovalVariables(gr, task));
+		}
+
+		return approvals;
+	},
+
+
+	getApprovalVariables: function(gr, task) {
+		var variables = {
+			id: gr.getUniqueValue(),
+			approver: gr.getDisplayValue('approver'),
+			requester: gr.getDisplayValue('manager'),
+			description: task.getDisplayValue('short_description'),
+			href: '?id='+this.pages.approval+'&sys_id=' + gr.getUniqueValue(),
+			icon: 'playlist_add_check',
+			items: this.getItemsForApproval(task.getValue('sys_class_name'), task.getValue('sys_id')),
+			number: task.getValue('number'),
+			opened: gr.getDisplayValue('sys_created_on'),
+			openedUTC: gr.getValue('sys_created_on'),
+			ownership: this.getLabel('assigned_to_me'),
+			state: gr.getValue('state') == 'requested' ? this.getLabel('awaiting_my_input') : gr.getDisplayValue('state'),
+			table: 'sysapproval_approver',
+			type: gs.getMessage('wow_approval'),
+			updated: gr.getDisplayValue('sys_updated_on'),
+			updatedUTC: gr.getValue('sys_updated_on')
+		};
+
+		// if we don't have a good description and just the one item to approve, try and get that desription or product
+		if (!variables.description && variables.items.length == 1)
+			variables.description = variables.items[0].description || variables.items[0].product;
+
+		// if all else fails get display value for the task
+		if (!variables.description)
+			variables.description = task.getDisplayValue();
+
+		return variables;
+	},
+
+
+	getApprovalsCount: function() {
+		var gr = new GlideAggregate('sysapproval_approver');
+		this.includeApprovalsQuery(gr);
+		gr.addAggregate('COUNT');
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		gr.query();
+
+		if (gr.next())
+			return parseInt(gr.getAggregate('COUNT'));
+
+		return 0;
+	},
+
+
+	includeApprovalsQuery: function(gr) {
+		gr.addQuery('state', 'requested');
+
+		if (this.supportedApprovals.length > 0) {
+			gr.addQuery('sysapproval.sys_class_name', 'IN', this.supportedApprovals)
+				.addOrCondition('document_id.sys_class_name', 'IN', this.supportedApprovals);
+		}
+
+		if (this.delegations.length > 0) {
+			gr.addQuery('approver', 'IN', this.delegations)
+				.addOrCondition('approver', this.userId);
+		}
+
+		else
+			gr.addQuery('approver', this.userId);
+
+		if (this.filteredIds.length > 0) {
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+		}
+
+		if (this.searchTerm) {
+			gr.addQuery('sysapproval.number', 'CONTAINS', this.searchTerm)
+				.addOrCondition('sysapproval.short_description', 'CONTAINS', this.searchTerm);
+		}
+	},
+
+
+	getRecordBeingApproved: function(gr) {
+		if (!gr.sysapproval.nil())
+			return gr.sysapproval.getRefRecord();
+		else
+			return gr.document_id.getRefRecord();
+	},
+
+
+	getItemsForApproval: function(table, sys_id) {
+		var items = [];
+		var gr;
+
+		switch (table) {
+			case 'sc_request':
+				gr = new GlideRecord('sc_req_item');
+				gr.addQuery('request', sys_id);
+				break;
+
+			default:
+				gr = new GlideRecord(table);
+				gr.addQuery('sys_id', sys_id);
+				break;
+		}
+
+		gr.query();
+
+		while (gr.next()) {
+			items.push({
+				id: gr.getUniqueValue(),
+				backoutPlan: gr.getDisplayValue('backout_plan'),
+				description: gr.getDisplayValue('description'),
+				dueDate: gr.getDisplayValue('due_date'),
+				startDate: gr.getDisplayValue('start_date'),
+				endDate: gr.getDisplayValue('end_date'),
+				expectedStart: gr.getDisplayValue('expected_start'),
+				impact: gr.getDisplayValue('impact'),
+				implementationPlan: gr.getDisplayValue('implementation_plan'),
+				justification: gr.getDisplayValue('justification'),
+				number: gr.getDisplayValue('number'),
+				opened: gr.getDisplayValue('opened_at'),
+				price: gr.getDisplayValue('price'),
+				priority: gr.getDisplayValue('priority'),
+				product: gr.getDisplayValue('cat_item') || gr.getDisplayValue('cmdb_ci'),
+				quantity: gr.getValue('quantity'),
+				requestNumber: gr.getDisplayValue('request'),
+				requestor: gr.getDisplayValue('requested_by') || gr.getDisplayValue('opened_by'),
+				risk: gr.getDisplayValue('risk'),
+				riskAssessment: gr.getDisplayValue('risk_impact_analysis'),
+				shortDescription: gr.getDisplayValue('short_description'),
+				state: gr.getDisplayValue('state'),
+				urgency: gr.getDisplayValue('urgency'),
+				variables: $sp.getRecordVariablesArray(gr)
+			});
+		}
+
+		return items;
+	},
+
+
+	getTask: function(table, sys_id) {
+		table = table || 'task';
+
+		var gr = new GlideRecord(table);
+
+		if (gr.get(sys_id)) {
+			return this.getTaskVariables(gr);
+		}
+
+		return null;
+	},
+
+
+	getTasks: function(table, filters) {
+		table = table || 'task';
+
+		var tasks = [];
+
+		var gr = new GlideRecord(table);
+		this.includeTasksQuery(gr);
+
+		if (filters && filters.length > 0) {
+			filters.forEach(function(filter) {
+				gr.addQuery(filter.field, filter.operator || '=', filter.value);
+			});
+		}
+
+		if (this.queryLimit)
+			gr.setLimit(this.queryLimit);
+
+		// sort by
+		switch(this.sortBy) {
+			case 'atoz':
+				gr.orderBy('short_description');
+				break;
+
+			case 'ztoa':
+				gr.orderByDesc('short_description');
+				break;
+
+			default:
+				gr.orderByDesc('sys_updated_on');
+				break;
+		}
+
+		gr.query();
+
+		while (gr.next()) {
+			tasks.push(this.getTaskVariables(gr));
+		}
+
+		return tasks;
+	},
+
+
+	getTaskVariables: function(gr) {
+		return {
+			id: gr.getUniqueValue(),
+			assignedTo: gr.getDisplayValue('assigned_to'),
+			assignmentGroup: gr.getDisplayValue('assignment_group'),
+			description: gr.getDisplayValue('short_description') || gr.getValue('number'),
+			href: '?id='+this.pages.task+'&table='+gr.getValue('sys_class_name')+'&sys_id=' + gr.getUniqueValue(),
+			icon: 'receipt',
+			impact: gr.getDisplayValue('impact'),
+			number: gr.getDisplayValue('number'),
+			opened: gr.getDisplayValue('opened_at'),
+			openedUTC: gr.getValue('opened_at'),
+			state: this.getTaskState(gr),
+			table: gr.getValue('sys_class_name'),
+			teamManager: gr.getDisplayValue('assignment_group.manager'),
+			type: this.getTaskType(gr),
+			updated: gr.getDisplayValue('sys_updated_on'),
+			updatedUTC: gr.getValue('sys_updated_on'),
+			variables: $sp.getRecordVariablesArray(gr)
+		};
+	},
+
+
+	getTaskState: function(gr) {
+		if (this.taskStates.awaitingUser.indexOf(gr.getValue('state')) > -1)
+			return this.getLabel('awaiting_my_input');
+
+		if (gr.getValue('active') == false)
+			return this.getLabel('closed');
+
+		return this.getLabel('open');
+	},
+
+
+	includeTasksQuery: function(gr) {
+		gr.addQuery('opened_by', this.userId)
+			.addOrCondition('opened_for', this.userId);
+
+		if (this.filteredIds.length) {
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+		}
+
+		if (this.searchTerm) {
+			gr.addQuery('short_description', 'CONTAINS', this.searchTerm)
+				.addOrCondition('number', 'CONTAINS', this.searchTerm);
+		}
+
+		switch (this.filter) {
+			case 'awaiting_user':
+				gr.addQuery('active', true);
+				gr.addQuery('state', 'IN', this.taskStates.awaitingUser);
+				break;
+
+			default:
+				gr.addQuery('active', true)
+					.addOrCondition('closed_at', '>=', gs.daysAgo(this.closedLimit));
+				break;
+		}
+	},
+
+
+	getDelegations: function() {
+		var delegations = [];
+
+		var gr = new GlideRecord('sys_user_delegate');
+		gr.addQuery('delegate', this.userId);
+		gr.addQuery('approvals', true);
+		gr.addEncodedQuery('starts<=javascript:gs.endOfCurrentMinute()^ends>=javascript:gs.beginningOfCurrentMinute()');
+		gr.query();
+
+		while (gr.next())
+			delegations.push(gr.getValue('user'));
+
+		return delegations;
+	},
+
+
+	getTaskType: function(gr) {
+		switch (gr.getValue('sys_class_name')) {
+			case 'change_request':
+				return gs.getMessage('wow_change_request');
+
+			case 'hr_case':
+				return gs.getMessage('wow_hr_case');
+
+			case 'incident':
+				return gs.getMessage('wow_incident');
+
+			case 'sc_request':
+			case 'sc_req_item':
+				return gs.getMessage('wow_request');
+		}
+
+		return gs.getMessage('wow_task');
+	},
+
+
+	getLabel: function(key) {
+		return this.labels[key];
+	},
+
+
+	approve: function(sys_id, comments) {
+		var gr = new GlideRecord('sysapproval_approver');
+
+		if (gr.get(sys_id)) {
+			gr.state = 'approved';
+
+			if (comments)
+				gr.comments = comments;
+
+			return gr.update();
+		}
+
+		return false;
+	},
+
+
+	reject: function(sys_id, comments) {
+		var gr = new GlideRecord('sysapproval_approver');
+
+		if (gr.get(sys_id)) {
+			gr.state = 'rejected';
+
+			if (comments)
+				gr.comments = comments;
+
+			return gr.update();
+		}
+
+		return false;
+	},
+
+
+	type: 'WowTickets'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-25 08:49:40</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e54d2545dbefd78087e2f3de3b961960</sys_id>
+        <sys_mod_count>177</sys_mod_count>
+        <sys_name>WowTickets</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_e54d2545dbefd78087e2f3de3b961960</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-18 16:04:23</sys_updated_on>
+    </sys_script_include>
+</record_update>

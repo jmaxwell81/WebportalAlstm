@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope) {
+	var c = this;
+
+	if (c.options.translucentTiles) {
+		c.data.grid.forEach(function(item) {
+			var color = item.backgroundColor.trim();
+			// if is hex
+			if (color.indexOf('#') == 0) {
+				var rgb = hexToRgb(color);
+				item.backgroundColor = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.8)';
+			}
+		});
+	}
+
+	$scope.grid = c.data.grid;
+
+	function hexToRgb(hex) {
+		var result;
+		if (hex.length == 7)
+			result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		else if (hex.length == 4)
+			result = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.wow-content-grid {
+  box-shadow: $panel-shadow;
+  display: flex;
+  flex-wrap: wrap;
+  background: $test;
+}
+
+.box-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  @media screen and (min-width: $screen-md-min) {
+    width: 50%;
+  }
+}
+
+.four-box, .two-box, .one-box {
+  background-color: transparent; // default
+  padding: 2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  .title {
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: .5rem;
+  }
+}
+
+.four-box {
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(to bottom right, rgba(0,0,0,0), rgba(0,0,0,0.1));
+
+  @media screen and (min-width: $screen-sm-min) {
+    min-height: 450px;
+  }
+
+  .title {
+    font-size: 2.5rem;
+    color: $white;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: $white;
+    opacity: 0.75;
+  }
+
+  .image-wrapper {
+    height: 60%;
+
+    @media screen and (max-width: $screen-md-min) {
+      height: 10rem;
+    }
+
+    i {
+      @media screen and (min-width: $screen-md-min) {
+        font-size: 16rem;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 50% 100%;
+      transition: transform .15s ease-in;
+    }
+
+    .image-wrapper {
+      transform-origin: 50% 0%;
+      transition: transform .15s ease-in;
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateY(-2.5%);;
+      }
+
+      .image-wrapper {
+        transform: scale(1.025);
+      }
+    }
+  }
+}
+
+.two-box {
+  width: 100%;
+  height: 50%;
+
+  .title {
+    font-size: 2rem;
+    color: $white;
+
+    @media screen and (min-width: $screen-lg-min) {
+      font-size: 2rem;
+    }
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $white;
+    opacity: 0.75;
+
+    @media screen and (min-width: $screen-lg-min) {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 0% 50%;
+      transition: transform .15s ease-in;
+    }
+
+    .floating-image {
+      transform-origin: 50% 100%;
+      transition: transform .15s ease-in;
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateX(1%);;
+      }
+
+      .floating-image {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.one-box {
+  width: 100%;
+
+  @media screen and (min-width: $screen-xs-min) {
+    width: 50%;
+    height: 50%;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    color: $white;
+
+    @media screen and (min-width: $screen-xs-min) {
+      font-size: 1.3rem;
+    }
+  }
+
+  .subtitle {
+    font-size: .9rem;
+    font-weight: 700;
+    color: $white;
+    opacity: 0.75;
+
+    @media screen and (min-width: $screen-xs-min) {
+      font-size: 1rem;
+    }
+  }
+
+  .image-wrapper {
+    height: 50%;
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 50% 0%;
+      transition: transform .15s ease-in;
+    }
+
+    .image-wrapper {
+      transform-origin: 50% 100%;
+      transition: transform .15s ease-in;
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateY(10%);;
+      }
+
+      .image-wrapper {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.text-wrapper {
+  margin: 1rem 0;
+
+  @media screen and (min-width: $screen-xs-min) {
+    margin: 1.5rem 0;
+  }
+}
+
+.image-wrapper {
+  width: 100%;
+  margin-top: 1rem;
+
+  .image {
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 100%;
+    width: 100%;
+
+    @media screen and (max-width: $screen-md-min) {
+      //height: 0;
+    }
+  }
+
+  i {
+    color: $white;
+    font-size: 4rem;
+
+    @media screen and (min-width: $screen-xs-min) {
+      font-size: 6rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      font-size: 8rem;
+    }
+  }
+}
+
+
+/* specific boxes */
+
+.two-box {
+  flex-direction: row;
+  justify-content: left;
+  text-align: left;
+  z-index: 1;
+
+  .floating-image {
+    background-position: 100% 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    i {
+      margin-right: 15%;
+
+      @media screen and (max-width: $screen-xs-max) {
+        font-size: 8rem;
+      }
+
+      @media screen and (min-width: $screen-sm-min) {
+        font-size: 12rem;
+      }
+    }
+  }
+
+  .text-wrapper {
+    padding: 6rem 1rem;
+    padding-right: 50%;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    .title {
+      font-size: 1.2rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+    }
+
+    .text-wrapper {
+      padding: 0rem;
+      padding-right: 50%;
+    }
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-links-grid</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Wow Links Grid</name>
+        <option_schema>[{"displayValue":"Instance with Menu","name":"menu","section":"other","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}},{"name":"enableAnimations","section":"other","label":"Enable hover animations","type":"boolean"},{"name":"translucentTiles","section":"other","label":"\"Glassy\" tiles","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+
+	options.enableAnimations = options.enableAnimations == 'true';
+	options.translucentTiles = options.translucentTiles == 'true';
+
+	data.grid = util.getMenuItems(options.menu || null);
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-05-03 09:57:45</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>b640de73db81b74016a5f40b0c96197a</sys_id>
+        <sys_mod_count>8</sys_mod_count>
+        <sys_name>Wow Links Grid</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_b640de73db81b74016a5f40b0c96197a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-10 12:02:24</sys_updated_on>
+        <template><![CDATA[<section class="wow-content-grid">
+  <div class="box-wrapper">
+
+    <a href="{{grid[0].href}}" target="{{grid[0].target}}" class="four-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[0].backgroundColor}">
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[0].textColor}">{{grid[0].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[0].textColor}" ng-bind-html="grid[0].shortDescription"></div>
+      </div>
+      <div ng-if="grid[0].image || grid[0].icon" class="image-wrapper">
+        <div ng-if="grid[0].image" ng-style="{'background-image': 'url('+grid[0].image+')'}" class="image"></div>
+        <i ng-if="!grid[0].image && grid[0].icon" ng-style="{'color': grid[0].iconColor}" class="material-icons">{{grid[0].icon}}</i>
+      </div>
+    </a>
+
+  </div>
+  <div class="box-wrapper">
+
+    <a href="{{grid[1].href}}" target="{{grid[1].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[1].backgroundColor}">
+      <div ng-if="grid[1].image || grid[1].icon" class="image-wrapper">
+        <div ng-if="grid[1].image" ng-style="{'background-image': 'url('+grid[1].image+')'}" class="image"></div>
+        <i ng-if="!grid[1].image && grid[1].icon" ng-style="{'color': grid[1].iconColor}" class="material-icons">{{grid[1].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[1].textColor}">{{grid[1].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[1].textColor}">{{grid[1].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[2].href}}" target="{{grid[2].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[2].backgroundColor}">
+      <div ng-if="grid[2].image || grid[2].icon" class="image-wrapper">
+        <div ng-if="grid[2].image" ng-style="{'background-image': 'url('+grid[2].image+')'}" class="image"></div>
+        <i ng-if="!grid[2].image && grid[2].icon" ng-style="{'color': grid[2].iconColor}" class="material-icons">{{grid[2].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[2].textColor}">{{grid[2].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[2].textColor}">{{grid[2].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[3].href}}" target="{{grid[3].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[3].backgroundColor}">
+      <div ng-if="grid[3].image || grid[3].icon" class="image-wrapper">
+        <div ng-if="grid[3].image" ng-style="{'background-image': 'url('+grid[3].image+')'}" class="image"></div>
+        <i ng-if="!grid[3].image && grid[3].icon" ng-style="{'color': grid[3].iconColor}" class="material-icons">{{grid[3].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[3].textColor}">{{grid[3].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[3].textColor}">{{grid[3].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[4].href}}" target="{{grid[4].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[4].backgroundColor}">
+      <div ng-if="grid[4].image || grid[4].icon" class="image-wrapper">
+        <div ng-if="grid[4].image" ng-style="{'background-image': 'url('+grid[4].image+')'}" class="image"></div>
+        <i ng-if="!grid[4].image && grid[4].icon" ng-style="{'color': grid[4].iconColor}" class="material-icons">{{grid[4].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[4].textColor}">{{grid[4].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[4].textColor}">{{grid[4].shortDescription}}</div>
+      </div>
+    </a>
+
+  </div>
+  <div class="box-wrapper">
+
+    <a href="{{grid[5].href}}" target="{{grid[5].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[5].backgroundColor}">
+      <div ng-if="grid[5].image || grid[5].icon" class="image-wrapper">
+        <div ng-if="grid[5].image" ng-style="{'background-image': 'url('+grid[5].image+')'}" class="image"></div>
+        <i ng-if="!grid[5].image && grid[5].icon" ng-style="{'color': grid[5].iconColor}" class="material-icons">{{grid[5].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[5].textColor}">{{grid[5].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[5].textColor}">{{grid[5].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[6].href}}" target="{{grid[6].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[6].backgroundColor}">
+      <div ng-if="grid[6].image || grid[6].icon" class="image-wrapper">
+        <div ng-if="grid[6].image" ng-style="{'background-image': 'url('+grid[6].image+')'}" class="image"></div>
+        <i ng-if="!grid[6].image && grid[6].icon" ng-style="{'color': grid[6].iconColor}" class="material-icons">{{grid[6].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[6].textColor}">{{grid[6].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[6].textColor}">{{grid[6].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[7].href}}" target="{{grid[7].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[7].backgroundColor}">
+      <div ng-if="grid[7].image || grid[7].icon" class="image-wrapper">
+        <div ng-if="grid[7].image" ng-style="{'background-image': 'url('+grid[7].image+')'}" class="image"></div>
+        <i ng-if="!grid[7].image && grid[7].icon" ng-style="{'color': grid[7].iconColor}" class="material-icons">{{grid[7].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[7].textColor}">{{grid[7].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[7].textColor}">{{grid[7].shortDescription}}</div>
+      </div>
+    </a>
+
+    <a href="{{grid[8].href}}" target="{{grid[8].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[8].backgroundColor}">
+      <div ng-if="grid[8].image || grid[8].icon" class="image-wrapper">
+        <div ng-if="grid[8].image" ng-style="{'background-image': 'url('+grid[8].image+')'}" class="image"></div>
+        <i ng-if="!grid[8].image && grid[8].icon" ng-style="{'color': grid[8].iconColor}" class="material-icons">{{grid[8].icon}}</i>
+      </div>
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[8].textColor}">{{grid[8].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[8].textColor}">{{grid[8].shortDescription}}</div>
+      </div>
+    </a>
+
+  </div>
+  <div class="box-wrapper">
+
+    <a href="{{grid[9].href}}" target="{{grid[9].target}}" class="four-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[9].backgroundColor}">
+      <div class="text-wrapper">
+        <div class="title" ng-style="{'color': grid[9].textColor}">{{grid[9].title}}</div>
+        <div class="subtitle" ng-style="{'color': grid[9].textColor}" ng-bind-html="grid[9].shortDescription"></div>
+      </div>
+      <div ng-if="grid[9].image || grid[9].icon" class="image-wrapper">
+        <div ng-if="grid[9].image" ng-style="{'background-image': 'url('+grid[9].image+')'}" class="image"></div>
+        <i ng-if="!grid[9].image && grid[9].icon" ng-style="{'color': grid[9].iconColor}" class="material-icons">{{grid[9].icon}}</i>
+      </div>
+    </a>
+
+  </div>
+</section>]]></template>
+    </sp_widget>
+</record_update>

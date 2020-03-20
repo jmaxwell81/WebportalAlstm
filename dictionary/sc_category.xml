@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="text_index_translations=true,synch_attachments=true,update_synch=true" audit="false" extends="sys_metadata" label="Categoria" max_length="40" name="sc_category" text_index="true" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Wow Icon" max_length="32" name="x_mono2_wow_icon" reference="x_mono2_wow_icon" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Icon color" max_length="32" name="x_mono2_wow_icon_color" reference="x_mono2_wow_color" type="reference"/>
+        <index name="index">
+            <element name="x_mono2_wow_icon_color"/>
+        </index>
+        <index name="index2">
+            <element name="x_mono2_wow_icon"/>
+        </index>
+    </element>
+</database>

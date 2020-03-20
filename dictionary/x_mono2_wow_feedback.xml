@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element audit="false" label="Wow Feedback" max_length="40" name="x_mono2_wow_feedback" type="collection">
+        <element audit="false" label="Comments" max_length="4000" name="comments" type="string"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Rating" max_length="40" name="rating" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="User" mandatory="true" max_length="32" name="user" reference="sys_user" type="reference"/>
+        <index name="index">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

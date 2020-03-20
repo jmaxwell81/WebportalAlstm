@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="x_mono2_wow_icon" version="2" view="sys_ref_list">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>label</element>
+            <list_id display_value="x_mono2_wow_icon" element="NULL" name="x_mono2_wow_icon" parent="NULL" relationship="NULL" sys_domain="global" view="25d5bd6c614b10000a4f78d2860403b8">4b44bdbedb87f300b62a80e239961906</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-08-07 15:27:04</sys_created_on>
+            <sys_id>0b44bdbedb87f300b62a80e239961908</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-08-07 15:27:04</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_mono2_wow_icon</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-08-07 15:27:04</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>4b44bdbedb87f300b62a80e239961906</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_mono2_wow_icon</sys_name>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_list_x_mono2_wow_icon_sys_ref_list</sys_update_name>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-08-07 15:27:04</sys_updated_on>
+            <sys_user/>
+            <view display_value="Reference List" name="sys_ref_list">25d5bd6c614b10000a4f78d2860403b8</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

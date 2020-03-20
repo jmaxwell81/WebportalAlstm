@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="Wow Flags" max_length="40" name="x_mono2_wow_flag" type="collection">
+        <element audit="false" display="true" label="Country code (ISO 3166-1 Alpha-2)" mandatory="true" max_length="2" name="country_code_alpha2" type="string"/>
+        <element attributes="edge_encryption_enabled=true,pdf_cell_type=image" audit="false" label="Flag" max_length="40" name="flag" type="user_image"/>
+    </element>
+</database>

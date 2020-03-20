@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance_menu">
+    <sp_instance_menu action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>1</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column/>
+        <sp_widget display_value="Wow Footer">5f1ed777db479b4087e2f3de3b9619a8</sp_widget>
+        <sys_class_name>sp_instance_menu</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-24 19:09:57</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>c5b4327cdbe7d78087e2f3de3b96195b</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Wow Footer Menu</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_menu_c5b4327cdbe7d78087e2f3de3b96195b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-05 14:55:04</sys_updated_on>
+        <title>Wow Footer Menu</title>
+        <url/>
+        <widget_parameters/>
+    </sp_instance_menu>
+    <sys_translated_text action="delete_multiple" query="documentkey=c5b4327cdbe7d78087e2f3de3b96195b"/>
+</record_update>

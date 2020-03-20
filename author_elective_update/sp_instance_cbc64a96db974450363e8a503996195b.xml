@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="DELETE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>4</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">4f1bef78db84bb0016a5f40b0c961925</sp_column>
+        <sp_widget display_value="Wow Assets">d80b485edbf35b00ec3ab9836b9619f6</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 09:57:48</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>cbc64a96db974450363e8a503996195b</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_cbc64a96db974450363e8a503996195b</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:31:28</sys_updated_on>
+        <title/>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"title": {
+		"value": "",
+		"displayValue": ""
+	},
+	"menu": {
+		"value": "d2685741dbbf93c087e2f3de3b961931",
+		"displayValue": "Wow \"My Area\""
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="DELETE" query="documentkey=cbc64a96db974450363e8a503996195b"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_instance_cbc64a96db974450363e8a503996195b</name>
+        <order/>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sp_instance"&gt;&lt;sp_instance action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;class_name/&gt;&lt;color&gt;default&lt;/color&gt;&lt;css/&gt;&lt;glyph/&gt;&lt;id/&gt;&lt;order&gt;4&lt;/order&gt;&lt;roles/&gt;&lt;short_description/&gt;&lt;size&gt;md&lt;/size&gt;&lt;sp_column display_value="1"&gt;4f1bef78db84bb0016a5f40b0c961925&lt;/sp_column&gt;&lt;sp_widget display_value="Wow Assets"&gt;d80b485edbf35b00ec3ab9836b9619f6&lt;/sp_widget&gt;&lt;sys_class_name&gt;sp_instance&lt;/sys_class_name&gt;&lt;sys_created_by&gt;DI&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2020-03-04 09:57:48&lt;/sys_created_on&gt;&lt;sys_customer_update&gt;false&lt;/sys_customer_update&gt;&lt;sys_id&gt;cbc64a96db974450363e8a503996195b&lt;/sys_id&gt;&lt;sys_mod_count&gt;3&lt;/sys_mod_count&gt;&lt;sys_name/&gt;&lt;sys_package display_value="Wow Portal" source="x_mono2_wow"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_replace_on_upgrade&gt;false&lt;/sys_replace_on_upgrade&gt;&lt;sys_scope display_value="Wow Portal"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_scope&gt;&lt;sys_update_name&gt;sp_instance_cbc64a96db974450363e8a503996195b&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;DI&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2020-03-04 13:31:28&lt;/sys_updated_on&gt;&lt;title/&gt;&lt;url/&gt;&lt;widget_parameters&gt;&lt;![CDATA[{
+	"title": {
+		"value": "",
+		"displayValue": ""
+	},
+	"menu": {
+		"value": "d2685741dbbf93c087e2f3de3b961931",
+		"displayValue": "Wow \"My Area\""
+	}
+}]]&gt;&lt;/widget_parameters&gt;&lt;/sp_instance&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=cbc64a96db974450363e8a503996195b"/&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>322947063</payload_hash>
+        <record_name/>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:31:28</sys_created_on>
+        <sys_id>c1b7badedb578450363e8a503996194d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170a5be794c0000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:31:28</sys_updated_on>
+        <type>Instance</type>
+        <update_guid>81b7bade2757845036a80c3d08165e4c</update_guid>
+        <update_guid_history>81b7bade2757845036a80c3d08165e4c:322947063,5aa77ade6b5784502d072045dea2f569:-189622824,fe6cc692a2d74450e1a2bb574a30fc7c:-702192711,43c68e96919744506d88afd4c68748c3:-1715901323</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-04 19:12:43">3d4a7ed2db978450363e8a50399619c0</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:42:43</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_instance">sp_instance</sys_db_object>
+        <sys_id>8f4a628ae42146a298788211bedb9c91</sys_id>
+        <sys_metadata>cbc64a96db974450363e8a503996195b</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_instance_cbc64a96db974450363e8a503996195b</sys_update_name>
+        <sys_update_version display_value="sp_instance_cbc64a96db974450363e8a503996195b">c1b7badedb578450363e8a503996194d</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:42:43</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

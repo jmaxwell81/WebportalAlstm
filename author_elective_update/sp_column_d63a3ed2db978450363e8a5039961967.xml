@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_column">
+    <sp_column action="DELETE">
+        <class_name/>
+        <order>4</order>
+        <size>3</size>
+        <size_lg/>
+        <size_sm/>
+        <size_xs/>
+        <sp_row display_value="1">963ab2d2db978450363e8a5039961900</sp_row>
+        <sys_class_name>sp_column</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:42:29</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>d63a3ed2db978450363e8a5039961967</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>4</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_column_d63a3ed2db978450363e8a5039961967</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:42:29</sys_updated_on>
+    </sp_column>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_column_d63a3ed2db978450363e8a5039961967</name>
+        <order/>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_column"><sp_column action="INSERT_OR_UPDATE"><class_name/><order>4</order><size>3</size><size_lg/><size_sm/><size_xs/><sp_row display_value="1">963ab2d2db978450363e8a5039961900</sp_row><sys_class_name>sp_column</sys_class_name><sys_created_by>DI</sys_created_by><sys_created_on>2020-03-04 13:42:29</sys_created_on><sys_customer_update>false</sys_customer_update><sys_id>d63a3ed2db978450363e8a5039961967</sys_id><sys_mod_count>0</sys_mod_count><sys_name>4</sys_name><sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package><sys_policy/><sys_replace_on_upgrade>false</sys_replace_on_upgrade><sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope><sys_update_name>sp_column_d63a3ed2db978450363e8a5039961967</sys_update_name><sys_updated_by>DI</sys_updated_by><sys_updated_on>2020-03-04 13:42:29</sys_updated_on></sp_column></record_update>]]></payload>
+        <payload_hash>-2091197662</payload_hash>
+        <record_name>4</record_name>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:42:29</sys_created_on>
+        <sys_id>963a3ed2db978450363e8a5039961969</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170a5c88ed20000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:42:29</sys_updated_on>
+        <type>Column</type>
+        <update_guid>563a3ed28597845056c82871012b5a68</update_guid>
+        <update_guid_history>563a3ed28597845056c82871012b5a68:-2091197662</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-04 19:12:42">6d4a7ed2db978450363e8a50399619a1</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:42:42</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_column">sp_column</sys_db_object>
+        <sys_id>02e7c6a11778474c848e5c625919cf90</sys_id>
+        <sys_metadata>d63a3ed2db978450363e8a5039961967</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>4</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_column_d63a3ed2db978450363e8a5039961967</sys_update_name>
+        <sys_update_version display_value="sp_column_d63a3ed2db978450363e8a5039961967">963a3ed2db978450363e8a5039961969</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:42:42</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

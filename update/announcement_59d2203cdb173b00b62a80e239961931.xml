@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement">
+    <announcement action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <click_target/>
+        <details/>
+        <details_link_text/>
+        <details_page/>
+        <details_url/>
+        <dismiss_options>not_dismissible</dismiss_options>
+        <display_first>false</display_first>
+        <display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style>
+        <from>2019-08-13 14:39:21</from>
+        <glyph/>
+        <glyph_alt_text/>
+        <name>Testing non-dismissable announcements</name>
+        <public>true</public>
+        <roles/>
+        <summary/>
+        <sys_class_name>announcement</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-13 14:39:45</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>59d2203cdb173b00b62a80e239961931</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Testing non-dismissable announcements</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>announcement_59d2203cdb173b00b62a80e239961931</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-13 15:14:55</sys_updated_on>
+        <title>Testing non-dismissable announcements</title>
+        <to/>
+        <type>13c3ec74db78a74016a5f40b0c9619e9</type>
+        <x_mono2_wow_document/>
+        <x_mono2_wow_document_table/>
+        <x_mono2_wow_knowledge_article/>
+        <x_mono2_wow_urgency/>
+    </announcement>
+    <sys_translated_text action="delete_multiple" query="documentkey=59d2203cdb173b00b62a80e239961931"/>
+</record_update>

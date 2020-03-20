@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance_table">
+    <sp_instance_table action="DELETE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <display_field/>
+        <field_list>asset_tag,serial_number,assigned_to,u_asset_owner,location,u_subcategory,u_product_name,u_support_vendor,install_status,substatus,u_user_validated</field_list>
+        <filter table="alm_hardware">assigned_to.managerDYNAMIC90d1921e5f510100a9ad2572f2b477fe^install_status=1^u_category=End User Asset^substatus=Functional^EQ<item endquery="false" field="assigned_to.manager" goto="false" newquery="false" operator="DYNAMIC" or="false" value="90d1921e5f510100a9ad2572f2b477fe"/>
+            <item display_value="Deployed" endquery="false" field="install_status" goto="false" newquery="false" operator="=" or="false" value="1"/>
+            <item display_value="End User Asset" endquery="false" field="u_category" goto="false" newquery="false" operator="=" or="false" value="End User Asset"/>
+            <item display_value="Functional" endquery="false" field="substatus" goto="false" newquery="false" operator="=" or="false" value="Functional"/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </filter>
+        <glyph/>
+        <id/>
+        <maximum_entries>3</maximum_entries>
+        <order>2</order>
+        <order_by/>
+        <order_direction>asc</order_direction>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">4f1bef78db84bb0016a5f40b0c961925</sp_column>
+        <sp_page display_value="my_asset">1e2001e9dbecab809a88b1b2399619da</sp_page>
+        <sp_widget display_value="AT Asset Owner Data Table Instance Def">c158e99cdb85bf805900fd161d961993</sp_widget>
+        <sys_class_name>sp_instance_table</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:31:16</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>0ea7b6dedb578450363e8a503996195b</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Assets owned by my Team members</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_table_0ea7b6dedb578450363e8a503996195b</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:39:36</sys_updated_on>
+        <table>alm_hardware</table>
+        <title>Assets owned by my Team members</title>
+        <url/>
+        <widget_parameters/>
+    </sp_instance_table>
+    <sys_translated_text action="DELETE" query="documentkey=0ea7b6dedb578450363e8a503996195b"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_instance_table_0ea7b6dedb578450363e8a503996195b</name>
+        <order/>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance_table"><sp_instance_table action="INSERT_OR_UPDATE"><active>true</active><class_name/><color>default</color><css/><display_field/><field_list>asset_tag,serial_number,assigned_to,u_asset_owner,location,u_subcategory,u_product_name,u_support_vendor,install_status,substatus,u_user_validated</field_list><filter table="alm_hardware">assigned_to.managerDYNAMIC90d1921e5f510100a9ad2572f2b477fe^install_status=1^u_category=End User Asset^substatus=Functional^EQ<item endquery="false" field="assigned_to.manager" goto="false" newquery="false" operator="DYNAMIC" or="false" value="90d1921e5f510100a9ad2572f2b477fe"/><item display_value="Deployed" endquery="false" field="install_status" goto="false" newquery="false" operator="=" or="false" value="1"/><item display_value="End User Asset" endquery="false" field="u_category" goto="false" newquery="false" operator="=" or="false" value="End User Asset"/><item display_value="Functional" endquery="false" field="substatus" goto="false" newquery="false" operator="=" or="false" value="Functional"/><item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/></filter><glyph/><id/><maximum_entries>3</maximum_entries><order>2</order><order_by/><order_direction>asc</order_direction><roles/><short_description/><size>md</size><sp_column display_value="1">4f1bef78db84bb0016a5f40b0c961925</sp_column><sp_page display_value="my_asset">1e2001e9dbecab809a88b1b2399619da</sp_page><sp_widget display_value="AT Asset Owner Data Table Instance Def">c158e99cdb85bf805900fd161d961993</sp_widget><sys_class_name>sp_instance_table</sys_class_name><sys_created_by>DI</sys_created_by><sys_created_on>2020-03-04 13:31:16</sys_created_on><sys_customer_update>false</sys_customer_update><sys_id>0ea7b6dedb578450363e8a503996195b</sys_id><sys_mod_count>1</sys_mod_count><sys_name>Assets owned by my Team members</sys_name><sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package><sys_policy/><sys_replace_on_upgrade>false</sys_replace_on_upgrade><sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope><sys_update_name>sp_instance_table_0ea7b6dedb578450363e8a503996195b</sys_update_name><sys_updated_by>DI</sys_updated_by><sys_updated_on>2020-03-04 13:39:36</sys_updated_on><table>alm_hardware</table><title>Assets owned by my Team members</title><url/><widget_parameters/></sp_instance_table><sys_translated_text action="delete_multiple" query="documentkey=0ea7b6dedb578450363e8a503996195b"/></record_update>]]></payload>
+        <payload_hash>-1713611391</payload_hash>
+        <record_name>Assets owned by my Team members</record_name>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:39:36</sys_created_on>
+        <sys_id>5c99fa92db978450363e8a5039961971</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170a5c5ec4f0000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:39:36</sys_updated_on>
+        <type>Instance with Table</type>
+        <update_guid>50997e1211978450713de7f3835eb91e</update_guid>
+        <update_guid_history>50997e1211978450713de7f3835eb91e:-1713611391,5aa7b6deda57845047f54d133762855e:2070909614</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-04 19:12:43">b14a7ed2db978450363e8a50399619af</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-04 13:42:43</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_instance_table">sp_instance_table</sys_db_object>
+        <sys_id>3c05a4c9c6c943a8911b933d22468310</sys_id>
+        <sys_metadata>0ea7b6dedb578450363e8a503996195b</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Assets owned by my Team members</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_instance_table_0ea7b6dedb578450363e8a503996195b</sys_update_name>
+        <sys_update_version display_value="sp_instance_table_0ea7b6dedb578450363e8a503996195b">5c99fa92db978450363e8a5039961971</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-04 13:42:43</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

@@ -1,0 +1,2636 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope, $timeout, $window, $location, spPreference, WowFilterService) {
+	var c = this;
+	var timeout;
+
+	$scope.categories = c.data.categories;
+	$scope.subcategories = null;
+	$scope.tags = c.data.tags;
+	$scope.pagedIds = []; // used to track pages
+
+	if ($scope.categories.length > 0)
+		$scope.layout = c.data.preferredLayout || 'list'; // get user preference
+
+	else
+		$scope.layout = 'grid'; // if we have no categories, always use grid layout
+
+	$scope.showPreviews = c.options.showPreviews;
+
+	// if we've got a hash, restore the state
+	if ($location.hash())
+		timeout = $timeout(restoreState, 0);
+
+	// this is an override of the spSCNavStateManager listener that prevents item hash changes, will need optimisation
+	$scope.$on('spModel.gForm.initialized', function(e, gform) {
+		var locationListeners = $rootScope.$$listeners['$locationChangeStart'];
+		for (var i in locationListeners) {
+			var functionAsString = String(locationListeners[i]);
+
+			if (functionAsString.indexOf('checkForDirtyForms') !== -1) {
+				locationListeners[i] = function() {};
+			}
+		}
+	});
+
+
+	// type filter dropdown menu selections
+	$scope.typeOptions = (function() {
+		var dropdown = [];
+
+		if (c.data.types.indexOf('service') != -1)
+			dropdown.push({
+				label: "${wow_hardware_and_services}",
+				value: 'service'
+			});
+
+		if (c.data.types.indexOf('article') != -1)
+			dropdown.push({
+				label: "${wow_top_rated}",
+				value: 'top_rated'
+			},
+			{
+				label: "${wow_articles}",
+				value: 'article'
+			});
+
+		if (c.options.enableIncidentFilter && c.data.types.indexOf('service') != -1)
+			dropdown.push({
+				label: "${wow_incident_reporting}",
+				value: 'incident'
+			});
+
+		if (c.data.types.length > 1)
+			dropdown.unshift({
+				label: "${wow_everything}",
+				value: 'all'
+			});
+
+		if (c.options.enableSuggestions)
+			dropdown.unshift({
+				label: c.options.suggestionsTitle,
+				value: 'suggestions'
+			});
+
+		return dropdown;
+	})();
+
+
+	// per page dropdown menu selections
+	$scope.perPageOptions = [
+		{ value: 12 },
+		{ value: 12 * 2 },
+		{ value: 12 * 5 }
+	];
+
+
+	// sorting dropdown menu selections
+	$scope.sortOptions = [
+		{
+			label: "${wow_atoz}",
+			value: 'atoz'
+		},
+		{
+			label: "${wow_ztoa}",
+			value: 'ztoa'
+		},
+		{
+			label: "${wow_newest}",
+			value: 'latest'
+		}
+	];
+
+
+	$scope.search = function(searchTerm) {
+		$scope.searchTerm = c.data.searchTerm = searchTerm;
+
+		if ($scope.showWidget)
+			closeWidget();
+
+		update();
+	}
+
+
+	$scope.clearSearch = function() {
+		$scope.searchTerm = c.data.searchTerm = "";
+
+		update();
+	}
+
+
+	$scope.selectLayout = function(layout) {
+		$scope.layout = layout;
+		spPreference.set('wow_stack_layout', layout);
+	}
+
+
+	$scope.selectType = function(type) {
+		if ($scope.loading)
+			return;
+
+		$scope.selectedType = type;
+		c.data.resultType = type.value;
+
+		reset();
+	}
+
+
+	$scope.selectSort = function(sort) {
+		if ($scope.loading)
+			return;
+
+		$scope.selectedSory = sort;
+		c.data.sortType = sort.value;
+
+		update();
+	}
+
+
+	$scope.selectPerPage = function(perPage) {
+		if ($scope.loading)
+			return;
+
+		c.data.itemsPerPage = perPage.value;
+		spPreference.set('wow_stack_per_page', perPage.value);
+
+		c.data.excludedIds = [];
+		update();
+	}
+
+
+	$scope.selectCategory = function(category, callback) {
+		if ($scope.loading)
+			return;
+
+		$scope.categories.forEach(function(cat) {
+			cat.selected = (cat === category);
+		});
+
+		if (category.subcategories && category.subcategories.length > 0)
+			$scope.subcategories = category.subcategories;
+
+		else {
+			$scope.subcategories = null;
+
+			// close mobile categories
+			$scope.mobileCategories = false;
+		}
+
+		c.data.selectedCategories = category.ids;
+		c.data.selectedSubcategories = null;
+		$scope.selectedCategory = category;
+		$scope.selectedSubcategory = null;
+		$scope.selectedItem = null;
+
+		updateHashParam('c', category.ids[0]);
+		deleteHashParam('sc');
+		deleteHashParam('item');
+
+		// only update() if not mobile
+		if (!$scope.mobileCategories)
+			update(callback);
+	}
+
+
+	$scope.selectSubcategory = function(category, callback) {
+		if ($scope.loading)
+			return;
+
+		$scope.subcategories.forEach(function(cat) {
+			cat.selected = (cat === category);
+		});
+
+		c.data.selectedSubcategories = category.ids;
+		$scope.selectedSubcategory = category;
+		$scope.selectedItem = null;
+
+		// close mobile categories
+		$scope.mobileCategories = false;
+
+		updateHashParam('sc', category.ids[0]);
+		deleteHashParam('item');
+
+		// only update() if not mobile
+		if (!$scope.mobileCategories)
+			update(callback);
+	}
+
+
+	$scope.selectTag = function() {
+		c.data.tags = $scope.tags;
+		update();
+	}
+
+
+	$scope.selectItem = function(item) {
+		if ($scope.loading)
+			return;
+
+		// open external link content items in new window
+		if (!$scope.showPreviews && item.contentItem && item.contentItem.type == 'external') {
+			$window.open(item.contentItem.href, '_blank');
+			return;
+		}
+
+		// once we've selected an item, we can fetch all the articles that are embeddable
+		if (!item.widget) {
+			switch (item.type) {
+				case 'article':
+					getArticles(c.data.items);
+					break;
+
+				case 'service':
+					getCatalogItem(item);
+					break;
+			}
+		}
+
+		c.data.items.forEach(function(obj) {
+			obj.selected = (obj === item);
+		});
+
+		if ($scope.showPreviews) {
+			if (!$scope.selectedItem) {
+				$scope.loading = true;
+
+				timeout = $timeout(function() {
+					$scope.selectedItem = item;
+					$scope.loading = false;
+					$timeout.cancel(timeout);
+				}, 500); // to match $transition-duration
+			}
+
+			else
+				$scope.selectedItem = item;
+		}
+
+		else {
+			$scope.selectedItem = item;
+			$scope.embedWidget(item);
+			$scope.showWidget = true;
+		}
+
+		updateHashParam('item', item.id);
+
+		// now scroll to top
+		$scope.scrollTop();
+	}
+
+
+	$scope.isArticle = function(item) {
+		if (!item)
+			return false;
+
+		return item.type == 'article' || (item.contentItem && item.contentItem.type == 'kb');
+	}
+
+
+	$scope.isService = function(item) {
+		if (!item)
+			return false;
+
+		return item.type == 'service' && (!item.contentItem || item.contentItem.type != 'kb');
+	}
+
+
+	function getArticles(items) {
+		items.forEach(function(item) {
+			item.widget = true; // we're reserving this to prevent fetching widget more than once
+		});
+
+		c.server.get({
+			action: 'get_articles',
+			items: items
+		}).then(function(r) {
+			items.forEach(function(item) {
+				if (r.data.widgets[item.id])
+					item.widget = r.data.widgets[item.id];
+			});
+		});
+	}
+
+
+	function getCatalogItem(item) {
+		item.widget = true; // we're reserving this to prevent fetching widget more than once
+
+		c.server.get({
+			action: 'get_catalog_item',
+			item: item
+		}).then(function(r) {
+			if (r.data.widget)
+				item.widget = r.data.widget;
+		});
+	}
+
+
+	function closeWidget(widget) {
+		$scope.showWidget = false;
+
+		if ($scope.selectedItem)
+			$scope.selectedItem.widget = null;
+	}
+
+
+	$scope.embedWidget = function(item) {
+		$scope.showWidget = true;
+
+		if (!item.widget && item.type == 'service') {
+			getCatalogItem(item);
+		}
+	}
+
+
+	$scope.toggleCategories = function() {
+		$scope.mobileCategories = ($scope.mobileCategories != true);
+
+		if ($scope.mobileCategories && $scope.selectedItem)
+			$scope.selectedItem = null;
+	}
+
+
+	$scope.toggleFilters = function() {
+		$scope.mobileFilters = ($scope.mobileFilters != true);
+
+		if ($scope.mobileFilters && $scope.selectedItem)
+			$scope.selectedItem = null;
+
+		if ($scope.mobileCategories)
+			$scope.mobileCategories = false;
+	}
+
+
+	$scope.back = function() {
+		if ($scope.loading)
+			return;
+
+		if ($scope.showWidget) {
+			closeWidget();
+
+			if (!$scope.showPreviews) {
+				$scope.selectedItem = null;
+				deleteHashParam('item');
+			}
+		}
+
+		else if ($scope.selectedItem) {
+			$scope.selectedItem = null;
+			deleteHashParam('item');
+		}
+
+		// maybe need some refactoring
+		else if ($scope.selectedSubcategory) {
+			$scope.subcategories.forEach(function(cat) {
+				cat.selected = false;
+			});
+
+			$scope.selectedSubcategory = null;
+			c.data.selectedSubcategories = null;
+
+			// on mobile go back to categories
+			$scope.mobileCategories = true;
+
+			deleteHashParam('sc');
+			deleteHashParam('item');
+			update();
+		}
+
+		else
+			reset();
+	}
+
+
+	$scope.previous = function() {
+		if ($scope.loading)
+			return;
+
+		if ($scope.pagedIds.length == 0)
+			return;
+
+		// pop last set of excluded items
+		$scope.pagedIds.pop();
+
+		// get excluded ids for server update
+		c.data.excludedIds = getExcludedIds();
+
+		paginate();
+	}
+
+
+	$scope.next = function() {
+		if ($scope.loading)
+			return;
+
+		// push current set of item ids onto pagedIds array
+		$scope.pagedIds.push(c.data.items.map(function(item) {
+			return item.id;
+		}));
+
+		// get excluded ids for server update
+		c.data.excludedIds = getExcludedIds();
+
+		paginate();
+	}
+
+
+	function resetPagination() {
+		$scope.pagedIds = [];
+		c.data.excludedIds = [];
+	}
+
+
+	$scope.reset = function() {
+		resetType();
+		reset();
+	}
+
+
+	function reset() {
+		if ($scope.loading)
+			return;
+
+		closeWidget();
+
+		$scope.pagedIds = null;
+		$scope.subcategories = null;
+		$scope.selectedCategory = null;
+		$scope.selectedSubcategory = null;
+		$scope.selectedItem = null;
+		$scope.embeddedWidget = null;
+
+		// reset search term
+		$scope.searchTerm = c.data.searchTerm = "";
+
+		// reset selected categories
+		$scope.categories.forEach(function(cat) {
+			cat.selected = false;
+		});
+
+		// reset data
+		c.data.excludedIds = null;
+		c.data.selectedCategories = null;
+		c.data.selectedSubcategories = null;
+		c.data.tags = null;
+
+		resetHash();
+
+		if (c.data.resultType == 'suggestions')
+			getSuggestions();
+
+		else
+			update();
+	}
+
+
+	$scope.canReset = function() {
+		return !$scope.loading &&
+			($scope.selectedCategory ||
+			 $scope.selectedItem ||
+			 $scope.searchTerm ||
+			 c.data.resultType != getDefaultType());
+	}
+
+
+	$scope.hasTags = function() {
+		if (!c.options.enableTags || !$scope.tags)
+			return false;
+
+		for (var i = 0; i < $scope.tags.length; i++)
+			if ($scope.tags[i].active)
+				return true;
+
+		return false;
+	}
+
+
+	$scope.getClasses = function() {
+		return {
+			'loading': $scope.loading,
+			'has-categories': $scope.categories.length > 0,
+			'has-subcategories': $scope.subcategories,
+			'has-selected-item': $scope.selectedItem && $scope.showPreviews,
+			'has-previews': $scope.showPreviews,
+			'show-widget': $scope.showWidget,
+			'mobile-categories': $scope.mobileCategories,
+			'mobile-filters': $scope.mobileFilters
+		};
+	}
+
+
+	function update(callback) {
+		$scope.loading = true;
+		resetPagination();
+
+		if (c.data.resultType == 'suggestions')
+			c.data.resultType = c.data.defaultType; // reset to default if necessary
+
+		// scroll to top on updates
+		$scope.scrollTop();
+
+		timeout = $timeout(function() {
+			c.server.update().then(function() {
+				updateCategories();
+				updateTags();
+
+				$scope.loading = false;
+				$timeout.cancel(timeout);
+
+				if (callback)
+					callback();
+			});
+		}, 0);
+	}
+
+
+	function paginate() {
+		$scope.loading = true;
+
+		// scroll to top on pagination
+		$scope.scrollTop();
+
+		timeout = $timeout(function() {
+			c.server.update().then(function() {
+				$scope.loading = false;
+				$timeout.cancel(timeout);
+			});
+		}, 0);
+	}
+
+
+	function getSuggestions(callback) {
+		$scope.loading = true;
+		resetPagination();
+
+		// set result type
+		c.data.resultType = 'suggestions';
+
+		// scroll to top on updates
+		$scope.scrollTop();
+
+		timeout = $timeout(function() {
+			c.server.update().then(function() {
+				updateCategories();
+				updateTags();
+
+				$scope.loading = false;
+				$timeout.cancel(timeout);
+
+				if (callback)
+					callback();
+			});
+		}, 0);
+	}
+
+
+	function getDefaultType() {
+		return c.options.enableSuggestions ? 'suggestions' : c.data.defaultType;
+	}
+
+
+	function resetType() {
+		if (c.options.enableSuggestions)
+			c.data.resultType = 'suggestions';
+
+		else
+			c.data.resultType = c.data.defaultType;
+	}
+
+
+	function updateCategories() {
+		var currentCategories = $scope.categories;
+		var newCategories = c.data.categories;
+
+		newCategories.forEach(function(category) {
+			for (var i = 0; i < currentCategories.length; i++) {
+				if (category.label == currentCategories[i].label)
+					category.selected = currentCategories[i].selected;
+			}
+		});
+
+		$scope.categories = newCategories;
+	}
+
+
+	function updateTags() {
+		WowFilterService.updateSet($scope.tags, c.data.tags);
+	}
+
+
+	function getExcludedIds() {
+		var excludedIds = [];
+
+		// build list of excluded ids from sets of paged ids
+		$scope.pagedIds.forEach(function(ids) {
+			for (var i = 0; i < ids.length; i++)
+				excludedIds.push(ids[i]);
+		});
+
+		return excludedIds;
+	}
+
+
+	function getHashParams() {
+		var params = {};
+		var hash = $location.hash();
+
+		if (hash.length > 0) {
+			var hashes = hash.split('&');
+
+			for (var i = 0; i < hashes.length; i++) {
+				var param = hashes[i].split('=');
+				if (param.length == 2)
+					params[param[0]] = param[1];
+			}
+		}
+
+		return params;
+	}
+
+
+	function getHashParam(param) {
+		var params = getHashParams();
+
+		if (params[param])
+			return params[param];
+
+		return null;
+	}
+
+
+	function updateHashParam(key, value) {
+		var params = getHashParams();
+		params[key] = value;
+		updateHash(params);
+	}
+
+
+	function deleteHashParam(key) {
+		var params = getHashParams();
+
+		if (params[key]) {
+			delete params[key];
+			updateHash(params);
+		}
+	}
+
+
+	function updateHash(params) {
+		var hash = (function() {
+			var strings = [];
+
+			for (var key in params)
+				strings.push(key+'='+params[key]);
+
+			return strings.join('&');
+		})();
+
+		if (hash.length === 0)
+			resetHash();
+
+		else
+			history.replaceState(null, null, '#'+hash);
+	}
+
+
+	function resetHash() {
+		history.replaceState(null, null, '#reset'); // removing hash altogether resets the widget and $location was buggy
+	}
+
+
+	function restoreState() {
+		var params = getHashParams();
+
+		if (params['sc']) {
+			var categoryId = params['c'];
+			var subcategoryId = params['sc'];
+
+			// something not right here, we need a category at least
+			if (!categoryId)
+				return;
+
+			for (var i = 0; i < c.data.categories.length; i++) {
+				var category = c.data.categories[i];
+
+				if (category.ids.indexOf(categoryId) != -1) {
+					$scope.selectedCategory = category;
+					category.selected = true;
+
+					if (category.subcategories)
+						$scope.subcategories = category.subcategories;
+
+					continue;
+				}
+			}
+
+			if ($scope.subcategories) {
+				for (var i = 0; i < $scope.subcategories.length; i++) {
+					var subcategory = $scope.subcategories[i];
+
+					if (subcategory.ids.indexOf(subcategoryId) != -1) {
+						$scope.selectSubcategory(subcategory, function() {
+							// if we have the item in the hash, try to restore its selected state
+							if (params['item']) {
+								c.data.items.forEach(function(item) {
+									if (item.id == params['item'])
+										$scope.selectItem(item);
+								});
+							}
+						});
+						return;
+					}
+				}
+			}
+		}
+
+		else if (params['c']) {
+			var categoryId = params['c'];
+
+			for (var i = 0; i < c.data.categories.length; i++) {
+				var category = c.data.categories[i];
+
+				if (category.ids.indexOf(categoryId) != -1) {
+					$scope.selectCategory(category, function() {
+						// if we have the item in the hash, try to restore its selected state
+						if (params['item']) {
+							c.data.items.forEach(function(item) {
+								if (item.id == params['item'])
+									$scope.selectItem(item);
+							});
+						}
+					});
+					return;
+				}
+			}
+		}
+
+		else if (params['item']) {
+			c.data.items.forEach(function(item) {
+				if (item.id == params['item'])
+					$scope.selectItem(item);
+			});
+		}
+
+		if (timeout)
+			$timeout.cancel(timeout);
+	}
+
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@mixin wow-stack-item-image($width: 50px) {
+  @include wow-item-image($width) {
+    align-items: center;
+    flex: none;
+    justify-content: center;
+
+    .picture {
+      background-position: 50%;
+    }
+  }
+
+  wow-item-image {
+    @content;
+  }
+}
+
+$aside-min-height: 400px;
+$screen-mobile-max: $screen-xs-min - 1;
+$transition-duration: .5s;
+
+ul {
+  @include wow-list-reset;
+}
+
+.btn {
+  &amp;.active,
+  &amp;:active,
+  &amp;:focus {
+    box-shadow: none; // bootstrap override
+  }
+
+  &amp;[disabled] {
+    opacity: .333;
+  }
+
+  @include wow-button();
+}
+
+@include wow-dropdown-menu() {
+  .dropdown-toggle {
+    margin-bottom: 0;
+  }
+}
+
+&amp; {
+  box-shadow: $panel-shadow;
+  box-shadow: $big-shadow;
+
+  @media screen and (max-width: $screen-mobile-max) {
+    margin-left: -$grid-gutter-width /2;
+    margin-right: -$grid-gutter-width /2;
+  }
+}
+
+.wow-stack {
+  background-color: $panel-bg;
+  overflow: hidden;
+  position: relative;
+}
+
+.stack-navigator {
+  align-items: center;
+  background-color: $panel-bg;
+  box-shadow: $panel-shadow;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex-direction: column;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding: 1rem;
+  }
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+
+  @media screen and (max-width: $screen-xs-max) {
+    width: 100%;
+  }
+
+  .btn {
+    background-color: transparent;
+    border-radius: 0;
+
+    @media screen and (max-width: $screen-mobile-max) {
+      &amp;:not(.categories-toggle) {
+        span {
+          display: none;
+        }
+      }
+    }
+
+    i {
+      color: $brand-primary;
+      font-size: 1.5em;
+      transform-origin: 50%;
+      transition: transform .1s ease-out;
+
+      @media screen and (min-width: $screen-xs-min) {
+        margin-right: .333em;
+      }
+    }
+  }
+
+  .categories-toggle,
+  .filters-toggle {
+    @media screen and (min-width: $screen-sm-min) {
+      display: none;
+    }
+
+    &amp;.active {
+      background-color: darken($panel-bg, 5%);
+    }
+
+    i {
+      margin-right: 0;
+    }
+  }
+
+  .categories-toggle {
+    @media screen and (max-width: $screen-xs-max) {
+      margin-left: auto;
+    }
+
+    &amp;.active {
+      i {
+        transform: rotate(-90deg);
+      }
+    }
+
+    i {
+      margin-left: .333em;
+    }
+  }
+}
+
+.search {
+  align-items: center;
+  background-color: darken($panel-bg, 5%);
+  display: flex;
+
+  @media screen and (max-width: $screen-xs-max) {
+    border-top: 1px solid darken($panel-bg, 15%);
+    display: none;
+    width: 100%;
+
+    .mobile-filters &amp; {
+      display: flex;
+    }
+  }
+
+  input[type="text"] {
+    background-color: transparent;
+    border: none;
+    color: $text-color;
+    height: $searchbar-height;
+    flex-grow: 1;
+    font-weight: 100;
+    padding: 1rem;
+    @include wow-placeholder($text-color);
+
+    @media screen and (max-width: $screen-sm-max) {
+      font-size: 1rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+      width: 250px;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      font-size: 1.2rem;
+      width: 270px;
+    }
+
+    // removes the 'x' from Internet Explorer
+    &amp;::-ms-clear { display: none; width: 0; height: 0; }
+    &amp;::-ms-reveal { display: none; width: 0; height: 0; }
+
+    // removes the 'x' from Chrome
+    &amp;::-webkit-search-decoration,
+    &amp;::-webkit-search-cancel-button,
+    &amp;::-webkit-search-results-button,
+    &amp;::-webkit-search-results-decoration { display: none; }
+  }
+
+  .btn {
+    align-items: center;
+    background: none;
+    border: none;
+    color: $brand-info;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 1.75rem;
+    padding: 1rem;
+  }
+
+  i {
+    font-size: 2rem;
+    color: $brand-primary;
+  }
+}
+
+.dropdowns {
+  align-items: center;
+  display: flex;
+  position: relative;
+  z-index: 2; // for breadcrumbs
+
+  @media screen and (max-width: $screen-xs-max) {
+    align-items: flex-start;
+    display: none;
+    flex-direction: column;
+    padding: 1rem;
+    width: 100%;
+
+    .mobile-filters &amp; {
+      display: flex;
+    }
+
+    .dropdown-toggle {
+      align-items: center;
+      display: flex;
+      padding-top: .25rem;
+      padding-bottom: .25rem;
+    }
+
+    .dropdown-menu {
+      left: 0;
+      right: auto;
+    }
+
+    label {
+      margin: 0;
+    }
+  }
+
+  @media screen and (min-width: $screen-xs-min) and (max-width: $screen-xs-max) {
+    flex-direction: row;
+
+    &gt;* {
+      margin-right: 1rem;
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+    &gt;* {
+      margin-left: .5rem;
+      margin-right: .5rem;
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    &gt;* {
+      margin-left: .75rem;
+      margin-right: .75rem;
+    }
+  }
+
+  &gt;[disabled] {
+    opacity: .333;
+    pointer-events: none;
+  }
+
+  .layout-options {
+    @media screen and (max-width: $screen-sm-max) {
+      display: none;
+    }
+
+    i {
+      color: $brand-primary;
+      font-size: 2rem;
+    }
+
+    .fa-chevron-down {
+      color: $text-muted;
+      font-size: .8rem;
+      margin-left: .5rem;
+      transform-origin: 50% 50%;
+      transition: transform .1s ease-out;
+    }
+
+    .dropdown-toggle {
+      align-items: center;
+      display: flex;
+    }
+
+    .dropdown-menu {
+      width: 8rem; // IE fix
+    }
+
+    &amp;.open {
+      .fa-chevron-down {
+        transform: rotate(180deg);
+      }
+
+      .dropdown-menu {
+        align-items: center;
+        display: flex;
+
+        li {
+          align-items: center;
+          display: flex;
+          padding: .5rem;
+
+          i {
+            font-size: 2.5rem;
+
+            &amp;.muted {
+              color: $text-muted;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: $screen-sm-max) {
+    .wow-dropdown-menu {
+      .value {
+        font-size: .9rem;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    .wow-dropdown-menu {
+      label {
+        display: none;
+      }
+    }
+  }
+}
+
+.mobile-tags {
+  border-top: 1px solid darken($panel-bg, 15%);
+  display: none;
+  padding: 1rem;
+  width: 100%;
+
+  @media screen and (min-width: $screen-xs-min) {
+    display: none!important;
+  }
+
+  .mobile-filters &amp; {
+    display: flex;
+  }
+
+  @include wow-filters() {
+    .form-group.disabled {
+      display: none; // hiding inactive filters
+    }
+
+    .filter-form.inset {
+      box-shadow: none!important;
+    }
+
+    .dropdown-filter {
+      margin-bottom: 0;
+    }
+  }
+
+  wow-filters {
+    width: 100%;
+  }
+}
+
+.breadcrumbs {
+  align-items: center;
+  background-color: darken($panel-bg, 5%);
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+
+  @media screen and (min-width: $screen-sm-min) {
+    display: none; // temporary
+  }
+
+  .crumb {
+    align-items: center;
+    display: inline-flex;
+    flex: 1;
+    font-size: .8rem;
+    padding: .5rem 1rem;
+    position: relative;
+
+    &amp;:nth-child(1) {
+      padding-right: .75rem;
+      z-index: 1;
+
+      &amp;::after {
+        border-top: 1px solid darken($panel-bg, 15%);
+        border-right: 1px solid darken($panel-bg, 15%);
+        content: '';
+        display: flex;
+        height: 1.8rem;
+        left: calc(100% - .9rem);
+        position: absolute;
+        top: calc(50% - .9rem);
+        transform: rotate(45deg);
+        transform-origin: 50%;
+        width: 1.8rem;
+        z-index: -1;
+      }
+
+      &amp;.has-color {
+        &amp;::after {
+          background-color: inherit;
+          border-top-color: $panel-bg;
+          border-right-color: $panel-bg;
+        }
+      }
+
+      &amp;.has-subcategories {
+        flex: none;
+      }
+    }
+
+    &amp;:nth-child(2) {
+      padding-left: 2.25rem;
+      z-index: 0;
+    }
+
+    &amp;.has-color {
+      color: $white;
+    }
+  }
+}
+
+.stack-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+aside {
+  box-shadow: $panel-shadow;
+  display: flex;
+  flex: none;
+  height: auto;
+  min-height: $aside-min-height;
+  transition: transform $transition-duration ease-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    width: 100%;
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    width: 33.333%;
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    width: 25%;
+  }
+}
+
+.aside-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  width: 100%;
+
+  li {
+    align-items: center;
+    border-bottom: 1px solid darken($panel-bg, 15%);
+    border-bottom: 1px solid darken($aside-bg, 10%);
+    display: flex;
+    margin: 0;
+    min-height: 80px;
+    padding: 1rem;
+    position: relative;
+    width: 100%;
+
+    @media screen and (max-width: $screen-xs-max) {
+      min-height: 50px;
+    }
+
+    .loading &amp; {
+      pointer-events: none;
+    }
+
+    .background {
+      background-color: $brand-info;
+      bottom: 0;
+      left: 0;
+      opacity: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: opacity $transition-duration/2 ease-out;
+
+      &amp; +div {
+        position: relative;
+      }
+    }
+  }
+}
+
+.categories,
+.subcategories {
+  background-color: darken($panel-bg, 5%);
+  background-color: $aside-bg;
+
+  li {
+    &amp;.active,
+    &amp;:hover {
+      &amp;, i {
+        color: $white !important;
+      }
+
+      .background {
+        opacity: 1;
+      }
+    }
+
+    @include wow-stack-item-image(2.5em) {
+      margin-right: 1em; // match aside-list li padding
+    }
+
+    .category-label {
+      position: relative;
+    }
+  }
+}
+
+.categories {
+  @media screen and (max-width: $screen-xs-max) {
+    margin-right: 5%;
+    transform: translateX(-50%);
+    width: 95%; // width + margin-right = 100%
+
+    .mobile-categories &amp; {
+      transform: translateX(0);
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    .has-subcategories &amp;,
+    .has-selected-item &amp; {
+      pointer-events: none;
+    }
+  }
+}
+
+.subcategories {
+  @media screen and (max-width: $screen-xs-max) {
+    margin-right: 10%;
+    transform: translateX(-150%);
+    width: 90%; // width + margin-right = 100%
+
+    .mobile-categories &amp; {
+      transform: translateX(0);
+    }
+
+    .mobile-categories.has-subcategories &amp; {
+      transform: translateX(-105.555%); // ((width + margin - 5%) / width)
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    width: 31.666%; // 33.333% * 95% i.e. covering 95% of categories
+
+    .has-subcategories &amp; {
+      transform: translateX(-100%);
+    }
+
+    .has-selected-item &amp; {
+      pointer-events: none;
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .has-subcategories.has-selected-item &amp; {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+.results {
+  background-color: $panel-bg;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  position: relative;
+
+  @media screen and (max-width: $screen-xs-max) {
+    transform: translateX(-200%);
+
+    .mobile-categories &amp; {
+      transform: translateX(-105%);
+    }
+
+    .has-selected-item &amp; {
+      transform: translateX(-250%);
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    .has-selected-item &amp; {
+      .items-and-tags {
+        margin-top: 0;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    transform: translateX(-65%);
+    width: 100%;
+
+    .has-categories &amp; {
+      transform: translateX(-47.5%); // 50*.95 because subcategories is 95% of it's usual width
+      width: 66.666%;
+    }
+
+    .has-selected-item &amp; {
+      transform: translateX(-65%);
+      width: 100%;
+
+      .items-and-tags,
+      .pagination {
+        width: 33.333%;
+      }
+    }
+
+    .has-categories.has-selected-item &amp; {
+      transform: translateX(-92.65%); // (33.333+(33.333*.95))/66.666 - don't ask...
+      width: 66.666%;
+
+      .items-and-tags,
+      .pagination {
+        width: 45%;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    .grid {
+      &amp;.has-tags {
+        .items ul:not(.aside-list) {
+          li {
+            margin: 0;
+            margin-bottom: 1.5rem; // to match .items-and-tags padding
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    transform: translateX(-50%);
+    width: 100%;
+
+    .has-categories &amp; {
+      transform: translateX(-33.333%);
+      width: 75%;
+    }
+
+    .has-subcategories &amp; {
+      transform: translateX(0);
+
+      .items-and-tags,
+      .pagination {
+        width: 66.666%;
+      }
+    }
+
+    .has-selected-item &amp; {
+      transform: translateX(-50%);
+
+      .items-and-tags {
+        width: 33.333%;
+      }
+
+      .pagination {
+        width: 33.333%;
+      }
+    }
+
+    .has-categories.has-selected-item &amp; {
+      transform: translateX(-33.333%);
+    }
+
+    .has-subcategories.has-selected-item &amp; {
+      transform: translateX(-33.333%);
+    }
+  }
+
+  .has-selected-item &amp; {
+    .items-and-tags {
+      .tags {
+        display: none;
+      }
+    }
+
+    .pagination {
+      wow-dropdown-menu {
+        display: none;
+      }
+
+      .page-links {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+    }
+  }
+
+  .empty {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: $aside-min-height;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    width: 100%;
+
+    .empty-message {
+      font-weight: 400;
+      font-weight: $font-weight-normal;
+
+      @media screen and (max-width: $screen-sm-max) {
+        font-size: 1.2rem;
+
+        .has-selected-item &amp; {
+          font-size: 1rem;
+        }
+      }
+
+      @media screen and (min-width: $screen-md-min) {
+        font-size: 1.5rem;
+
+        .has-selected-item &amp; {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
+    .btn {
+      background-color: darken($panel-bg, 10%);
+      margin-top: 1rem;
+    }
+  }
+}
+
+.items-and-tags {
+  display: flex;
+  margin-top: 1.5rem;
+  min-height: $aside-min-height;
+  position: relative;
+  width: 100%;
+
+  @include wow-spinner($brand-primary, 40px) {
+    left: calc(50% - 20px);
+    position: absolute;
+    top: $aside-min-height * .5;
+  }
+
+  .loading &amp; {
+    .tags, .items {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+.tags {
+  border-right: 1px solid darken($panel-bg, 10%);
+  flex: 1;
+  padding: 1.5rem;
+  transition: opacity $transition-duration/2 ease-out;
+
+  @media screen and (max-width: $screen-mobile-max) {
+    display: none;
+  }
+
+  @media screen and (min-width: $screen-xs-min) and (max-width: $screen-sm-max) {
+    .wow-checkbox-label {
+      font-size: .9rem;
+    }
+  }
+
+  &amp;.loading {
+    opacity: 0;
+  }
+
+  @include wow-filters() {
+    .form-group.disabled {
+      display: none; // hiding inactive filters
+    }
+
+    .filter-form.inset {
+      box-shadow: none!important;
+    }
+
+    .wow-checkbox-label {
+      white-space: nowrap;
+    }
+  }
+}
+
+.items {
+  align-items: flex-start;
+  display: flex;
+  flex: 2;
+  flex-direction: column;
+  padding: 1.5rem;
+  transition: opacity $transition-duration/2 ease-out;
+
+  .has-selected-item &amp; {
+    padding: 0;
+  }
+
+  .items-title {
+    margin: 0 0 2rem;
+
+    @media screen and (max-width: $screen-xs-max) {
+      font-size: 1.5rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      font-size: 2rem;
+    }
+
+    .has-selected-item &amp; {
+      background-color: $brand-primary;
+      color: $white;
+      font-size: 1rem;
+      line-height: 1;
+      margin: 0;
+      padding: 1rem;
+      width: 100%;
+    }
+  }
+
+  ul {
+    width: 100%;
+
+  	&amp;:not(.aside-list) {
+      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+
+      @media screen and (min-width: $screen-md-min) {
+        .grid &amp; {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+      }
+
+      li {
+        align-items: center;
+        display: flex;
+        margin-bottom: 2rem;
+        width: 100%;
+
+        @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+          @include wow-stack-item-image(60px) {
+            margin-right: 1.5rem; // to match .items padding
+            padding: .333rem;
+          }
+        }
+
+        @media screen and (min-width: $screen-md-min) {
+          .list &amp; {
+            @include wow-stack-item-image(80px) {
+              margin-right: 1.5rem; // to match .items padding
+              padding: .333rem;
+            }
+          }
+
+          .grid &amp; {
+            border: 1px solid darken($panel-bg, 10%);
+            border-radius: 5px;
+            border-radius: $border-radius;
+            flex-direction: column;
+            margin: 1rem;
+            padding: 1.5rem;
+            width: calc(33.333% - 2rem);
+
+            @include wow-stack-item-image(100px) {
+              margin-bottom: 2rem;
+              margin-top: 1rem;
+            }
+
+            .has-categories &amp; {
+	            width: calc(50% - 2rem);
+            }
+          }
+        }
+
+        @media screen and (min-width: $screen-lg-min) {
+          .grid &amp; {
+            width: calc(25% - 2rem);
+
+            .has-categories &amp; {
+	            width: calc(33.333% - 2rem);
+            }
+
+            .has-subcategories &amp; {
+              width: calc(50% - 2rem);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  li {
+    @media screen and (max-width: $screen-sm-max) {
+      @include wow-stack-item-image(35px) {
+        margin-right: 1em; // to match aside li padding
+      }
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      @include wow-stack-item-image(50px) {
+        margin-right: 1em; // to match aside li padding
+      }
+    }
+  }
+
+  &amp;.loading {
+    opacity: 0;
+  }
+}
+
+.item-details {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 100%; // fixes IE issue
+
+  @media screen and (min-width: $screen-md-min) {
+    .grid .items ul:not(.aside-list) &amp; {
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  .item-type {
+    align-items: center;
+    color: $text-muted;
+    display: inline-flex;
+    font-weight: 600;
+    font-weight: $font-weight-bold;
+    font-size: .8rem;
+    margin-bottom: .25em;
+    text-transform: uppercase;
+
+    .aside-list &amp; {
+      display: none;
+    }
+  }
+
+  .item-label {
+    margin: 0 0 .333em;
+    width: 100%; // fixes IE issue
+
+    @media screen and (max-width: $screen-xs-max) {
+      font-size: 1.2rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+      font-size: 1.35rem;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      font-size: 1.5rem;
+    }
+
+    .has-tags {
+      font-size: 1.2rem;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      .grid .items ul:not(.aside-list) &amp; {
+        font-size: 1.2rem;
+      }
+    }
+
+    .aside-list &amp; {
+      font-size: 1rem;
+      font-weight: 400;
+      font-weight: $font-weight-normal;
+    }
+
+    .aside-list li.active &amp; {
+      font-weight: 600;
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  .item-summary {
+    width: 100%; // fixes IE issue
+
+    @media screen and (max-width: $screen-xs-max) {
+      font-size: .8rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+      font-size: .9rem;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      font-size: 1rem;
+    }
+
+    .has-tags &amp; {
+      font-size: .9rem;
+    }
+
+    .aside-list &amp; {
+      display: none;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      .grid &amp; {
+        display: none;
+      }
+    }
+  }
+}
+
+.pagination {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 0; // bootstrap override
+  padding: 1.5rem;
+
+  .btn {
+    background-color: transparent;
+
+    @media screen and (max-width: $screen-xs-max) {
+      padding: .5rem;
+    }
+
+    i {
+      color: $text-muted;
+      font-size: 1.5em;
+    }
+
+    span {
+      @media screen and (max-width: $screen-xs-max) {
+        display: none;
+      }
+    }
+  }
+
+  // a fix for the overflow issue
+  .wow-dropdown-menu {
+    .dropdown-menu {
+      bottom: 100%;
+      margin-bottom: 1rem;
+      margin-top: 0;
+      top: auto;
+    }
+  }
+}
+
+.preview {
+  background-color: $panel-bg;
+  box-shadow: $panel-shadow;
+  display: flex;
+  flex: none;
+  padding: 1.5rem;
+  position: relative;
+  transition: transform $transition-duration ease-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    transform: translateX(-200%);
+    width: 100%;
+
+    .has-selected-item &amp; {
+      transform: translateX(-300%);
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding: 3rem;
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    width: 66.666%;
+
+    .has-selected-item &amp; {
+      transform: translateX(-197.5%);
+    }
+
+    .has-categories.has-selected-item &amp; {
+      transform: translateX(-147.5%);
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    width: 66.666%;
+
+    .has-categories &amp; {
+	    width: 50%;
+    }
+
+    .has-selected-item &amp; {
+      transform: translateX(-175%);
+    }
+
+    .has-categories.has-selected-item &amp; {
+      transform: translateX(-150%);
+    }
+  }
+}
+
+.article,
+.service {
+  width: 100%; // IE fix
+}
+
+.service {
+  .header {
+    display: flex;
+    margin-top: 3rem;
+
+    @media screen and (max-width: $screen-xs-max) {
+      flex-direction: column;
+
+      @include wow-stack-item-image(200px) {
+        height: 150px;
+        margin-bottom: 2rem;
+
+        .picture {
+          background-position: 0 100%;
+        }
+      }
+    }
+
+    @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+      @include wow-stack-item-image(100px) {
+        margin-right: 2rem;
+
+        .picture {
+          background-position: 50% 0;
+        }
+      }
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      @include wow-stack-item-image(150px) {
+        margin-right: 2rem;
+
+        .picture {
+          background-position: 50% 0;
+        }
+      }
+    }
+
+    .item-label {
+      margin: 0 0 1rem;
+
+      @media screen and (max-width: $screen-xs-max) {
+        font-size: 1.5rem;
+      }
+    }
+
+    .btn {
+      margin-top: 1rem;
+    }
+  }
+
+  .item-description {
+    border-top: 1px solid darken($panel-bg, 10%);
+    margin-top: 3rem;
+    padding-top: 3rem;
+  }
+}
+
+.widget {
+  background-color: $panel-bg;
+  box-shadow: $panel-shadow;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  opacity: 0;
+  padding: 1.5rem;
+  pointer-events: none;
+  position: relative;
+  width: 100%;
+  transition: opacity $transition-duration/2 ease-out, transform $transition-duration ease-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    transform: translate(-400%, -100%);
+
+    .show-widget &amp; {
+      transform: translate(-400%, 0);
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding: 3rem;
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+    transform: translate(-231.666%, -100%);
+
+    .has-categories &amp; {
+      transform: translate(-198.3333%, -100%); // not sure about the calculation, too tricky to work out
+    }
+
+    .show-widget &amp; {
+      transform: translate(-231.666%, 0);
+    }
+
+    .has-categories.show-widget &amp; {
+      transform: translate(-198.3333%, 0);
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    transform: translate(-216.666%, -100%);
+
+    .has-categories &amp; {
+      transform: translate(-175%, -100%);
+    }
+
+    .show-widget &amp; {
+      transform: translate(-216.666%, 0);
+    }
+
+    .has-categories.show-widget &amp; {
+      transform: translate(-175%, 0);
+    }
+  }
+
+  .show-widget &amp; {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  @include wow-spinner($brand-primary, 40px) {
+    left: calc(50% - 20px);
+    position: absolute;
+    top: $aside-min-height * .5;
+  }
+
+   // some embedded widget overrides
+  #sc_cat_item {
+    .wrapper-md {
+      padding-left: 0!important;
+      padding-right: 0!important;
+    }
+
+    .sc-fixed {
+      padding-top: 2rem;
+      position: relative;
+      width: 100%!important;
+    }
+  }
+
+  &amp;.hide-details {
+    #sc_cat_item {
+      // hide the description and image
+      .item-header {
+        +.wrapper-md.no-margin {
+          display: none;
+        }
+      }
+    }
+
+    // embedded order guide overrides
+    .timeline-container {
+      + div[ng-if="guide_step == 0"] {
+        &gt;.row {
+          display: none;
+
+          + .wrapper-md {
+            border-top: none;
+            padding: 1rem 0 2rem!important;
+          }
+        }
+      }
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-stack</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+
+	var scrollableEl = $('.sp-scroll');
+
+	scope.scrollTop = function() {
+		var distance = scrollableEl.scrollTop() + ($(widgetEl).offset().top);
+
+		if (scrollableEl.scrollTop() > distance)
+			scrollableEl.animate({
+				scrollTop: distance
+			}, (distance * 5 > 500 ? 500 : distance * 5));
+	}
+
+	$(scrollableEl).scroll(function(e,f) {
+		var catItem = $('#sc_cat_item', widgetEl);
+		var sidebar = $('#sc_cat_item .right-side-cart', widgetEl);
+
+		if (window.innerWidth > 992 && catItem.length > 0 && sidebar.length > 0) {
+			var widgetOffset = $(widgetEl).offset().top;
+			var relativePosition = catItem.position().top;
+
+			if ((widgetOffset + relativePosition) < 0) {
+				sidebar.css({
+					'transform': 'translateY('+(-(widgetOffset + relativePosition))+'px)'
+				});
+			}
+
+			else {
+				sidebar.css({
+					'transform': 'translateY(0px)'
+				});
+			}
+		}
+	});
+}]]></link>
+        <name>Wow Stack</name>
+        <option_schema>[{"name":"supportedTypes","section":"Behavior","default_value":"service,article","label":"Supported types","type":"choice","choices":[{"label":"service,article","value":"service,article"},{"label":"service","value":"service"},{"label":"article","value":"article"},{"label":"incident","value":"incident"}]},{"name":"enableIncidentFilter","section":"Behavior","label":"Enable Incident Reporting filter? (Supported types must include \"Service Catalog\")","type":"boolean"},{"name":"enableTags","section":"Behavior","default_value":"","label":"Enable tags?","type":"boolean"},{"name":"enableSearch","section":"Behavior","label":"Enable search?","type":"boolean"},{"name":"searchsubcategories","section":"Behavior","default_value":"true","label":"Category results should include items in subcategories?","type":"boolean"},{"name":"searchPlaceholder","section":"Presentation","default_value":"","label":"Search placeholder","type":"string"},{"name":"suggestionsTitle","section":"Presentation","default_value":"Suggestions","label":"Suggestions title","type":"string"},{"name":"categorySort","section":"Behavior","label":"Sort categories","type":"choice","choices":[{"label":"atoz","value":"atoz"},{"label":"order","value":"order"}]},{"name":"enableSuggestions","section":"Presentation","label":"Enable suggestions","type":"boolean"},{"name":"showPreviews","section":"Presentation","label":"Show previews?","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var user = gs.getUser();
+	var util = new WowUtil();
+	var htmlUtil = new WowHtmlUtil();
+	var filtersHelper = new WowFilters();
+	var categoryId = $sp.getParameter('sys_id') || $sp.getParameter('category');
+	
+	
+	options.types = options.supportedTypes ? options.supportedTypes.split(',') : ['service', 'article'];
+	options.alwaysLoadItems = true;
+	options.enableSearch = (options.enableSearch == 'true');
+	options.searchSubcategories = (options.searchSubcategories == 'true');
+	options.searchPlaceholder = gs.getMessage(options.searchPlaceholder || 'wow_filter_by_searchterm');
+	options.enableIncidentFilter = (options.enableIncidentFilter == 'true');
+	options.enableSuggestions = (options.enableSuggestions == 'true');
+	options.showPreviews = (options.showPreviews == 'true');
+	options.title = gs.getMessage(options.title || 'wow_catalog');
+	options.suggestionsTitle = gs.getMessage(options.suggestionsTitle || 'wow_suggestions');
+
+	// get user's preferred layout
+	data.preferredLayout = user.getPreference('wow_stack_layout') || $sp.getParameter('layout') || 'list';
+	
+	var types            = options.types; // types supported are 'service', 'article' and 'incident'
+	var defaultType      = data.defaultType = types.length > 1 ? 'all' : types[0];
+	var enableTags       = options.enableTags = (options.enableTags == 'true');
+	var queryLimit       = options.queryLimit || 99;
+	var textLimit        = options.textLimit || 500;
+	var itemsPerPage     = data.itemsPerPage = (input && input.itemsPerPage ? input.itemsPerPage : (user.getPreference('wow_stack_per_page') || 12));
+	var suggestionsLimit = itemsPerPage;
+	var resultType       = data.resultType = (input && input.resultType ? input.resultType : ((options.enableSuggestions ? 'suggestions' : ($sp.getParameter('type') || defaultType))));
+	var searchTerm       = (input && (typeof input.searchTerm !== 'undefined') && input.searchTerm !== null) ? input.searchTerm : null;
+	var sortType         = data.sortType = (input && input.sortType) ? input.sortType : (searchTerm ? 'relevancy' : 'latest');
+	var categorySort     = options.categorySort || 'atoz';
+
+
+	var stackHelper = new WowStack({
+		queryLimit          : queryLimit,
+		itemsPerPage        : itemsPerPage,
+		resultType          : resultType == 'suggestions' ? defaultType : resultType,
+		sortType            : sortType,
+		searchTerm          : searchTerm,
+		categories          : input ? (input.selectedSubcategories || input.selectedCategories) : [],
+		searchSubcategories : options.searchSubcategories
+	});
+
+	// set a parent category if this exists in the URL
+	if (categoryId)
+		stackHelper.setParentCategory(categoryId);
+
+
+	if (input) {
+		switch (input.action) {
+			case 'get_catalog_item':
+				data.widget = getWidget(input.item);
+				return;
+
+			case 'get_articles':
+				var items = input.items;
+				var widgets = {};
+
+				items.forEach(function(item) {
+					if (item.type == 'article' || item.type == 'top_rated')
+						widgets[item.id] = getWidget(item);
+				});
+
+				data.widgets = widgets;
+				return;
+		}
+	}
+
+
+	var tags = [];
+
+	if (enableTags && (input && input.selectedSubcategories)) {
+		if (input.tags) {
+			tags = input.tags;
+		}
+
+		else {
+			var tagsLookup = (function() {
+				var tagsLookup = {};
+
+				var gr = new GlideRecord('label_entry');
+				gr.addQuery('table', 'STARTSWITH', 'sc_cat_')
+					.addOrCondition('table', 'kb_knowledge');
+
+				gr.setLimit(queryLimit * 10);
+				gr.query();
+
+				while (gr.next()) {
+					var label = gr.getDisplayValue('label');
+
+					if (tagsLookup[label])
+						tagsLookup[label].ids.push(gr.getValue('table_key'));
+
+					else
+						tagsLookup[label] = {
+							ids: [gr.getValue('table_key')]
+						};
+				}
+
+				return tagsLookup;
+			})();
+
+			var ids = [];
+			for (var key in tagsLookup) {
+				for (var i = 0; i < tagsLookup[key].length; i++)
+					ids.push(tagsLookup[key][i]);
+			}
+
+			tags = filtersHelper.createFilterArrays(tagsLookup);
+			stackHelper.setFilteredIds(ids);
+		}
+
+		stackHelper.setItemsPerPage(queryLimit);
+
+		var taggedItems = stackHelper.getItems();
+
+		// make sure the filter count is accurate
+		tags.forEach(function(tag) {
+			tag.count = 0; // reset
+
+			for (var i = 0; i < taggedItems.length; i++) {
+				if (tag.ids.indexOf(taggedItems[i].id) != -1)
+					tag.count++;
+			}
+		});
+
+		tags.forEach(function(tag) {
+			tag.active = tag.count > 0;
+			tag.selected = tag.active && tag.selected;
+		});
+	}
+
+
+	// additional stack helper settings before we finally getItems()
+	stackHelper.setItemsPerPage(itemsPerPage);
+
+	if (input && input.excludedIds)
+		stackHelper.setExcludedIds(input.excludedIds);
+
+	if (tags.length > 0)
+		stackHelper.setFilteredIds(filtersHelper.getFilteredIds(data.tags));
+
+	if (resultType == 'top_rated') {
+		data.items = stackHelper.getRatedArticles(suggestionsLimit);
+	}
+	else if (resultType == 'suggestions') {
+		if (defaultType === 'article') {
+			//data.items = stackHelper.getCommonArticles(suggestionsLimit);
+			data.items = stackHelper.getMostReadArticles(suggestionsLimit);
+		}
+		else {
+			data.items = stackHelper.getCommonItems(suggestionsLimit);
+		}
+	}
+	else
+		data.items = stackHelper.getItems();
+
+	data.tags = tags;
+	data.types = types;
+	data.total = stackHelper.getTotalItems();
+	data.categories = stackHelper.getCategories(categorySort);
+
+
+	function getWidget(item) {
+		switch (item.className) {
+
+			case 'sc_cat_item_guide':
+				return $sp.getWidget('wow-order-guide', {
+					embedded: true,
+					favoritesPage: 'wow_order_guide',
+					sys_id: item.id
+				});
+
+			case 'sc_cat_item_content':
+				if (item.contentItem.type == 'kb' && item.contentItem.article)
+					return $sp.getWidget('wow-article', {
+						embedded: true,
+						favoritesPage: 'wow_article',
+						sys_id: item.contentItem.article.id
+					});
+
+				else
+					return $sp.getWidget('wow-catalog-item', {
+						embedded: true,
+						favoritesPage: 'wow_catalog_item',
+						sys_id: item.id
+					});
+
+			case 'kb_knowledge':
+				return $sp.getWidget('wow-article', {
+					embedded: true,
+					favoritesPage: 'wow_article',
+					sys_id: item.id
+				});
+
+			default:
+				return $sp.getWidget('wow-catalog-item', {
+					embedded: true,
+					favoritesPage: 'wow_catalog_item',
+					sys_id: item.id
+				});
+		}
+	}
+
+
+	function isSupportedType(type) {
+		return types.indexOf(type) != -1;
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-05-28 20:14:08</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>bb1dc148dbf1f7008e94764cbf961944</sys_id>
+        <sys_mod_count>1410</sys_mod_count>
+        <sys_name>Wow Stack</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_bb1dc148dbf1f7008e94764cbf961944</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-19 13:32:56</sys_updated_on>
+        <template><![CDATA[<nav class="stack-navigator" ng-class="{'mobile-filters': mobileFilters}">
+
+  <div class="actions">
+    <button class="btn" ng-disabled="loading || !(selectedCategory || selectedItem)" ng-click="back()">
+      <i class="material-icons">arrow_back</i>
+      <span>${wow_back}</span>
+    </button>
+
+    <button class="btn" ng-disabled="!canReset()" ng-click="reset()">
+      <i class="material-icons">settings_backup_restore</i>
+      <span>${wow_start_over}</span>
+    </button>
+
+    <button class="btn categories-toggle" ng-if="::categories.length > 0" ng-click="toggleCategories()" ng-class="{'active': mobileCategories}">
+      <span>${wow_categories}</span>
+      <i class="material-icons">keyboard_arrow_down</i>
+    </button>
+
+    <button class="btn filters-toggle" ng-click="toggleFilters()" ng-class="{'active': mobileFilters}">
+      <i class="material-icons">filter_list</i>
+    </button>
+  </div>
+
+  <form class="search" ng-if="options.enableSearch">
+    <input name="q"
+           type="text"
+           ng-model="data.searchTerm"
+           ng-model-options="{debounce: 250}"
+           ng-change="search(data.searchTerm)"
+           ng-focus="focus()"
+           autocomplete="off"
+           placeholder="{{::options.searchPlaceholder}}"
+           aria-label="{{::options.searchPlaceholder}}"
+           tabindex="0">
+
+    <span class="btn" ng-class="{'hidden': searchTerm}">
+      <i class="material-icons">search</i>
+    </span>
+
+    <span class="btn" ng-class="{'hidden': !searchTerm}" ng-click="clearSearch()">
+      <i class="material-icons">close</i>
+    </span>
+  </form>
+
+  <div class="dropdowns">
+
+    <div ng-if="categories.length > 0" class="layout-options" uib-dropdown>
+      <a href id="list-syle-dropdown" uib-dropdown-toggle>
+        <i class="material-icons" ng-if="layout == 'list'">view_list</i>
+        <i class="material-icons" ng-if="layout == 'grid'">view_module</i>
+        <i class="fa fa-chevron-down"></i>
+      </a>
+      <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="list-syle-dropdown">
+        <li ng-click="selectLayout('list')">
+          <i class="material-icons" ng-class="{'muted': layout == 'grid'}" aria-hidden="true">view_list</i>
+        </li>
+        <li ng-click="selectLayout('grid')">
+          <i class="material-icons" ng-class="{'muted': layout == 'list'}" aria-hidden="true" >view_module</i>
+        </li>
+      </ul>
+    </div>
+
+    <div class="type-options" ng-if="typeOptions.length > 1">
+      <wow-dropdown-menu label="${wow_show}:"
+                         menu-items="typeOptions"
+                         selected-item-value="data.resultType"
+                         selection-changed="selectType(selection)">
+      </wow-dropdown-menu>
+    </div>
+
+    <!--div class="sort-options" ng-disabled="searchTerm || data.resultType == 'suggestions'"-->
+    <div class="sort-options" ng-disabled="searchTerm || data.resultType != 'article'">
+      <wow-dropdown-menu label="${wow_sort_by}:"
+                         menu-items="sortOptions"
+                         selected-item-value="data.sortType"
+                         selection-changed="selectSort(selection)">
+      </wow-dropdown-menu>
+    </div>
+
+  </div>
+
+  <div class="mobile-tags" ng-class="{'hidden': !hasTags(), 'loading': loading}">
+    <wow-filters limit="99"
+                 el-toggle="true"
+                 title="${wow_filter_by_tag}"
+                 filter-items="tags"
+                 filters-changed="selectTag()">
+    </wow-filters>
+  </div>
+
+  <div class="breadcrumbs">
+    <span class="crumb"
+          ng-if="selectedCategory"
+          ng-class="{'has-color': selectedCategory.iconColor, 'has-subcategories': selectedSubcategory}"
+          ng-style="{'background-color': selectedCategory.iconColor}">
+      {{selectedCategory.label}}
+    </span>
+    <span class="crumb"
+          ng-class="{'has-color': selectedSubcategory.iconColor || selectedCategory.iconColor}"
+          ng-style="{'background-color': selectedSubcategory.iconColor ? selectedSubcategory.iconColor : selectedCategory.iconColor}"
+          ng-if="selectedSubcategory">
+      {{selectedSubcategory.label}}
+    </span>
+  </div>
+
+</nav>
+
+<section class="wow-stack" ng-class="getClasses()">
+
+  <div class="stack-wrapper">
+
+    <aside class="categories">
+      <ul class="aside-list">
+        <li ng-repeat="category in categories track by $index"
+            ng-click="selectCategory(category)"
+            ng-class="{'active': category.selected}">
+          <div class="background" ng-style="{'background-color': category.iconColor}"></div>
+          <wow-item-image item="category"></wow-item-image>
+          <span class="category-label">{{category.label}}</span>
+        </li>
+      </ul>
+    </aside>
+
+    <aside class="subcategories">
+      <ul class="aside-list">
+        <li ng-repeat="category in subcategories track by $index"
+            ng-click="selectSubcategory(category)"
+            ng-class="{'active': category.selected}">
+          <div class="background" ng-style="{'background-color': category.iconColor || selectedCategory.iconColor}"></div>
+          <wow-item-image item="category"></wow-item-image>
+          <span class="category-label">{{category.label}}</span>
+        </li>
+      </ul>
+    </aside>
+
+    <aside class="results">
+
+      <div class="items-and-tags {{layout}}" ng-class="{'has-tags': hasTags()}">
+        <wow-spinner loading="loading"></wow-spinner>
+
+        <div class="tags" ng-class="{'hidden': !hasTags(), 'loading': loading}">
+          <wow-filters limit="99"
+                       el-toggle="true"
+                       hide-title="true"
+                       filter-items="tags"
+                       filters-changed="selectTag()">
+          </wow-filters>
+        </div>
+
+        <div class="items">
+          <!--
+          <h2 class="items-title" ng-show="data.resultType == 'suggestions' && !loading">
+            {{options.suggestionsTitle}}
+          </h2>
+          -->
+          <ul ng-class="{'aside-list': selectedItem && showPreviews, 'hidden': data.items.length == 0, 'loading': loading}">
+            <li ng-repeat="item in data.items track by $index"
+                ng-click="selectItem(item)"
+                ng-class="{'active': item.selected}">
+              <wow-item-image item="item"></wow-item-image>
+
+              <div class="item-details">
+                <div class="item-type" ng-if="item.type == 'article'">
+                  <span>${wow_article}</span>
+                </div>
+                <div class="item-type" ng-if="item.type == 'service'">
+                  <span>${wow_service}</span>
+                </div>
+                <h3 class="item-label">
+                  {{item.label}}
+                </h3>
+                <div class="item-summary">
+                  {{item.summary}}
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="empty" ng-if="!loading && data.items.length == 0">
+          <h2 class="empty-message" ng-if="searchTerm">
+            ${wow_no_results_for} <strong>{{searchTerm}}</strong>
+          </h2>
+          <h2 class="empty-message" ng-if="!searchTerm && !selectedSubcategory && selectedCategory && selectedCategory.subcategories">
+            ${wow_choose_subcategory}
+          </h2>
+          <h2 class="empty-message" ng-if="!searchTerm && (selectedSubcategory || (selectedCategory && !selectedCategory.subcategories))">
+            ${wow_no_results}
+          </h2>
+          <span ng-if="searchTerm" class="btn" ng-click="clearSearch()">${wow_clear_search}</span>
+        </div>
+
+      </div>
+
+      <div class="pagination">
+
+        <div class="page-links">
+          <button ng-disabled="pagedIds.length == 0" class="btn" ng-click="previous()">
+            <i class="material-icons">navigate_before</i>
+            <span> ${wow_previous}</span>
+          </button>
+          <button ng-disabled="data.total <= data.itemsPerPage" class="btn" ng-click="next()">
+            <span>${wow_next} </span>
+            <i class="material-icons">navigate_next</i>
+          </button>
+        </div>
+
+        <wow-dropdown-menu ng-if="perPageOptions"
+                           label="${wow_per_page}:"
+                           menu-items="perPageOptions"
+                           selected-item-value="data.itemsPerPage"
+                           selection-changed="selectPerPage(selection)">
+        </wow-dropdown-menu>
+
+      </div>
+
+    </aside>
+
+    <main class="preview">
+
+      <div class="article" ng-if="showPreviews && isArticle(selectedItem)">
+        <sp-widget widget="selectedItem.widget"></sp-widget>
+      </div>
+
+      <div class="service" ng-if="showPreviews && isService(selectedItem)">
+
+        <div class="header">
+          <wow-item-image item="selectedItem"></wow-item-image>
+
+          <div class="item-details">
+            <div class="item-type">
+              <span>${wow_service}</span>
+            </div>
+            <h2 class="item-label">
+              {{selectedItem.label}}
+            </h2>
+            <div class="item-summary">
+              {{selectedItem.summary}}
+            </div>
+
+            <!--a ng-class="{'hidden': selectedItem.contentItem}" ng-click="embedWidget(selectedItem)" class="btn btn-primary">
+              ${wow_request}
+            </a>
+
+            <a ng-class="{'hidden': selectedItem.contentItem.type != 'external'}" href="{{selectedItem.contentItem.href}}" target="{{selectedItem.contentItem.target}}" class="btn btn-primary">
+              ${wow_open}
+            </a-->
+          </div>
+
+        </div>
+
+        <div class="item-description" ng-if="selectedItem.description">
+          <div ng-bind-html="selectedItem.description"></div>
+        </div>
+
+        
+        
+        <!-- added below-->
+        
+        <div>
+            <a ng-class="{'hidden': selectedItem.contentItem}" ng-click="embedWidget(selectedItem)" class="btn btn-primary">
+              ${wow_request}
+            </a>
+
+            <a ng-class="{'hidden': selectedItem.contentItem.type != 'external'}" href="{{selectedItem.contentItem.href}}" target="{{selectedItem.contentItem.target}}" class="btn btn-primary">
+              ${wow_open}
+            </a>
+        </div>
+<!-- added above-->        
+        
+        
+      </div>
+
+    </main>
+
+    <div class="widget" ng-class="{'hide-details': showPreviews}">
+      <wow-spinner loading="showWidget && !selectedItem.widget"></wow-spinner>
+
+      <div ng-if="showWidget && selectedItem.widget && selectedItem.widget !== true"><!-- IE 11 fix -->
+        <sp-widget widget="selectedItem.widget"></sp-widget>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+]]></template>
+    </sp_widget>
+</record_update>

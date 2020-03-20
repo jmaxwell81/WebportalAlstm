@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>2</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">afcea823db2b40909a88b1b239961915</sp_column>
+        <sp_widget display_value="Wow Content Grid">90287874dba3d78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 11:01:27</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>37cea823db2b40909a88b1b23996191c</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Wow Content Grid (asp2)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_37cea823db2b40909a88b1b23996191c</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 11:01:29</sys_updated_on>
+        <title>Wow Content Grid (asp2)</title>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"defaultTemplate": {
+		"value": "Layout 2",
+		"displayValue": "Layout 2"
+	},
+	"approverTemplate": {
+		"value": "",
+		"displayValue": "-- None --"
+	},
+	"menu": {
+		"value": "bfcea823db2b40909a88b1b23996192a",
+		"displayValue": "Wow Content Grid (asp2)"
+	},
+	"enableNews": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"enableAnimations": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"translucentTiles": {
+		"value": "",
+		"displayValue": ""
+	},
+	"addMargins": {
+		"value": "",
+		"displayValue": ""
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="delete_multiple" query="documentkey=37cea823db2b40909a88b1b23996191c"/>
+</record_update>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope) {
+	var c = this;
+
+	$scope.$on("$sp.service_catalog.cart.update", function() {
+		$scope.server.update();
+	});
+
+	$scope.hasPrices = function() {
+		for (var i = 0; i < c.data.cartItems.length; i++) {
+			if (c.data.cartItems[i].price)
+				return true;
+		}
+		return false;
+	}
+
+	$scope.removeItem = function(item) {
+		c.server.get({
+			action: 'remove_item',
+			sys_id: item.id
+		}).then(function(r) {
+			c.data.cartItems = r.data.cartItems;
+			$rootScope.$broadcast("$sp.service_catalog.cart.update");
+		});
+	}
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel() {
+  margin: 0;
+}
+
+.empty-cart {
+  padding: 2rem 0;
+  margin: 0 auto;
+  text-align: center;
+}
+
+span, a:not(.btn) {
+  color: $text-color;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  color: $text-muted;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody {
+  @include wow-scrollbar($brand-primary, $panel-bg);
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 1rem;
+
+  &gt;tr {
+    border-bottom: 1px solid darken($panel-bg, 10%);
+
+    &amp;:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+td {
+  font-size: 0.9rem;
+  padding: 1rem .5rem;
+
+  &amp;:first-child {
+    &gt;a {
+      align-items: center;
+      display: flex;
+    }
+  }
+}
+
+th, td {
+  &amp;:nth-child(2) {
+    text-align: right;
+  }
+
+  &amp;:last-child {
+    padding-left: 1rem;
+    text-align: center;
+
+    i {
+      font-size: 1.5em;
+    }
+  }
+}
+
+.price {
+  white-space: nowrap;
+}
+
+@include wow-item-image(50px) {
+  margin-right: 1rem;
+}
+
+.checkout-btn {
+  @include wow-button();
+  margin-top: 1rem;
+  width: 100%;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-cart-mini</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+
+ }]]></link>
+        <name>Wow Cart Mini</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+
+	data.cartItems = util.getCartItems();
+
+	if (input && input.action === 'remove_item') {
+		var gr = new GlideRecord('sc_cart_item');
+		if (gr.get(input.sys_id))
+			gr.deleteRecord();
+		return;
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-24 05:26:08</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>3359b2b0dbcd7f0016a5f40b0c9619d3</sys_id>
+        <sys_mod_count>36</sys_mod_count>
+        <sys_name>Wow Cart Mini</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_3359b2b0dbcd7f0016a5f40b0c9619d3</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 06:57:32</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+  <div ng-if="data.cartItems.length == 0" class="empty-cart">
+    <span>${wow_empty_cart}</span>
+  </div>
+
+  <table ng-if="data.cartItems.length > 0">
+    <thead>
+      <tr>
+        <th>${wow_product}</th>
+        <th ng-if="c">${Price}</th>
+        <th>${wow_remove}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="item in data.cartItems track by $index">
+        <td>
+          <a href="{{item.href}}">
+            <wow-item-image item="item"></wow-item-image>
+            <span>{{item.name}}</span>
+          </a>
+        </td>
+        <td ng-if="hasPrices()">
+          <a ng-if="item.price" href="{{item.href}}" class="price">
+            {{item.price}}
+          </a>
+        </td>
+        <td>
+          <i ng-click="removeItem(item)" class="material-icons">clear</i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="?id=wow_cart" class="checkout-btn btn btn-primary" ng-if="data.cartItems.length > 0">
+    ${wow_cart_link}
+  </a>
+</div>]]></template>
+    </sp_widget>
+</record_update>

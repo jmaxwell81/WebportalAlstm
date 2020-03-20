@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.panel {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 750px;
+  padding: 3rem;
+}
+
+.type {
+  align-items: center;
+  display: flex;
+  font-size: 1.5rem;
+  margin-bottom: .5rem;
+
+  &amp;.outage {
+    color: $brand-danger;
+  }
+
+  &amp;.planned,
+  &amp;.degradation {
+    color: $brand-warning;
+  }
+
+  i {
+    font-size: 1.5em;
+    margin-right: .25em;
+  }
+}
+
+.service {
+  color: $text-muted;
+  margin-bottom: 1rem;
+}
+
+.description {
+  margin: 0 0 1rem;
+}
+
+.timing {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+
+  span {
+    color: $text-muted;
+  }
+}
+
+.details {
+  margin-top: 2rem;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Outage</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var outagesHelper = new WowOutages();
+
+	data.outage = outagesHelper.getOutage($sp.getParameter('sys_id'));
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-09 17:01:21</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e2b0b086db7357c087e2f3de3b961945</sys_id>
+        <sys_mod_count>39</sys_mod_count>
+        <sys_name>Wow Outage</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_e2b0b086db7357c087e2f3de3b961945</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 05:57:35</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <section ng-if="data.outage">
+
+    <div ng-if="data.outage.type == 'outage'" class="outage type">
+      <i class="material-icons">warning</i>
+      ${wow_service_alert}
+    </div>
+    <div ng-if="data.outage.type == 'degradation'" class="degradation type">
+      <i class="material-icons">error</i>
+      ${wow_service_degradation}
+    </div>
+    <div ng-if="data.outage.type == 'planned'" class="planned type">
+      <i class="material-icons">error</i>
+      ${wow_planned_outage}
+    </div>
+
+    <div class="service" ng-if="::data.outage.service">
+      {{::data.outage.service}}
+    </div>
+
+    <h2 class="description" ng-if="::data.outage.description">{{::data.outage.description}}</h2>
+
+    <div ng-if="data.outage.start.value" class="timing">
+      <span>${wow_start}:</span>
+      {{::data.outage.start.displayValue}}
+    </div>
+
+    <div ng-if="data.outage.end.value" class="timing">
+      <span>${wow_end}:</span>
+      {{::data.outage.end.displayValue}}
+    </div>
+
+    <div ng-bind-html="data.outage.details" class="details"></div>
+
+  </section>
+
+  <section ng-if="!data.outage">
+    ${wow_no_record}
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

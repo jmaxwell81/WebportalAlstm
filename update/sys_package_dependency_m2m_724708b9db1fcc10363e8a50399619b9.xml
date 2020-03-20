@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_package_dependency_m2m">
+    <sys_package_dependency_m2m action="INSERT_OR_UPDATE">
+        <dependency display_value="Knowledge Management V3" source="com.snc.knowledge3">461ce8840f0002008a581b2be1050e31</dependency>
+        <min_version>1.0.0</min_version>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-02 11:23:46</sys_created_on>
+        <sys_id>724708b9db1fcc10363e8a50399619b9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 11:23:46</sys_updated_on>
+    </sys_package_dependency_m2m>
+</record_update>

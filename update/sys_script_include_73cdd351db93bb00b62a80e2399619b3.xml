@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowTask</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>WowTask</name>
+        <script><![CDATA[var WowTask = Class.create();
+WowTask.prototype = {
+	CHILD_INC_COPY_ATTRS: 'x_mono2_wow.tu.portal.incident.copy.attributes',
+	INC_DUE_DATE: 'sla_due',
+	REQ_DUE_DATE: 'due_date',
+	CHASE_TIMEOUT: (gs.getProperty('tu.portal.chase.timeout')>=0 ? gs.getProperty('tu.portal.chase.timeout'):0),
+	NON_CHASE_ITEM_CAT: 'Password Hub', //RITM category that can not be chased
+	
+    initialize: function(options) {
+		options = options || {};
+		
+		this.table = options.table || 'task';
+		this.sys_id = options.sys_id;
+		
+		this.util = new WowUtil();
+		
+		if (this.table && this.sys_id)
+			this.task = this.util.getGlideRecord(this.table, this.sys_id);
+			
+		this.log = new global.GSLog('tu.portal.WowTask.log.level', this.type);	
+    },
+	
+	
+	setTask: function(task) {
+		this.task = task;
+	},
+	
+	
+	getTask: function() {
+		return this.task;
+	},
+	
+	
+	chaseTask: function(comments) {
+		if (this.canChase()) {
+			this.chaseThisTask(this.task, comments);
+			this.refresh();
+			return true;
+		}
+
+		return false;
+	},
+		
+	
+	acceptResolution: function() {
+		if (this.canAcceptResolution()) {
+			this.taskAccepted(this.task);
+			this.refresh();
+			return true;
+		}
+
+		return false;
+	},
+	
+	
+	rejectResolution: function(comments) {		
+		if (this.canRejectResolution()) {
+			this.taskRejected(this.task, comments);
+			this.refresh();
+			return true;
+		}
+
+		return false;
+	},
+	
+	
+	cancelTask: function(comments) {		
+		if (this.canCancel()) {
+			this.cancelThisTask(this.task, comments);
+			this.refresh();
+			return true;
+		}
+
+		return false;
+	},
+	
+	
+	closeTask: function(comments) {
+		if (this.canClose()) {
+			this.incClosedByUser(this.task.getUniqueValue(), comments);
+			this.refresh();
+			return true;
+		}
+
+		return false;
+	},
+	
+	update_worknotes: function(comments) {
+		if (this.task) {
+			this.task.work_notes = comments;
+			this.task.comments = comments;
+			this.task.update();
+			return true;
+		}
+
+		return false;
+	},
+	
+	
+	addComments: function(comments) {
+		if (this.task) {
+			this.task.comments = comments;
+			this.task.update();
+			return true;
+		}
+		
+		return false;
+	},
+	
+	
+	canChase: function() {
+		return this.task ? 
+			this.canUserChase(this.task, gs.getUserID()) : false;
+	},
+	
+	
+	canAcceptResolution: function() {
+		return this.task ? 
+			this.canAccept(this.task, gs.getUserID()) : false;
+	},
+	
+	
+	canRejectResolution: function() {
+		return this.task ? 
+			this.canReject(this.task, gs.getUserID()) : false;
+	},
+
+	
+	canCancel: function() {
+		return this.task ? 
+			this.canUserCancel(this.task, gs.getUserID()) : false;
+	},
+	
+	
+	canClose: function() {
+		return this.task ? 
+			this.canUserClose(this.task, gs.getUserID()) : false;
+	},
+	
+	
+	hasBreachedSLA: function() {
+		return this.task ? 
+			!this.inSLA(this.task) : false;
+	},
+	
+	
+	getPermissions: function() {
+		return {
+			canChase: this.canChase(),
+			canAcceptResolution: this.canAcceptResolution(),
+			canRejectResolution: this.canRejectResolution(),
+			canCancel: this.canCancel(),
+			canClose: this.canClose()
+		};
+	},
+	
+	
+	getGlideRecord: function(table, sys_id) {
+		return this.util.getGlideRecord(table, sys_id);
+	},
+	
+	
+	refresh: function() {
+		if (this.table && this.sys_id)
+			this.task = this.util.getGlideRecord(this.table, this.sys_id);
+	},
+	
+	// Following methods are from the EUPUtils Script Include
+	
+	/* I can only see the 'this affects me' button if:
+ 	* I am not the caller AND I am not the affected user AND I haven't pressed it already
+ 	* Usage:
+ 	* var canSeeWidget = new EUPUtils().canAffectMe(gs.getUserID(), parentInc);
+ 	*/
+	canAffectMe: function(user, parentInc){
+		var canBeAffected = true; //default to allow widget/button
+
+		var grIncident = new GlideRecord('incident');
+		grIncident.addQuery ('caller_id', user);
+		grIncident.addQuery ('parent_incident', parentInc.sys_id);
+		grIncident.query();
+	
+		canBeAffected = !(grIncident.next() || user == parentInc.caller_id || user == parentInc.u_affected_user);
+			
+		return canBeAffected;
+	},
+	/* Create and return child incident.
+ 	* Usage:
+ 	* var childInc = new EUPUtils().thisAffectsMe(gs.getUserID(), current);
+ 	* system property used to determine which fields to copy
+ 	*/
+	thisAffectsMe: function(user, parentInc){
+
+		this.log.logDebug ('thisaffectsMe: parentInc.number: ' + parentInc.number);
+
+		var fieldList = gs.getProperty(this.CHILD_INC_COPY_ATTRS);
+		var attrList = new global.IncidentUtilsSNC().getCsvValue(fieldList); //strips out spaces in the csv list
+
+		// copy parent values
+		var grChildInc = this._createChildCopy (parentInc, attrList);
+		// non-copied attributes - specfic to this incident
+		grChildInc.caller_id = user;
+		grChildInc.parent_incident = parentInc.sys_id;
+		grChildInc.contact_type = 'this_affects_me';
+
+		var childInc = grChildInc.insert();
+		return childInc;
+	},
+	// copied from SI - IncidentUtilsSNC
+	_createChildCopy: function(srcGr, copyAttrs) {
+		var table = srcGr.getTableName(); //left in for the error message.
+		var gr = new GlideRecord('incident');
+		gr.initialize();
+		for (var i = 0; i < copyAttrs.length; ++i) {
+			var field = copyAttrs[i];
+			if (srcGr.isValidField(field))
+				gr.setValue(field, srcGr.getValue(field));
+			else
+				this.log.logErr("_makeRecordCopy: Invalid field '" + field + "' provided for table '" + table + "'.");
+		}
+		return gr;
+	},
+
+	/* Creates a relationship record between an announcement and a portal
+ 	* based on a company or user. If no portal/company is found then no record is created
+ 	* Will need more robust error check in that scenario as it means data issue
+ 	* and announcement will be global. Maybe prevent creation and inform user to add
+ 	* portal/company manually
+ 	* returns true if added (or already exists), false if not
+ 	* Usage:
+ 	* var portalAnnouncement = new EUPUtils().announcementCompany(gs.user(), announcementId);
+ 	*/
+	announcementCompany: function(user, company, announcement){
+		var grAnnouncementPortal = new GlideRecord ('m2m_announcement_portal');
+		var grPortal = new GlideRecord ('sp_portal');
+		var grUser = new GlideRecord ('sys_user'); //user not used yet.
+		var spPortal; // will be the portal sysid to insert into the m2m
+
+		var rc = false;
+		if (company) {
+			grPortal.addQuery('u_company', company);
+			grPortal.query();
+			if (grPortal.next()) {
+				// we have a portal for this company - will need to add code to check not duplicate.
+				grAnnouncementPortal.sp_portal = grPortal.sys_id;
+				grAnnouncementPortal.announcement = announcement;
+				grAnnouncementPortal.insert();
+				rc = true;
+			} else {
+				//no portal found for company
+				this.log.logWarning ("announcementCompany: unable to relate announcement to portal. No portal found for company ");
+				rc = false;
+			}
+		} else {
+			// no company record passed.
+			this.log.logWarning ("announcementCompany: unable to relate announcement to portal. No company value provided");
+			rc =false;
+		}
+		return rc;
+	},
+	/*----------------------------
+	 *Button availability conditions
+	 *----------------------------*/
+
+	// Accept and Reject are identical for now. 
+	canAccept: function (task, user) {
+
+		var answer = this._checkAcceptReject(task, user);
+		return Boolean(answer);
+	},
+	canReject: function (task, user) {
+
+		answer = this._checkAcceptReject(task, user);
+		return Boolean(answer);
+
+	},
+	_checkAcceptReject: function(task, user){
+		var answer = false;
+		switch (task.sys_class_name.toString()) {
+
+			case 'incident':
+				answer =
+					//(task.caller_id == user || task.u_affected_user == user) &&
+					//task.state == IncidentState.RESOLVED;
+					task.caller_id == user && task.state == global.IncidentState.RESOLVED;
+					
+				break;
+
+			case 'sc_req_item':
+				answer =
+					//task.u_item_acceptance == '' && // CC field
+					(task.opened_by == user || task.ref_sc_req_item.request.requested_for == user) &&
+					task.state == '8'; //resolved
+					//task.state == '3'; //closed complete
+					
+				break;
+
+			default:
+				answer = false; // only able accept/reject incidents and RITMs
+		}
+		return answer;
+	},
+	canUserChase: function (task, user) {
+
+		var answer = false;
+		// can chase an active task that hasnt already been chased or chase timed out
+		var defaultAnswer = task.active && 
+			(!task.u_chased || (task.u_chased && this._chaseTimedOut(task.u_chased_at.getDisplayValue())));
+
+		// check further user conditions based on task type
+		switch (task.sys_class_name.toString()) {			
+			case 'incident':
+				answer =
+					defaultAnswer &&
+					(task.caller_id == user || task.u_affected_user == user) &&
+					task.contact_type != 'this_affects_me' && //RQ:91315. 5Sep2019
+					task.state != global.IncidentState.RESOLVED;
+				break;			
+			case 'sc_request':
+				answer =
+					defaultAnswer &&
+					(task.opened_by == user || task.requested_for == user);
+				break;			
+			case 'sc_req_item':
+				this.log.logDebug ('canUserChase: Item category:' + task.ref_sc_req_item.cat_item.category.title);
+				answer =
+					defaultAnswer &&
+					task.ref_sc_req_item.cat_item.category.title != this.NON_CHASE_ITEM_CAT &&
+					(task.opened_by == user || task.request.requested_for == user);
+				break;			
+			default:
+				answer = defaultAnswer && task.opened_by == user;
+		}
+		return Boolean(answer);
+	},
+	_chaseTimedOut: function (lastChased) {
+		// true if not been chased for nn minutes or timeout is 0
+		var answer = true;
+		var timeOut = parseInt(this.CHASE_TIMEOUT);
+		if (timeOut > 0) {
+
+			var nowMins = new GlideDateTime(gs.nowDateTime()).getNumericValue()/60000;
+			var lastChaseMins = new GlideDateTime(lastChased).getNumericValue()/60000;
+
+			answer = (lastChaseMins < (nowMins - timeOut));
+		}
+		return answer;
+	},
+	canResetChase: function (task, user) {
+		var answer = false;
+		answer =
+			(gs.getUser(user).hasRole('itil') &&
+			 task.u_chased &&
+			 task.active &&
+			 task.state != global.IncidentState.RESOLVED);
+		return Boolean(answer);
+	},
+	canUserClose: function (task, user) {
+		var answer = false;
+		answer =
+			((task.caller_id == user || task.u_affected_user == user) &&
+			 task.active &&
+			 task.contact_type != 'this_affects_me' && //RQ:91315. 5Sep2019
+			 task.state != global.IncidentState.RESOLVED);
+		return Boolean(answer);
+	},
+	canUserCancel: function (task, user) {
+		var answer = false;
+		switch (task.sys_class_name.toString()) {
+
+			case 'sc_request':
+				answer =
+					(task.opened_by == user || task.ref_sc_request.requested_for == user) &&
+					(task.approval == 'not requested' || task.approval == 'requested');
+				break;
+
+			case 'sc_req_item':
+				answer =
+					(task.opened_by == user || task.ref_sc_req_item.request.requested_for == user) &&
+					//(task.approval == 'not requested' || task.approval == 'requested') &&
+					task.active;
+				break;
+
+			default:
+				answer = false; //can only cancel requests and items
+		}
+		return Boolean(answer);
+	},
+
+	/*----------------------------
+	 *Button actions - chase, accept, reject, cancel and user close
+	 *----------------------------*/
+
+	chaseThisTask: function(task, reason) {
+		// returns true if in SLA, false if out fo SLA
+		var grTask = new GlideRecord ('task');
+		grTask.get(task.sys_id);
+		grTask.u_chase_count += 1;
+		grTask.u_chased = true;
+		grTask.u_chased_at = gs.nowDateTime();
+		grTask.comments = this._getMessage('tu_wow_chase_task', gs.getUserDisplayName(), reason);
+		grTask.update();
+		// return SLA status
+		return this.inSLA(task);
+		
+	},
+
+	inSLA : function (task){
+		var answer = false;
+		var dateField = '';
+
+		switch (task.sys_class_name.toString()) {
+			case 'incident': dateField = this.INC_DUE_DATE;
+				break;
+			case 'sc_req_item': dateField = this.REQ_DUE_DATE;
+				break;
+			default: dateField = 'due_date';
+		}
+		var dueDate = new GlideDateTime(task.getValue(dateField));
+		//gs.log ('dueDate: ' + dueDate);
+		answer = (dueDate != '' ? dueDate > (new GlideDateTime()) : true);
+		return answer;
+	},
+
+	// Chase now persistent. This function not used anymore - except for testing.
+	resetChase: function(task) {
+		var grTask = new GlideRecord ('task');
+		grTask.get(task);
+		grTask.u_chased = false;
+		//grTask.comments = gs.getUser().getFullName() + ' acknowledged/reset chase on ' + gs.nowDateTime();
+		grTask.comments = this._getMessage('tu_wow_chase_reset', gs.getUserDisplayName());
+		grTask.update();
+
+	},
+
+	taskAccepted: function(task) {
+		var grTask = new GlideRecord (task.sys_class_name);
+		grTask.get(task.sys_id);
+		switch (grTask.sys_class_name.toString()) {
+			case 'incident':
+				grTask.state = global.IncidentState.CLOSED;
+				break;
+			case 'sc_req_item':
+				//should already be closed - but set anyway.
+				grTask.state = 3;
+				//grTask.u_item_acceptance = 'accepted'; // cc field
+				grTask.comments = this._getMessage('tu_wow_item_accepted',task.number, gs.getUserDisplayName());
+				break;
+			default:
+				// nothing to do
+		}
+		grTask.update();
+	},
+
+	taskRejected: function(task, reason) {
+		var grTask = new GlideRecord (task.sys_class_name);
+		grTask.get(task.sys_id);
+		switch (grTask.sys_class_name.toString()) {
+			case 'incident':
+				grTask.state = global.IncidentState.IN_PROGRESS;
+				grTask.comments = this._getMessage ('tu_wow_incident_rejected', gs.getUserDisplayName(), reason);
+				break;
+			case 'sc_req_item':
+				// create an incident and add a comment.
+				//grTask.u_related_incident = this._createIncident(task, reason);
+				grTask.state = 2;
+				grTask.u_item_acceptance = 'rejected';
+				grTask.comments = this._getMessage ('tu_wow_incident_rejected', gs.getUserDisplayName(), reason);
+				break;
+			default:
+				//nothing to do
+		}
+		grTask.update();
+	},
+	_getMessage: function (getmsg,parm1,parm2) {
+		var msgArray = [];
+		msgArray.push(parm1);
+		msgArray.push(parm2);
+		var msg = gs.getMessage(getmsg, msgArray);
+		return msg;
+	},
+	_createIncident: function (reqTask, reason) {
+		var grInc = new GlideRecord('incident');
+
+		grInc.initialize();
+		grInc.short_description = this._getMessage('tu_wow_item_rejected_inc', reqTask.number, gs.getUserDisplayName());
+		grInc.caller_id = gs.getUserID();
+		grInc.u_requested_item = reqTask.sys_id;
+		grInc.comments = this._getMessage('tu_wow_item_rejected',gs.getUserDisplayName(), reason);
+
+		var newInc = grInc.insert();
+		return newInc;
+	},
+	incClosedByUser: function(task, reason) {
+		var grTask = new GlideRecord ('task');
+		grTask.get(task);
+		//grTask.state = global.IncidentState.RESOLVED;
+		grTask.state = '3'; //Alstom are not usung OOB states!
+		grTask.incident_state = '7';
+		grTask.u_sub_status = 'Cancelled';
+		grTask.comments = this._getMessage ('tu_wow_inc_closed_by_user',  gs.getUserDisplayName());
+		grTask.close_notes += reason;
+		grTask.update();
+	},
+
+	cancelThisTask: function(task, reason) {
+		// cancel for request and item sets states to drive OOTB behaviour
+		// to clean up/cancel workflows/set stages etc.
+
+		var grTask = new GlideRecord (task.sys_class_name);
+		grTask.get(task.sys_id);
+		switch (grTask.sys_class_name.toString()) {
+
+			case 'sc_request':
+				grTask.request_state = 'closed_cancelled';
+				grTask.comments = this._getMessage ('tu_wow_req_cancelled', gs.getUserDisplayName(), reason);
+				break;
+
+			case 'sc_req_item':
+				grTask.state = '4'; //closed incomplete
+				grTask.comments = this._getMessage ('tu_wow_req_cancelled', gs.getUserDisplayName(), reason);
+				break;
+
+			default:
+				//nothing to do
+		}
+
+		grTask.update();
+
+	},
+	/*
+ 	* Breached - if any active 'Resolution' SLA's are breached.
+ 	* This works on local instance where ServiceNow sla functionality is used
+ 	*/
+	isBreachedSLA: function (task) {
+		var isBreached = false;
+		var grTaskSLA = new GlideRecord ('task_sla');
+		grTaskSLA.addQuery('active', true);
+		grTaskSLA.addQuery('task', task);
+		grTaskSLA.addQuery('has_breached', true);
+		grTaskSLA.query();
+
+		isBreached = grTaskSLA.next();
+
+		return isBreached;
+	},
+
+	/* Used for TeamConnect integration to an integrated ITSM solution
+	* Find the first SLA expiry time and populate to the incident 
+	*/
+	updateSLAdueDate: function (task) {
+		// select all active slas for task. sort by breach.
+		// do NOT check sla due against breach as it might be a new SLA - e.g. P1 to P2
+		// *Possibly revise this function to return the date and let BR set and update
+
+		var grTaskSLA = new GlideRecord ('task_sla');
+		var slaDueSet = false;
+		grTaskSLA.addQuery('active', true);
+		grTaskSLA.addQuery('task', task);
+		grTaskSLA.orderBy('planned_end_time');
+		grTaskSLA.query();
+
+		//we need to find the first Resolution Sla
+		while (grTaskSLA.next() && !slaDueSet) {
+			var grSLADef = new GlideRecord('contract_sla');
+			grSLADef.get(grTaskSLA.sla);
+			if (grSLADef.type == 'SLA' && grSLADef.target == 'resolution') {
+				var grTask = new GlideRecord ('task');
+				grTask.get(task);
+				grTask.sla_due = grTaskSLA.planned_end_time;
+				grTask.update();
+				slaDueSet = true;
+			}
+		}
+		return;
+	},
+
+	broadcastExists: function(currInc) {
+		var bcExists = false; //set default value
+
+		var grAnnouncement = new GlideRecord ('announcement');
+		grAnnouncement.addQuery('u_document', currInc);
+		grAnnouncement.addQuery('active', true);
+		grAnnouncement.query();
+		if (grAnnouncement.next()) {
+			bcExists = true;
+		}
+		return bcExists;
+	},
+	/*
+ 	* RQ:90504. User details need to be copied to incident body.
+ 	* NOT the actual requirement. So NOT USED at present.
+ 	* May need to copy the variables ..... TeamConnect function ?
+ 	*/
+	copyContactDetails: function(currInc,user){
+
+		var grIncident = new GlideRecord ('incident');
+
+		grIncident.get(currInc);
+
+		// Put a nominal heading in the description
+		grIncident.description += 'Caller Details\n';
+		// TO DO .... get the variables and add them to the description
+
+		grIncident.update();
+	},
+
+
+	//this generates a ref qual for searching products
+	productRefQual: function (category) {
+
+		var refQual = '';
+		var setStr = "cmdb_model_categoryLIKE${sysid}";
+
+		var gr = new GlideRecord('u_incident_category_to_product_model');
+		gr.addActiveQuery();
+		gr.addQuery('u_inc_category', category);
+		gr.orderBy('order');
+		gr.query();
+
+		if(gr.next()) {
+			var modCats = gr.u_model_category.toString();
+			var temp = [];
+
+			if(modCats && modCats != '') {
+
+				//split into an array so we can loop through
+				modCats = modCats.split();
+
+				for(var i = 0;i < modCats.length;i++) {
+
+					var str = setStr.replace('${sysid}', modCats[i]);
+					temp.push(str);
+				}
+			}
+			return temp.join("^OR");
+		}
+		return 'sys_id=null';
+
+	},
+
+	getCategoryRP: function (category) {
+		
+		var rp = null;
+		
+		if(!category || category == undefined || category == '')
+			return rp;		
+		
+		var gr = new GlideRecord('u_incident_category_to_product_model');
+		gr.addActiveQuery();
+		gr.addQuery('u_inc_category', category);
+		gr.orderBy('order');
+		gr.query();
+		
+		if(gr.next()) {
+			//get the record producer sys_id
+			rp = gr.u_record_producer.sys_id.toString() || null;
+		}
+		
+		return rp;
+	},
+
+
+	// Copy of SN supplied utility - "UserCriteriaDiagnosticsUtil"
+	// Adapted for use for the portal to check 'requested_for' on checkout.
+	// Creates an object with diagnostic level info to determine if a user can see a catalog item. 
+	// Usage:
+	// var canSee = new EUPUtils().canUserOrderItem(gs.getUserId(), item.sys_id)
+	// The property with the answer true is false is: result.ucData.treeData.viewable
+
+	// Original code is commented out and replacements suffixed with //DP
+	canUserOrderItem: function  (userId, itemId) {
+		var uclist;
+		//var itemId;
+		//var userId;
+		var CATALOG = 'catalog';
+		var CATALOG_ITEM = 'catalog_item';
+		var CATEGORY = 'category';
+
+		function _fetchUserCriteriaData() {
+			var matches;
+			var idNameMap = {};
+			var results = [];
+			//var isCatalogItem = "" + request.getParameter("sysparm_isCatalogItem");
+			var isCatalogItem = "true"; //DP
+			var mToMTableName = 'sc_cat_item_user_criteria_mtom';
+			var noMToMTableName = 'sc_cat_item_user_criteria_no_mtom';
+			var columnName = 'sc_cat_item';
+			if (isCatalogItem === 'false') {
+				mToMTableName = 'sc_category_user_criteria_mtom';
+				noMToMTableName = 'sc_category_user_criteria_no_mtom';
+				columnName = 'sc_category';
+			}
+			var itemIncludedCriteria = _fetchAssociation(mToMTableName, columnName, itemId);
+			var itemNotIncludedCriteria = _fetchAssociation(noMToMTableName, columnName, itemId);
+			var matchingAvailableUC = SNC.UserCriteriaLoader.getMatchingCriteria(userId, itemIncludedCriteria);
+			var matchingNotAvailableUC = SNC.UserCriteriaLoader.getMatchingCriteria(userId, itemNotIncludedCriteria);
+
+			idNameMap = _getUserCriteriaNameMap(itemIncludedCriteria.concat(itemNotIncludedCriteria));
+			for (var i = 0; i < itemNotIncludedCriteria.length; i++) {
+				matches = matchingNotAvailableUC.indexOf(itemNotIncludedCriteria[i]) !== -1;
+				results.push({
+					type: "Not Available",
+					uc: itemNotIncludedCriteria[i],
+					matches: matches,
+					name: idNameMap[itemNotIncludedCriteria[i]]
+				});
+			}
+			for (i = 0; i < itemIncludedCriteria.length; i++) {
+				matches = matchingAvailableUC.indexOf(itemIncludedCriteria[i]) !== -1;
+				results.push({
+					type: "Available",
+					uc: itemIncludedCriteria[i],
+					matches: matches,
+					name: idNameMap[itemIncludedCriteria[i]]
+				});
+			}
+
+			return results;
+		}
+		function _fetchAssociation(tableName, column, id) {
+			var items = [];
+			var gr = new GlideRecord(tableName);
+			gr.addActiveQuery();
+			gr.addQuery(column, id);
+			gr.addNotNullQuery('user_criteria');
+			gr.addNotNullQuery(column);
+			gr.query();
+			while (gr.next()) {
+				items.push(gr.getValue('user_criteria'));
+			}
+			return items;
+		}
+		function _getUserCriteriaNameMap(ids) {
+			var idNameMap = {};
+			var criteriaGr = new GlideRecord('user_criteria');
+			criteriaGr.addQuery("sys_id", "IN", ids);
+			criteriaGr.query();
+			while (criteriaGr.next()) {
+				idNameMap[criteriaGr.getValue("sys_id")] = criteriaGr.getValue("name");
+			}
+			return idNameMap;
+		}
+		function _getAndParseData(itemId, userId) {
+			var catItem = new sn_sc.CatItem(itemId);
+			var itemDetails = catItem.getItemSummary();
+			var itemCatalogs = itemDetails.catalogs;
+			var i = 0,
+				j, itemCategories = [];
+			var children;
+			var categoryObject, catalog, categoryTree;
+			var allChildren = [];
+
+			while (i < itemCatalogs.length) {
+				itemDetails.categories = [];
+				// Add catalog in tree
+				children = [{
+					name: itemCatalogs[i].title,
+					sys_id: itemCatalogs[i].sys_id,
+					active: itemCatalogs[i].active,
+					type: CATALOG,
+					viewable: itemCatalogs[i].active
+				}];
+
+				itemCategories = [];
+				var gr = new GlideRecord("sc_cat_item_category");
+				gr.addQuery("sc_cat_item", itemId);
+				gr.addQuery("sc_category.sc_catalog", itemCatalogs[i].sys_id);
+				gr.query();
+				while (gr.next()) {
+					itemCategories.push(gr.getValue("sc_category"));
+				}
+				j = 0;
+				while (j < itemCategories.length) {
+					categoryTree = catItem.getCategoryTree(itemCategories[j]);
+					categoryObject = new sn_sc.CatCategory(categoryTree.sys_id);
+					catalog = categoryObject.getCatalog();
+
+					if (catalog === itemCatalogs[i].sys_id) {
+						itemDetails.categories.push(categoryTree);
+					}
+					j++;
+				}
+				allChildren = allChildren.concat(_getAllChildren(itemDetails.categories, children));
+				i++;
+			}
+			// Add catalog item at the top of tree
+			return {
+				name: itemDetails.name,
+				sys_id: itemDetails.sys_id,
+				children: allChildren,
+				type: CATALOG_ITEM,
+				viewable: _viewable(itemDetails.sys_id, userId, CATALOG_ITEM)
+			};
+		}
+		function _getAllChildren(categories, children) {
+			var categoryQueue = [];
+			var allCategories = [];
+			var node;
+
+			// Add categories
+			categories.forEach(function(category) {
+				var tempNode, childCategory;
+				node = {
+					name: category.title,
+					sys_id: category.sys_id,
+					active: category.active,
+					children: children,
+					type: CATEGORY,
+					viewable: _viewable(category.sys_id, userId, CATEGORY)
+				};
+
+				if (category.category && Object.keys(category.category).length) {
+					categoryQueue.push(category.category);
+				}
+
+				while (categoryQueue.length) {
+					tempNode = {};
+					childCategory = categoryQueue.pop();
+					tempNode = {
+						name: childCategory.title,
+						sys_id: childCategory.sys_id,
+						active: childCategory.active,
+						children: [],
+						type: CATEGORY,
+						viewable: _viewable(childCategory.sys_id, userId, CATEGORY)
+					};
+					tempNode.children.push(node);
+					node = tempNode;
+					if (childCategory.category && Object.keys(childCategory.category).length) {
+						categoryQueue.push(childCategory.category);
+					}
+				}
+				allCategories.push(node);
+			});
+
+			return allCategories;
+		}
+		function _viewable(id, userId, type) {
+			var value, resource;
+			switch (type) {
+				case CATALOG_ITEM:
+					resource = GlideappCatalogItem.get(id);
+					return resource.canViewCheck(false, false, user);
+
+				case CATEGORY:
+					resource = GlideappCategory.get(id);
+					value = resource.canView(false, false, false, user, false);
+					return value;
+
+				case CATALOG:
+					resource = GlideappCatalog.get(id);
+					return resource.canView(false, false, user);
+			}
+		}
+		function _getData(user) {
+			return {
+				treeData: _getAndParseData(itemId, userId),
+				userName: user.getDisplayName()
+			};
+		}
+		function _isUserAuthorised() {
+			return gs.hasRole('catalog_admin') || gs.hasRole('catalog_manager');
+		}
+		function methodToExecute() {
+			//if (!_isUserAuthorised())
+			//    return;
+			//var initialLoad = "" + request.getParameter("sysparm_initialLoad");
+			var initialLoad = "true"; //DP
+			var resultJson = {};
+			//userId = "" + request.getParameter("sysparm_userId");
+			//itemId = "" + request.getParameter("sysparm_itemId");
+			if (initialLoad === 'true') {
+				user = GlideUser.getUserByID(userId);
+				resultJson.ucData = _getData(user);
+			}
+			resultJson.userCriteria = _fetchUserCriteriaData();
+			//processor.writeOutput("application/json", new JSON().encode(resultJson));
+			return new JSON().encode(resultJson); //DP
+		}
+		//return {
+		//    execute: methodToExecute
+		//};
+
+		//DP
+		var userItemObj = methodToExecute();
+		var result = JSON.parse(userItemObj); 
+		return true && result.ucData.treeData.viewable; 
+	},
+	
+	
+    type: 'WowTask'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-15 17:39:28</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>73cdd351db93bb00b62a80e2399619b3</sys_id>
+        <sys_mod_count>62</sys_mod_count>
+        <sys_name>WowTask</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_73cdd351db93bb00b62a80e2399619b3</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-18 10:00:31</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_rectangle_menu_item">
+    <sp_rectangle_menu_item action="DELETE">
+        <active>false</active>
+        <color>default</color>
+        <condition/>
+        <display_1/>
+        <display_2/>
+        <display_date/>
+        <filter/>
+        <glyph/>
+        <hint/>
+        <kb_article/>
+        <kb_category/>
+        <kb_topic/>
+        <label>TechCenter</label>
+        <order>200</order>
+        <record_script/>
+        <sc_cat_item/>
+        <sc_category/>
+        <short_description/>
+        <sp_page/>
+        <sp_rectangle_menu display_value="Wow Content Grid">178ed8f3dbdd338016a5f40b0c9619c7</sp_rectangle_menu>
+        <sp_rectangle_menu_item/>
+        <sys_class_name>sp_rectangle_menu_item</sys_class_name>
+        <sys_created_by>tuadmin_ws</sys_created_by>
+        <sys_created_on>2019-08-14 07:41:07</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>276cc481db9f3b00b62a80e2399619b3</sys_id>
+        <sys_mod_count>16</sys_mod_count>
+        <sys_name>TechCenter</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_rectangle_menu_item_276cc481db9f3b00b62a80e2399619b3</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 14:15:51</sys_updated_on>
+        <table/>
+        <type>url</type>
+        <url>?id=techcenter_checkin</url>
+        <url_target/>
+        <x_mono2_wow_background_color display_value="White">0a3b950edbe79b8087e2f3de3b961981</x_mono2_wow_background_color>
+        <x_mono2_wow_description/>
+        <x_mono2_wow_icon display_value="recent actors">578d405a37100b00998c8ddec3990e9e</x_mono2_wow_icon>
+        <x_mono2_wow_icon_color display_value="Bay of Many (Computacenter)">57b30c36db93670016a5f40b0c9619a2</x_mono2_wow_icon_color>
+        <x_mono2_wow_image/>
+        <x_mono2_wow_text_color/>
+    </sp_rectangle_menu_item>
+    <sys_translated_text action="DELETE" query="documentkey=276cc481db9f3b00b62a80e2399619b3"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_rectangle_menu_item_276cc481db9f3b00b62a80e2399619b3</name>
+        <order/>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_rectangle_menu_item"><sp_rectangle_menu_item action="INSERT_OR_UPDATE"><active>false</active><color>default</color><condition/><display_1/><display_2/><display_date/><filter/><glyph/><hint/><kb_article/><kb_category/><kb_topic/><label>TechCenter</label><order>200</order><record_script/><sc_cat_item/><sc_category/><short_description/><sp_page/><sp_rectangle_menu display_value="Wow Content Grid">178ed8f3dbdd338016a5f40b0c9619c7</sp_rectangle_menu><sp_rectangle_menu_item/><sys_class_name>sp_rectangle_menu_item</sys_class_name><sys_created_by>tuadmin_ws</sys_created_by><sys_created_on>2019-08-14 07:41:07</sys_created_on><sys_customer_update>false</sys_customer_update><sys_id>276cc481db9f3b00b62a80e2399619b3</sys_id><sys_mod_count>16</sys_mod_count><sys_name>TechCenter</sys_name><sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package><sys_policy/><sys_replace_on_upgrade>false</sys_replace_on_upgrade><sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope><sys_update_name>sp_rectangle_menu_item_276cc481db9f3b00b62a80e2399619b3</sys_update_name><sys_updated_by>DI</sys_updated_by><sys_updated_on>2020-03-02 14:15:51</sys_updated_on><table/><type>url</type><url>?id=techcenter_checkin</url><url_target/><x_mono2_wow_background_color display_value="White">0a3b950edbe79b8087e2f3de3b961981</x_mono2_wow_background_color><x_mono2_wow_description/><x_mono2_wow_icon display_value="recent actors">578d405a37100b00998c8ddec3990e9e</x_mono2_wow_icon><x_mono2_wow_icon_color display_value="Bay of Many (Computacenter)">57b30c36db93670016a5f40b0c9619a2</x_mono2_wow_icon_color><x_mono2_wow_image/><x_mono2_wow_text_color/></sp_rectangle_menu_item><sys_translated_text action="delete_multiple" query="documentkey=276cc481db9f3b00b62a80e2399619b3"/></record_update>]]></payload>
+        <payload_hash>-282416840</payload_hash>
+        <record_name>TechCenter</record_name>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-02 14:15:51</sys_created_on>
+        <sys_id>a3ae6475dbd70050363e8a50399619c3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1709b9a63020000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 14:15:51</sys_updated_on>
+        <type>Menu Item</type>
+        <update_guid>6fae647555d700502f1af9d077f4fdc0</update_guid>
+        <update_guid_history>6fae647555d700502f1af9d077f4fdc0:-282416840,6dbaf43bc743001042c8102f7de7ccfc:120394761,3ab97cb3084300105674aa0f48ac19e6:-1429777552,448a046399030c10e673995b989a0bb8:120394761,3fa42b210b237740f0f9a572562124b9:-1976666623,5b1198bbb3133340ae0d5d908a0d0921:1982155806,8552d9cde0537b00289867b5c8f681a1:-1106993249,220e94c13fdf3b00dd453c03b0b553ce:-1245932936,780e14c1aadf3b00646d2bf1a447f1b9:295574105,fc00dc05749f3b00c6fcf9b4339a8a04:1407383497,30af4c05399f3b008c75447a1813e7b2:642145495,917f8805bf9f3b00c54684e3b34666b6:-1878619560,345fc805c39f3b00ae1ae66f058b1905:-1127979684,c42ec0c1609f3b0037962330ca9d1b52:1722897845,df4d44c14b9f3b007f10253633b3e740:-1504174363,811dcc419a9f3b00f027bfba3f6f82aa:1399812549,61cc8c81f09f3b00be4be8f54d291943:724308518</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-02 20:13:29">e00538f1db1b0050363e8a5039961929</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-02 14:43:29</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_rectangle_menu_item">sp_rectangle_menu_item</sys_db_object>
+        <sys_id>017c39f7d3f045a28866d3558a6bfe59</sys_id>
+        <sys_metadata>276cc481db9f3b00b62a80e2399619b3</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>TechCenter</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_rectangle_menu_item_276cc481db9f3b00b62a80e2399619b3</sys_update_name>
+        <sys_update_version display_value="sp_rectangle_menu_item_276cc481db9f3b00b62a80e2399619b3">a3ae6475dbd70050363e8a50399619c3</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 14:43:29</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

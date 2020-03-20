@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope) {
+	var c = this;
+
+	$scope.grid = c.data.grid;
+	$scope.layoutTemplate = c.data.layoutTemplate;
+
+	if (c.options.translucentTiles) {
+		c.data.grid.forEach(function(item) {
+			var color = item.backgroundColor.trim();
+			// if is hex
+			if (color.indexOf('#') == 0) {
+				var rgb = hexToRgb(color);
+				item.backgroundColor = 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.8)';
+			}
+		});
+	}
+
+	function hexToRgb(hex) {
+		var result;
+
+		if (hex.length == 7)
+			result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
+		else if (hex.length == 4)
+			result = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex);
+
+		return result ? {
+			r: parseInt(result[1], 16),
+			g: parseInt(result[2], 16),
+			b: parseInt(result[3], 16)
+		} : null;
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$title-default-color: $text-color;
+$subtitle-default-color: rgba($text-color, .8);
+
+@if $wow-grid-gutter == '$wow-grid-gutter' {
+  $wow-grid-gutter: 1rem;
+}
+
+.wow-content-grid {
+  display: flex;
+  flex-wrap: wrap;
+
+  &amp;.add-margins {
+    margin: -$wow-grid-gutter/2;
+  }
+}
+
+.box-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .add-margins &amp; {
+    box-shadow: none;
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+    margin-top: $grid-gutter-width / 2;
+
+    .add-margins &amp; {
+      margin-top: 0;
+    }
+  }
+  
+  @media screen and (min-width: $screen-sm-min) {
+    box-shadow: $panel-shadow;
+    box-shadow: $big-shadow;
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    width: 50%;
+  }
+
+  @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max) {
+    min-height: 40vw;
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    min-height: 450px;
+  }
+}
+
+.text-wrapper {
+  margin: 1rem 0;
+}
+
+.image-wrapper {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  .image {
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 100%;
+    width: 100%;
+  }
+
+  i {
+    color: $text-muted; // default
+    font-size: 8rem;
+  }
+}
+
+.four-box,
+.two-box,
+.one-box {
+  background-color: $white; // default
+  padding: 2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $wow-grid-gutter;
+  text-align: center;
+  
+  @media screen and (max-width: $screen-xs-max) {
+    box-shadow: $panel-shadow;
+  }
+  
+  @media screen and (min-width: $screen-sm-min) {
+    margin: 0;
+  }
+  
+  .add-margins &amp; {
+    border-radius: $border-radius;
+    box-shadow: $dropdown-shadow;
+    margin: $wow-grid-gutter/2;
+    overflow: hidden;
+  }
+
+  .title {
+    color: $title-default-color; // default
+    font-weight: 600;
+    font-weight: $font-weight-headings;
+    line-height: 1.1;
+    margin-bottom: .5rem;
+  }
+  
+  .subtitle {
+    color: $subtitle-default-color; // default
+    font-weight: 600;
+    font-weight: $font-weight-headings;
+  }
+}
+
+.four-box {
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(to bottom right, rgba(0,0,0,0), rgba(0,0,0,0.1));
+
+  .add-margins &amp; {
+    width: calc(100% - $wow-grid-gutter);
+    height: calc(100% - $wow-grid-gutter);
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .image-wrapper {
+    height: 40vw;
+    width: 100%;
+
+    i {
+      font-size: 40vw;
+    }
+  }
+
+  @media screen and (min-width: $screen-xs-min) and (max-width: $screen-sm-max) {
+    flex-direction: row-reverse;
+
+    .text-wrapper {
+      flex: 2;
+      text-align: left;
+    }
+
+    .image-wrapper {
+      flex: 1;
+      height: 15vw;
+      margin: 3vw 0;
+      width: auto;
+
+      i {
+        font-size: 15vw;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-xs-min) and (max-width: $screen-xs-max) {
+    .title {
+      font-size: 5vw;
+    }
+
+    .subtitle {
+      font-size: 2.5vw;
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+    .title {
+      font-size: 4vw;
+    }
+
+    .subtitle {
+      font-size: 2vw;
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    height: 100%;
+
+    .add-margins &amp; {
+      height: calc(100% - $wow-grid-gutter);
+    }
+
+    .title {
+      font-size: 2.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+    }
+
+    .image-wrapper {
+      height: 60%;
+      margin-top: 1rem;
+      width: 100%;
+
+      i {
+        font-size: 16rem;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 50% 100%;
+      transition: transform .15s ease-in;
+    }
+
+    .image-wrapper {
+      transform-origin: 50% 0%;
+      transition: transform .15s ease-in;
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateY(-2.5%);;
+      }
+
+      .image-wrapper {
+        transform: scale(1.025);
+      }
+    }
+  }
+}
+
+.two-box {
+  flex-direction: row-reverse;
+  justify-content: left;
+  text-align: left;
+  width: 100%;
+  z-index: 1;
+
+  .add-margins &amp; {
+    width: calc(100% - $wow-grid-gutter);
+  }
+
+  &amp;:nth-child(even) {
+    @media screen and (min-width: $screen-sm-min) {
+      flex-direction: row;
+    }
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+  }
+
+  .image-wrapper,
+  .text-wrapper {
+    flex: 1;
+  }
+
+  .image-wrapper {
+    @media screen and (max-width: $screen-xs-max) {
+      height: 20vw;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      height: 100%;
+    }
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex-direction: column;
+
+    .title {
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+    }
+
+    .image-wrapper,
+    .text-wrapper {
+      flex: none;
+      width: 100%;
+    }
+
+    .text-wrapper {
+      text-align: center;
+    }
+  }
+
+  @media screen and (max-width: $screen-sm-max) {
+    min-height: calc(25vw + 30px);
+
+    .image-wrapper {
+      i {
+        font-size: 20vw;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    height: 50%;
+
+    .add-margins &amp; {
+      height: calc(50% - $wow-grid-gutter);
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max) {
+    .image-wrapper {
+      i {
+        font-size: 10vw;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 0% 50%;
+      transition: transform .15s ease-in;
+    }
+
+    .image-wrapper {
+      i {
+        font-size: 10rem;
+        transform-origin: 50% 100%;
+        transition: transform .15s ease-in;
+      }
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateX(1%);;
+      }
+
+      .image-wrapper {
+        i {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+.one-box {
+  width: 100%;
+
+  .add-margins &amp; {
+    width: calc(100% - $wow-grid-gutter);
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: .9rem;
+  }
+
+  .image-wrapper {
+    height: 20vw;
+    width: 100%;
+
+    i {
+      font-size: 20vw;
+    }
+  }
+
+  @media screen and (min-width: $screen-xs-min) {
+    width: 50%;
+
+    .add-margins &amp; {
+      width: calc(50% - $wow-grid-gutter);
+      height: calc(50% - $wow-grid-gutter);
+    }
+
+    .title {
+      font-size: 1.3rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+    }
+
+    .image-wrapper {
+      height: 10vw;
+
+      i {
+        font-size: 10vw;
+      }
+    }
+  }
+  
+  @media screen and (min-width: $screen-md-min) {
+    height: 50%;
+  }
+
+  @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max) {
+    .image-wrapper {
+      height: 9vw;
+
+      i {
+        font-size: 9vw;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-lg-min) {
+    .text-wrapper {
+      transform-origin: 50% 0%;
+      transition: transform .15s ease-in;
+    }
+
+    .image-wrapper {
+      height: 8rem;
+      transform-origin: 50% 100%;
+      transition: transform .15s ease-in;
+
+      i {
+        font-size: 8rem;
+      }
+    }
+
+    &amp;.hover-animations:hover {
+      .text-wrapper {
+        transform: translateY(10%);;
+      }
+
+      .image-wrapper {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.news {
+  align-items: center;
+  background-color: $white; // default
+  color: $text-color; // default
+  color: $news-ticker-text;
+  padding-top: 0;
+  padding-bottom: 0;
+  position: relative;
+  text-align: left;
+
+  .background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background-color: transparent;
+    background-color: $news-ticker-bg;
+    background-image: linear-gradient(to bottom right, $news-ticker-bg, darken($news-ticker-bg, 10%));
+
+    &amp; + * {
+      position: relative;
+    }
+  }
+
+  div[widget] {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    h4 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.things-to-action {
+  align-items: flex-start;
+  background-color: transparent;
+  flex-direction: row;
+  justify-content: left;
+  position: relative;
+  text-align: left;
+
+  .background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background-color: transparent;
+    background-color: $things-to-action-bg;
+    background-image: linear-gradient(to bottom right, $things-to-action-bg, darken($things-to-action-bg, 10%));
+
+    &amp; + * {
+      position: relative;
+    }
+  }
+
+  svg {
+    color: $white;
+    color: $things-to-action-text;
+    fill: $white;
+    fill: $things-to-action-text;
+  }
+
+  &amp;, .link, .title {
+    color: $title-default-color;
+    color: $things-to-action-text;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    .title {
+      font-size: 1.7rem;
+    }
+  }
+
+  @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max) {
+    .title {
+      font-size: 2rem;
+    }
+  }
+}
+
+.device-scorecard {
+  padding: 0;
+  z-index: 2;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>wow-content-grid</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Content Grid</name>
+        <option_schema>[{"name":"defaultTemplate","section":"Presentation","default_value":"Layout 1","label":"Default template","type":"choice","choices":[{"label":"Layout 1","value":"Layout 1"},{"label":"Layout 2","value":"Layout 2"},{"label":"Layout 3","value":"Layout 3"}]},{"name":"approverTemplate","section":"Presentation","label":"Approver's template","type":"choice","choices":[{"label":"Layout 1","value":"Layout 1"},{"label":"Layout 2","value":"Layout 2"},{"label":"Layout 3","value":"Layout 3"}]},{"displayValue":"Instance with Menu","hint":"Set the menu you wish to use for content","name":"menu","section":"Presentation","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}},{"hint":"To use this option you must set the \"News Knowledge Base\" option in the portal record","name":"enableNews","section":"Presentation","default_value":"true","label":"Show news?","type":"boolean"},{"name":"enableAnimations","section":"Presentation","label":"Enable hover animations","type":"boolean"},{"name":"translucentTiles","section":"Presentation","label":"\"Glassy\" tiles","type":"boolean"},{"name":"addMargins","section":"Presentation","label":"Add margins","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var user = gs.getUser();
+	var portal = $sp.getPortalRecord();
+	var util = new WowUtil();
+
+	options.enableNews = util.getBoolean(options.enableNews);
+	options.enableDeviceScorecard = false;
+	options.enableAnimations = util.getBoolean(options.enableAnimations);
+	options.translucentTiles = util.getBoolean(options.translucentTiles);
+	options.addMargins = util.getBoolean(options.addMargins);
+	
+	data.grid = util.getMenuItems(options.menu || null);
+	data.hasNews = options.enableNews && portal.getValue('x_mono2_wow_news_kb') != null;
+	data.layoutTemplate = getLayoutTemplate();
+	
+	//data.thingsToAction = $sp.getWidget('wow-things-to-action');
+
+
+	function getLayoutTemplate() {
+		var template;
+
+		if (options.approverTemplate && user.hasRole('approver_user'))
+			template = options.approverTemplate;
+
+		else
+			template = options.defaultTemplate;
+
+		switch (template) {
+			case 'Layout 1':
+			default:
+				return 'wowContentGridLayout1.html';
+
+			case 'Layout 2':
+				return 'wowContentGridLayout2.html';
+
+			case 'Layout 3':
+				return 'wowContentGridLayout3.html';
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-24 10:05:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>90287874dba3d78087e2f3de3b9619a0</sys_id>
+        <sys_mod_count>549</sys_mod_count>
+        <sys_name>Wow Content Grid</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_90287874dba3d78087e2f3de3b9619a0</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-18 14:54:54</sys_updated_on>
+        <template><![CDATA[<section class="wow-content-grid" layout="{{layoutTemplate}}" ng-class="{'add-margins': options.addMargins}" ng-include src="layoutTemplate"></section>]]></template>
+    </sp_widget>
+</record_update>

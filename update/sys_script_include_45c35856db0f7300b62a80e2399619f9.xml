@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowAnnouncements</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>WowAnnouncements</name>
+        <script><![CDATA[var WowAnnouncements = Class.create();
+WowAnnouncements.prototype = {
+    initialize: function(options) {
+		options = options || {};
+		
+		this.portal = $sp.getPortalRecord();
+		this.queryLimit = options.queryLimit || 99;
+    },
+	
+	
+	setQueryLimit: function(queryLimit) {
+		this.queryLimit = queryLimit;
+	},
+	
+	
+	getIncidentAnnouncements: function() {
+		var announcements = [];
+		var ticketsHelper = new WowTickets();
+		var searchHelper = new WowSearch();
+		
+		var gr = new GlideRecord('announcement');
+		gr.addActiveQuery();
+		gr.addQuery('x_mono2_wow_document_table', 'incident');
+		gr.addNotNullQuery('x_mono2_wow_document');
+		gr.addEncodedQuery('from<=javascript:gs.endOfCurrentMinute()^ORfromISEMPTY^to>=javascript:gs.beginningOfCurrentMinute()^ORtoISEMPTY');
+		gr.setLimit(this.queryLimit);
+		gr.orderByDesc('sys_created_on');
+		gr.query();
+		
+		while(gr.next()) {
+			// if the announcement is available to the portal and user hasn't already raised a child incident
+			if (this.isAnnouncementAvailable(gr.getUniqueValue())) {
+				announcements.push({
+					id: gr.getUniqueValue(),
+					glyph: gr.getValue('glyph'),
+					incident: ticketsHelper.getIncident(gr.getValue('x_mono2_wow_document')),
+					canReportIncident: this.canReportIncident(gr.getValue('x_mono2_wow_document')),
+					article: gr.getValue('x_mono2_wow_knowledge_article') ? searchHelper.getArticle(gr.getValue('x_mono2_wow_knowledge_article')) : null,
+					summary: gr.getDisplayValue('summary'),
+					title: gr.getDisplayValue('title'),
+					urgency: gr.getValue('x_mono2_wow_urgency')
+				});
+			}
+		}
+		
+		return announcements;
+	},
+	
+	
+	// append incident to announcement if applicable
+	mapAnnouncements: function(announcements) {
+		var self = this;
+		var ticketsHelper = new WowTickets();
+		var searchHelper = new WowSearch();
+		var gr = new GlideRecord('announcement');
+
+		announcements.forEach(function(announcement, i) {
+			if (gr.get(announcement.id)) {
+				var documentId = gr.getValue('x_mono2_wow_document');
+				var documentTable = gr.getValue('x_mono2_wow_document_table');
+				
+				if (documentTable === 'incident') {
+					announcement.incident = ticketsHelper.getIncident(documentId);
+					announcement.canReportIncident = self.canReportIncident(documentId);
+				}
+				
+				if (gr.getValue('x_mono2_wow_knowledge_article')) {
+					announcement.article = searchHelper.getArticle(gr.getValue('x_mono2_wow_knowledge_article'));
+				}
+				
+				announcement.urgency = gr.getValue('x_mono2_wow_urgency');
+			}
+		});
+		
+		return announcements;
+	},
+	
+	
+	isAnnouncementAvailable: function(announcementId) {
+		var gr = new GlideRecord('m2m_announcement_portal');
+		gr.addQuery('announcement', announcementId);
+		gr.query();
+		
+		// if there are no portals attached to this announcement then it's available
+		if (gr.getRowCount() === 0) 
+			return true;
+		
+		while (gr.next()) {
+			// else if the announcement is linked to this portal
+			if (gr.getValue('sp_portal') == this.portal.getUniqueValue()) 
+				return true;
+		}
+		
+		return false;
+	},
+	
+	
+	reportIncident: function(incidentId) {
+		var util = new WowUtil();
+		var taskHelper = new WowTask();
+		
+		return taskHelper.thisAffectsMe(gs.getUserID(), util.getGlideRecord('incident', incidentId));
+	},
+	
+	
+	canReportIncident: function(incidentId) {
+		var taskHelper = new WowTask();
+		var gr = new GlideRecord('incident');
+		
+		if (gr.get(incidentId)) {
+			return taskHelper.canAffectMe(gs.getUserID(), gr);
+		}
+		
+		return false;
+	},
+	
+
+    type: 'WowAnnouncements'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-05 19:11:27</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>45c35856db0f7300b62a80e2399619f9</sys_id>
+        <sys_mod_count>21</sys_mod_count>
+        <sys_name>WowAnnouncements</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_45c35856db0f7300b62a80e2399619f9</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-03 11:51:16</sys_updated_on>
+    </sys_script_include>
+</record_update>

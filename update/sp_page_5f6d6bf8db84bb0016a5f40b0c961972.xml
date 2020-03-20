@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css/>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_tickets</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-05 16:00:05</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5f6d6bf8db84bb0016a5f40b0c961972</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>wow_tickets</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_5f6d6bf8db84bb0016a5f40b0c961972</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:52:24</sys_updated_on>
+        <title>My Tickets</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=5f6d6bf8db84bb0016a5f40b0c961972"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:52:24</sys_created_on>
+        <sys_id>d5a4b933db3c8010b62a80e2399619e6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:52:24</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:27:09</sys_created_on>
+        <sys_id>a7dee573db388010b62a80e2399619fa</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:27:09</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:52:24</sys_created_on>
+        <sys_id>11a4b937dbf88010b62a80e239961989</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:52:24</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:27:09</sys_created_on>
+        <sys_id>e3dee573db388010b62a80e2399619f6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:27:09</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>title</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:52:24</sys_created_on>
+        <sys_id>d9a4b933db3c8010b62a80e2399619e3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:52:24</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Meine Tickets</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>5f6d6bf8db84bb0016a5f40b0c961972</documentkey>
+        <fieldname>title</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:27:09</sys_created_on>
+        <sys_id>e3dee573db388010b62a80e2399619f8</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:27:24</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Mes Tickets</value>
+    </sys_translated_text>
+</record_update>

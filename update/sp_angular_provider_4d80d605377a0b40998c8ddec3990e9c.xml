@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>wowFilters</name>
+        <script><![CDATA[function ($document,wowUtil) {
+	return {
+		restrict: 'E',
+		scope: {
+			title: '@?',
+			hideTitle: '@?',
+			elToggle: '@?',
+			filterItems: '=',
+			filtersChanged: '&',
+			tooltip: '@?',
+			limit: '@?'
+		},
+		template:
+		'<div class="wow-filters">' +
+			'<div class="dropdown-main">' +
+				'<div class="dropdown-filter-wrap">' +
+					'<div class="dropdown-filter" ng-class="{\'open\': status.filterIsOpen}">' +
+						'<div ng-if="!hideTitle" class="filter-toggle">' +
+							'<i ng-if="tooltip" ng-mouseover="hoverIn()" ng-mouseleave="hoverOut()" ' +
+								'class="fa fa-info-circle"></i>' +
+							'<span ng-if="showInfo && tooltip" class="tooltip-data">{{tooltip}}</span>' +
+							'<span ng-click="toggleFilter()" role="presentation" tabindex="-1">{{filterTitle}} ' +
+								'<i class="fa" ng-class="status.filterIsOpen? \'fa-chevron-up\' : \'fa-chevron-down\'"></i>' +
+							'</span>' +
+						'</div>' +
+						'<form class="form-inline filter-form" ng-class="{inset: filterItems.length > 7}">' +
+							'<div class="form-group" ng-repeat="filter in filterItems" ng-class="{\'disabled\': !filter.active}">' +
+								'<input type="checkbox" class="wow-checkbox" ' +
+									'id="dropdown-filter-box{{instanceId}}{{$index}}"' +
+									'ng-model="filter.selected" ng-change="updateFilters()">' +
+								'<label class="wow-checkbox-label" for="dropdown-filter-box{{instanceId}}{{$index}}">' +
+									'<i class="material-icons">check</i>'+
+									'<span>{{filter.label}}</span>'+
+								'</label>'+
+								'<span class="wow-checkbox-count">{{ filter.count >= limit ? limit + \'+\' : filter.count }}</span>' +
+							'</div>' +
+						'</form>' +
+					'</div>' +
+				'</div>' +
+			'</div>' +
+		'</div>' +
+		'<div></div>',
+		controller: function ($scope) {
+			$scope.hideTitle = $scope.hideTitle == 'true';
+		},
+		link: function (scope) {
+			scope.status = scope.elToggle == 'true' ? { filterIsOpen: true } : { filterIsOpen: false };
+			scope.filterTitle = scope.title || 'Filters';
+			scope.instanceId = wowUtil.getRandomInt(1, 5000);
+			scope.showInfo = false;
+
+			scope.toggleFilter = function() {
+				if (!scope.status.filterIsOpen && !scope.elToggle) {
+					$document.bind('click', function(event) {
+						if ($(event.target).parents('.wow-dropdown-filter').length == 0) {
+							scope.$apply(function () {
+								scope.status.filterIsOpen = false;
+							});
+							$(this).unbind(event);
+						}
+					});
+
+					scope.status.filterIsOpen = true;
+					return;
+				}
+
+				scope.status.filterIsOpen = !scope.status.filterIsOpen;
+			};
+
+			scope.updateFilters = function () {
+				scope.filtersChanged();
+			};
+
+			scope.hoverIn = function () {
+				scope.showInfo = true;
+			};
+
+			scope.hoverOut = function () {
+				scope.showInfo = false;
+			};
+		}
+	};
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>dejan.milicevic</sys_created_by>
+        <sys_created_on>2017-12-01 08:17:01</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>4d80d605377a0b40998c8ddec3990e9c</sys_id>
+        <sys_mod_count>38</sys_mod_count>
+        <sys_name>wowFilters</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_4d80d605377a0b40998c8ddec3990e9c</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-17 10:03:38</sys_updated_on>
+        <type>directive</type>
+    </sp_angular_provider>
+</record_update>

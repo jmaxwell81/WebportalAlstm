@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+.profile-widget {
+  .panel {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+ 	.btn {
+    @include wow-button();
+  }
+
+  .list-group-item {
+    background: none;
+    padding: 1rem 0;
+  }
+
+  .sp-editable-field.editable-underline {
+    padding-bottom: .25rem;
+  }
+
+  .popover {
+    &amp;, &gt;.arrow {
+      border-color: darken($panel-bg, 10%);
+    }
+  }
+
+  .popover-content {
+    padding: 0;
+
+    form {
+      padding: 1rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .popover-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1rem 1rem;
+
+    .btn {
+      float: none!important; // override .pull-right
+      margin: 0!important;
+      margin-left: .5rem!important;
+    }
+  }
+
+  [ng-if="data.userExists"] {
+    display: flex;
+    flex-wrap: wrap;
+
+    // picture section
+    &gt;.panel {
+      margin-bottom: 4rem;
+      width: 100%;
+
+      &gt;.panel-body {
+        &gt;.row {
+          display: flex;
+          margin: 0;
+
+          @media screen and (max-width: $screen-xs-max) {
+            flex-wrap: wrap;
+            margin-top: 2rem;
+          }
+
+          &gt;div {
+            padding: 0;
+          }
+
+          &gt;div:nth-of-type(1) {
+            @media screen and (max-width: $screen-xs-max) {
+              margin-bottom: 2rem;
+              width: 100%;
+            }
+
+            @media screen and (min-width: $screen-sm-min) {
+              margin-left: 3rem;
+              margin-right: 3rem;
+              width: auto;
+            }
+
+            @media screen and (min-width: $screen-md-min) {
+              margin-left: 4rem;
+              margin-right: 4rem;
+            }
+          }
+
+          &gt;div:nth-of-type(2) {
+            @media screen and (max-width: $screen-xs-max) {
+              width: 100%;
+            }
+
+            @media screen and (min-width: $screen-sm-min) {
+              flex: 1;
+              width: auto;
+            }
+
+            h4 {
+              margin-bottom: 2rem;
+            }
+          }
+        }
+      }
+
+      .avatar-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .sp-editable-field.editable-underline {
+        border-bottom: none;
+      }
+    }
+
+    // about and preferences section
+    &gt;.panel +.row,
+    &gt;.panel +.row +.row {
+      display: flex;
+      margin-left: 0;
+      margin-right: 0;
+
+      @media screen and (max-width: $screen-sm-max) {
+        width: 100%;
+      }
+
+      @media screen and (min-width: $screen-md-min) {
+        width: 50%;
+
+        &amp;:not(:last-child) {
+          margin-bottom: 2rem;
+        }
+      }
+
+      &gt;div {
+        padding: 0;
+        width: 100%;
+      }
+
+      .panel-heading {
+        margin-bottom: 1rem;
+      }
+
+      .padder-xs {
+        padding: 0!important;
+      }
+    }
+
+    // about section
+    &gt;.panel +.row {
+      @media screen and (max-width: $screen-sm-max) {
+        margin-bottom: 1.5rem;
+      }
+
+      @media screen and (min-width: $screen-md-min) {
+        padding-right: 1.5rem;
+      }
+    }
+
+    // preferences section
+     &gt;.panel +.row +.row {
+       @media screen and (min-width: $screen-md-min) {
+        padding-left: 1.5rem;
+      }
+    }
+  }
+
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+
+}]]></link>
+        <name>Wow Profile</name>
+        <option_schema>[{"name":"title","section":"Presentation","default_value":"","label":"Title","type":"string"},{"displayValue":"Instance with Menu","name":"menu","section":"Presentation","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.title = options.title ? gs.getMessage(options.title) : null;
+	options.menu = options.menu || null;
+
+	data.menu = $sp.getWidget('wow-navigation', {
+		menu: options.menu
+	});
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-07-29 17:32:43</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>c0ba3fb3db7a3f00b62a80e2399619a1</sys_id>
+        <sys_mod_count>68</sys_mod_count>
+        <sys_name>Wow Profile</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_c0ba3fb3db7a3f00b62a80e2399619a1</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-24 14:25:35</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <h1 ng-if="::options.title">{{::options.title}}</h1>
+
+  <sp-widget widget="data.menu"></sp-widget>
+
+  <section class="profile-widget">
+
+    <widget id="user-profile"></widget>
+    <widget id="tu-preference-toggle-slider"></widget>
+    <!-- <widget id="pin-reset"></widget> -->
+
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

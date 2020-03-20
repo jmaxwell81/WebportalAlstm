@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowAnnouncementModal.html</id>
+        <sp_widget display_value="Wow Announcements">97677e8fdba463008e94764cbf96198b</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-09-19 12:16:12</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>8a98f6cfdba463008e94764cbf9619a8</sys_id>
+        <sys_mod_count>42</sys_mod_count>
+        <sys_name>wowAnnouncementModal.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_8a98f6cfdba463008e94764cbf9619a8</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 16:02:46</sys_updated_on>
+        <template><![CDATA[<div id="wow-announcements-modal"
+     ng-class="{'urgent': c.currentModal.urgency === 'urgent'}">
+
+  <div class="modal-header">
+    <button class="close" ng-click="c.closeModal()">
+      <i class="material-icons">close</i>
+    </button>
+    <h2 class="header-title">
+      <i ng-if="c.currentModal.glyph" class="fa fa-{{c.currentModal.glyph}}"></i>
+      <span ng-bind-html="c.currentModal.title"></span>
+    </h2>
+  </div>
+
+  <div class="modal-body">
+    <p ng-if="c.currentModal.summary" ng-bind-html="c.currentModal.summary | nl2br"></p>
+    <div class="actions" ng-if="c.hasActions(c.currentModal)">
+      <button class="btn btn-default btn-dismiss"
+              ng-if="c.canDismiss(c.currentModal)"
+              ng-click="c.closeModal()">
+        ${wow_dismiss}
+      </button>
+      <a class="btn btn-default btn-read-more"
+         ng-href="{{c.currentModal.article.href}}"
+         ng-if="c.currentModal.article"
+         ng-click="c.closeModal()">
+        ${wow_read_more}
+      </a>
+      <button class="btn btn-primary btn-report-incident"
+              ng-if="c.currentModal.incident"
+              ng-click="c.reportIncident(c.currentModal)"
+              ng-disabled="!c.currentModal.canReportIncident">
+        <i ng-if="!c.currentModal.canReportIncident" class="material-icons">check</i>
+        ${wow_im_impacted}
+      </button>
+    </div>
+  </div>
+
+</div>]]></template>
+    </sp_ng_template>
+</record_update>

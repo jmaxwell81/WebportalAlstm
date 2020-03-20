@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css/>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_cart</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-24 05:56:47</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>02c28bf8dbcd7f0016a5f40b0c96190f</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>wow_cart</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_02c28bf8dbcd7f0016a5f40b0c96190f</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:43:16</sys_updated_on>
+        <title>Shopping Cart</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=02c28bf8dbcd7f0016a5f40b0c96190f"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:43:16</sys_created_on>
+        <sys_id>bf82717bdbb88010b62a80e239961905</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:43:16</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:19:10</sys_created_on>
+        <sys_id>6e0ded3fdbb48010b62a80e2399619d6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:19:10</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:43:16</sys_created_on>
+        <sys_id>3b82717bdbb88010b62a80e239961900</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:43:16</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:19:09</sys_created_on>
+        <sys_id>aa0ded3fdbb48010b62a80e2399619d2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:19:09</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>title</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:43:16</sys_created_on>
+        <sys_id>b382717bdbb88010b62a80e239961903</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:43:16</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Warenkorb</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>02c28bf8dbcd7f0016a5f40b0c96190f</documentkey>
+        <fieldname>title</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:19:10</sys_created_on>
+        <sys_id>aa0ded3fdbb48010b62a80e2399619d4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:19:10</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Panier</value>
+    </sys_translated_text>
+</record_update>

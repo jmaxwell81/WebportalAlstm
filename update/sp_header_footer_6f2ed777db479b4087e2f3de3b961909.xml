@@ -1,0 +1,1100 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_header_footer">
+    <sp_header_footer action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $location, spUtil, spAnnouncement, $rootScope, $window, $timeout, $http) {
+	var c = this;
+
+	$scope.isMobile = spUtil.isMobile();
+	$scope.searchActive = $rootScope.searchActive = false;
+	
+	//lets get the ticket count asynchronously
+	updateTicketCount();
+		
+	$scope.openSearch = function(e) {
+		e.preventDefault();
+		$rootScope.$broadcast('activate_typeahead');
+		$scope.searchActive = true;
+	}
+
+	$scope.navOpen = "";
+	$scope.toggleNav = function() {
+		$scope.navOpen = $scope.navOpen == "" ? "is-open" : "";
+	}
+
+	$scope.$on('typeahead_deactivated', function() {
+		$scope.searchActive = false;
+	});
+	
+	$scope.$on('wow_announcements_updated', function(e, data){
+		$scope.banners = data;
+	})
+
+	// listen for location change and close sidenav if opened
+	$scope.$on('$locationChangeSuccess', function (e) {
+		if ($scope.navOpen) {
+			$scope.toggleNav();
+		}
+	});
+
+	// listen to ticket update broadcasts and get latest count
+	$scope.$on('ticket_updated', updateTicketCount);
+
+	// listen to favorites update and get latest
+	$scope.$on('favorites.updated', updateFavorites)
+
+	// listen o cart update broadcast and get latest
+	$scope.$on("$sp.service_catalog.cart.update", updateCartItems);
+
+	$scope.$on('search_closed', function(event, args) {
+		$scope.showSearch = false;
+	});
+
+	// moved to server script for persistence
+	$scope.availableLanguages = c.data.availableLanguages;
+	$scope.preferredLanguage = c.data.preferredLanguage;
+
+	$scope.setLanguage = function(language) {
+		$http.put('/api/now/ui/concoursepicker/language', {
+			current: language.value
+		}).then(function(r) {
+			// small timeout handles IE11 issue where reload actions too fast?
+			$timeout(function() {
+				$window.location.reload()
+			}, 100);
+		});
+	}
+	
+	$scope.openAlerts = function() {
+		$scope.$broadcast('open-alerts')
+	}
+	// filter favourites by table
+	$scope.filterFavorites = function filterFavorites(table) {
+		return c.data.favorites.filter(function(favorite) {
+			return favorite.table == table;
+		})
+	}
+
+	function updateFavorites() {
+		c.server.get({
+			action: 'get_favorites'
+		}).then(function(r) {
+			c.data.favorites = r.data.favorites;
+		});
+	}
+
+	function updateTicketCount() {		
+		c.server.get({
+			action: 'get_ticket_count'
+		}).then(function(r) {
+			c.data.ticketCount = $scope.ticketCount = r.data.ticketCount;
+		});
+	}
+
+	function updateCartItems() {
+		c.server.get({
+			action: 'get_cart_items'
+		}).then(function(r) {
+			c.data.cartItems = r.data.cartItems;
+		});
+	}
+	
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>section {
+  background-color: $header-bg;
+  position: relative;
+  margin: 0 auto;
+  max-width: 1920px;
+  padding-left: $grid-gutter-width /2;
+  padding-right: $grid-gutter-width /2;
+
+  @media screen and (min-width: $screen-lg-min) {
+    padding-left: $grid-gutter-width;
+    padding-right: $grid-gutter-width;
+  }
+}
+
+.navbar {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+  transition: background-color .5s ease-in-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    height: $header-height;
+  }
+
+  .nav-left {
+    align-items: center;
+    display: inline-flex;
+    width: 100%;
+  }
+
+  .nav-right {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .avatar-container {
+    width: 36px;
+    height: 36px;
+    .sub-avatar {
+      line-height: 36px;
+      font-weight: 400;
+    }
+  }
+	
+  .shake-active {
+		-webkit-animation: ring 4s 2s ease-in-out infinite;
+    -webkit-transform-origin: 50% 4px;
+    -moz-animation: ring 4s 2s ease-in-out infinite;
+    -moz-transform-origin: 50% 4px;
+    animation: ring 4s 2s ease-in-out infinite;
+    transform-origin: 50% 4px;
+  }
+  
+  .alerts-num {
+  	background-color: $brand-danger;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    color: $white;
+    border-radius: 100%;
+    right: -10px;
+  }  
+
+  .alerts-btn {
+    background: transparent;
+    border: none;
+ 		color: $white;
+    padding-top: 7px;
+
+  }
+	
+  .mobile-alerts {
+    position: relative;
+    margin: 0rem 1rem;
+  	@media screen and (min-width: $screen-sm-min) {
+       display: none;
+  	}
+  }
+  .navbar-toggle {
+    border: none;
+    margin: 0;
+
+    &amp;:hover, &amp;:focus, &amp;:active {
+      background: transparent;
+    }
+
+    .icon-bar {
+      background: $header-text;
+      transition: all 0.2s;
+    }
+
+    &amp;.is-open {
+      .icon-bar {
+        background: $text-muted;
+      }
+      .top-bar {
+        transform: rotate(45deg);
+        transform-origin: 10% 10%;
+      }
+
+      .middle-bar {
+        opacity: 0;
+      }
+
+      .bottom-bar {
+        transform: rotate(-45deg);
+        transform-origin: 10% 90%;
+      }
+    }
+    &amp;.homepage {
+    	margin-left: auto;
+    }
+  } // end .navbar-toggle
+
+  .navbar-collapse {
+    background-color: $white;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem;
+    position: fixed;
+    display: flex;
+    visibility: hidden;
+    top: 0;
+    right: 0;
+    width: 300px;
+    z-index: 10;
+    min-height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-shadow: 0.25rem 0 5rem rgba(darken($navbar-inverse-bg,50%),0.5);
+    transition: all .2s ease-out;
+    transform: translateX(100%);
+    @include wow-scrollbar();
+
+    &amp;.is-open {
+      transform: translateX(0);
+      visibility: visible;
+    }
+  }
+
+  .languages {
+    border-top: 1px solid darken($panel-bg, 10%);
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-top: .7rem;
+    padding: 1rem 1rem 0;
+    width: 180px;
+  }
+
+  .language {
+    background-position: 50%;
+    background-size: cover;
+    border-radius: $border-radius;
+    box-shadow: 0 3px 6px rgba($black, .15);
+    height: 0;
+    margin: 5px;
+    overflow: hidden;
+    padding-bottom: calc(22.222% - 6.666px)!important;
+    width: calc(33.333% - 10px);
+
+    img {
+      height: auto;
+      width: 100%;
+    }
+  }
+
+
+  #mobile-nav {
+    padding: 0;
+
+    .close-sidenav {
+      background: transparent;
+      color: $text-color;
+      font-size: 2rem;
+      right: 2rem;
+      opacity: .5;
+      padding: 0;
+      position: absolute;
+      top: 2rem;
+    }
+
+    .navbar-nav {
+      margin: 4rem 0;
+      padding: 0 2rem;
+    }
+
+    li {
+      margin: 1.5rem 0;
+
+      &gt; a {
+        padding: 0;
+        color: $text-color;
+      }
+    }
+
+    .list-inline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    hr {
+      border-top-color: darken($panel-bg, 10%);
+    }
+
+    .languages {
+      border: 0;
+      margin: 0 -1rem;
+      width: calc(100% + 2rem);
+    }
+
+    .language {
+      padding-bottom: calc(16.666% - 6.666px)!important;
+      width: calc(25% - 10px);
+    }
+  }
+}
+
+.logo {
+  display: inline-flex;
+  height: 40px;
+  max-width: 200px;
+  align-items: center;
+
+  img {
+    height: 100%;
+  }
+}
+
+@media screen and (max-width: $screen-xs-max) {
+  .navbar-header {
+    width: 100%;
+  }
+
+  .logo {
+    height: 32px;
+    margin-right: auto;
+    max-width: 120px;
+    width: auto;
+  }
+}
+
+
+// breadcrumbs
+
+.breadcrumbs {
+  margin: 0 3rem;
+  overflow: hidden;
+
+  @media screen and (min-width: $screen-xs-max) and (max-width: $screen-md-max) {
+  	margin: 0;
+  }
+
+  * {
+    color: $header-text;
+  }
+}
+
+
+.navbar-desktop {
+  align-items: center;
+  display: flex;
+  list-style: none;
+  margin: 0;
+  margin-left: auto;
+  margin-right: -.75rem;
+  padding: 0;
+
+  &gt;li {
+    align-items: center;
+    display: inline-flex;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    position: relative;
+
+    &amp;:after {
+      background: transparent;
+      bottom: 0;
+      content: '';
+      height: 10px;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 100%;
+    }
+
+    &amp;:hover .dropdown-menu {
+      display: block;
+    }
+
+    &gt;a {
+      align-items: center;
+      color: $header-text;
+      display: inline-flex;
+
+      &gt;i {
+        font-size: 1.75rem;
+      }
+    }
+  }
+}
+
+.things-to-action,
+.options,
+.profile {
+  &gt;a:hover {
+    text-decoration: none!important;
+  }
+}
+
+.badge {
+  background-color: $brand-danger;
+  background-color: $header-badge;
+  font-size: .9rem;
+  font-weight: 300;
+  margin-left: .8rem;
+  padding: 4px 7px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  
+  i.material-design {
+   font-size:0.9rem;
+  }
+  
+}
+
+.things-to-action, .alerts {
+  white-space: nowrap;
+}
+
+.dropdown-menu {
+  @include wow-list-reset();
+  border: none;
+  left: auto;
+  right: 0;
+  padding: 1rem;
+
+  li {
+    padding: .7rem;
+  }
+
+  a:not(.btn) {
+    color: $text-color;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding: 0;
+
+    &amp;:hover {
+      background-color: transparent;
+      text-decoration: underline;
+    }
+  }
+
+  .favorites &amp; {
+    min-width: 280px;
+
+    .list-head {
+      color: $text-muted;
+      font-size: .9rem;
+      text-transform: uppercase;
+    }
+
+    ul {
+      @include wow-list-reset();
+
+      li {
+        margin-bottom: .5rem;
+      }
+    }
+  }
+
+  .cart &amp; {
+    width: 400px;
+
+    @media screen and (max-width: $screen-xs-max) {
+      display: none;
+    }
+
+    .panel {
+      box-shadow: none;
+      padding: 0;
+    }
+  }
+}
+
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9;
+  display: none;
+
+  &amp;.visible {
+    @media screen and (max-width: $screen-md-max){
+      display: block;
+    }
+  }
+}
+
+// search
+
+#wow-header {
+  .typeahead {
+    margin: 0 auto;
+    min-width: 300px;
+    height: 40px;
+
+    @media screen and (max-width: $screen-xs-max) {
+      height: 60px;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      width: 400px;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      width: 450px;
+    }
+
+    @media screen and (min-width: $screen-lg-min) {
+      width: 400px;
+    }
+
+    @media screen and (min-width: $screen-lg-min) {
+      width: 400px;
+    }
+
+    @media screen and (min-width: 1500px) {
+      width: 450px;
+    }
+
+    form {
+      input {
+        height: auto;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.mobile-search {
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transition: opacity .3s ease-in-out;
+
+  @media screen and (min-width: $screen-sm-min) {
+    display: none;
+  }
+
+  .typeahead {
+    margin: 1.5rem auto;
+    transition: transform .3s ease-in-out;
+    transform: translateY(-100%);
+  }
+
+  &amp;.active {
+    opacity: 1;
+    pointer-events: all;
+    z-index: 2;
+
+    .typeahead {
+      transform: translateY(0%);
+    }
+  }
+}
+
+.mobile-search-toggle {
+  align-items: center;
+  background: none;
+  border: none;
+  color: $header-text;
+  display: inline-flex;
+  margin-left: auto;
+  padding: 0.5rem;
+
+  @media screen and (min-width: $screen-sm-min) {
+    display: none;
+  }
+
+  i {
+    font-size: 1.75rem;
+  }
+}
+
+// mobile search transition animation
+.mobile-search.ng-enter, .mobile-search.ng-leave {
+  transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.3s;
+}
+
+.mobile-search.ng-enter,
+.mobile-search.ng-leave.ng-leave-active {
+  width: 0;
+  opacity: 0;
+}
+
+.mobile-search.ng-leave,
+.mobile-search.ng-enter.ng-enter-active {
+  width: 100%;
+  opacity: 1;
+}
+
+
+.breadcrumbs-searchbar {
+	position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .wow-searchbar {
+    padding: 0;
+  }
+}
+
+
+.beta {
+  background-color: $brand-danger;
+  color: $white;
+  font-size: 1.2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+
+  align-items: center;
+  display: flex;
+  height: 2.4rem;
+  padding: .5rem 1rem;
+  position: fixed;
+  top: 50%;
+  transform: translate(-40%, -50%) rotate(-90deg);
+  z-index: 99999;
+}
+
+@-webkit-keyframes ring {
+  0% { -webkit-transform: rotateZ(0); }
+  1% { -webkit-transform: rotateZ(30deg); }
+  3% { -webkit-transform: rotateZ(-28deg); }
+  5% { -webkit-transform: rotateZ(34deg); }
+  7% { -webkit-transform: rotateZ(-32deg); }
+  9% { -webkit-transform: rotateZ(30deg); }
+  11% { -webkit-transform: rotateZ(-28deg); }
+  13% { -webkit-transform: rotateZ(26deg); }
+  15% { -webkit-transform: rotateZ(-24deg); }
+  17% { -webkit-transform: rotateZ(22deg); }
+  19% { -webkit-transform: rotateZ(-20deg); }
+  21% { -webkit-transform: rotateZ(18deg); }
+  23% { -webkit-transform: rotateZ(-16deg); }
+  25% { -webkit-transform: rotateZ(14deg); }
+  27% { -webkit-transform: rotateZ(-12deg); }
+  29% { -webkit-transform: rotateZ(10deg); }
+  31% { -webkit-transform: rotateZ(-8deg); }
+  33% { -webkit-transform: rotateZ(6deg); }
+  35% { -webkit-transform: rotateZ(-4deg); }
+  37% { -webkit-transform: rotateZ(2deg); }
+  39% { -webkit-transform: rotateZ(-1deg); }
+  41% { -webkit-transform: rotateZ(1deg); }
+
+  43% { -webkit-transform: rotateZ(0); }
+  100% { -webkit-transform: rotateZ(0); }
+}
+
+@-moz-keyframes ring {
+  0% { -moz-transform: rotate(0); }
+  1% { -moz-transform: rotate(30deg); }
+  3% { -moz-transform: rotate(-28deg); }
+  5% { -moz-transform: rotate(34deg); }
+  7% { -moz-transform: rotate(-32deg); }
+  9% { -moz-transform: rotate(30deg); }
+  11% { -moz-transform: rotate(-28deg); }
+  13% { -moz-transform: rotate(26deg); }
+  15% { -moz-transform: rotate(-24deg); }
+  17% { -moz-transform: rotate(22deg); }
+  19% { -moz-transform: rotate(-20deg); }
+  21% { -moz-transform: rotate(18deg); }
+  23% { -moz-transform: rotate(-16deg); }
+  25% { -moz-transform: rotate(14deg); }
+  27% { -moz-transform: rotate(-12deg); }
+  29% { -moz-transform: rotate(10deg); }
+  31% { -moz-transform: rotate(-8deg); }
+  33% { -moz-transform: rotate(6deg); }
+  35% { -moz-transform: rotate(-4deg); }
+  37% { -moz-transform: rotate(2deg); }
+  39% { -moz-transform: rotate(-1deg); }
+  41% { -moz-transform: rotate(1deg); }
+
+  43% { -moz-transform: rotate(0); }
+  100% { -moz-transform: rotate(0); }
+}
+
+@keyframes ring {
+  0% { transform: rotate(0); }
+  1% { transform: rotate(30deg); }
+  3% { transform: rotate(-28deg); }
+  5% { transform: rotate(34deg); }
+  7% { transform: rotate(-32deg); }
+  9% { transform: rotate(30deg); }
+  11% { transform: rotate(-28deg); }
+  13% { transform: rotate(26deg); }
+  15% { transform: rotate(-24deg); }
+  17% { transform: rotate(22deg); }
+  19% { transform: rotate(-20deg); }
+  21% { transform: rotate(18deg); }
+  23% { transform: rotate(-16deg); }
+  25% { transform: rotate(14deg); }
+  27% { transform: rotate(-12deg); }
+  29% { transform: rotate(10deg); }
+  31% { transform: rotate(-8deg); }
+  33% { transform: rotate(6deg); }
+  35% { transform: rotate(-4deg); }
+  37% { transform: rotate(2deg); }
+  39% { transform: rotate(-1deg); }
+  41% { transform: rotate(1deg); }
+
+  43% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+@-webkit-keyframes spin {
+    from {
+        transform:rotate(-360deg);
+    }
+    to {
+        transform:rotate(0deg);
+    }
+}
+
+@-moz-keyframes spin {
+    from {
+        transform:rotate(-360deg);
+    }
+    to {
+        transform:rotate(0deg);
+    }
+}
+
+
+@keyframes spin {
+    from {
+        transform:rotate(-360deg);
+    }
+    to {
+        transform:rotate(0deg);
+    }
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Header</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	
+	options.placeholder = gs.getMessage(options.placeholder || 'wow_search_placeholder');
+
+	var portal = $sp.getPortalRecord();
+	var util = new WowUtil();
+	var favoritesHelper = new WowFavorites();
+	var ticketsHelper = new WowTickets();
+
+	ticketsHelper.setFilter('awaiting_user');
+
+	if (input) {
+		switch (input.action) {
+			case 'get_ticket_count':
+				data.ticketCount = ticketsHelper.getTicketCount();
+				return;
+
+			case 'get_favorites':
+				data.favorites = favoritesHelper.getFavorites();
+				return;
+
+			case 'get_cart_items':
+				data.cartItems = util.getCartItems();
+				return;
+		}
+	}
+
+	else {
+		data.menu = util.getMenuItems(portal.getValue('sp_rectangle_menu'));
+		data.myLinks = util.getMenuItems('c9dca9c2db17c050363e8a503996195e');
+		//data.ticketCount = ticketsHelper.getTicketCount();
+		data.favorites = favoritesHelper.getFavorites();
+		data.cartItems = util.getCartItems();
+		data.availableLanguages = getAvailableLanguages();
+		data.preferredLanguage = util.getUserLanguage();
+		data.isHomepage = !$sp.getParameter('id') || $sp.getParameter('id') == portal.getValue('homepage');
+	}
+
+
+	function getFlagByLanguage(countryCode) {
+		var gr = new GlideRecord('x_mono2_wow_flag');
+		gr.addQuery('country_code_alpha2', countryCode);
+		gr.query();
+
+		while (gr.next())
+			return util.getAttachment(gr.getUniqueValue(), 'flag');
+
+		return null;
+	}
+
+
+	function getAvailableLanguages() {
+		var languages = [];
+
+		if (!gs.tableExists('sys_language') && gs.getProperty('glide.ui.language_picker.enabled', 'true') == 'true')
+			return languages;
+
+		languages.push({
+			value: 'en',
+			label: gs.getMessage('wow_english'),
+			flag: getFlagByLanguage('en')
+		});
+
+		// setup the available languages from sys_language table
+		var gr = new GlideRecord('sys_language');
+
+		if (!gr.isValid())
+			return languages;
+
+		gr.addActiveQuery();
+		gr.orderBy('name');
+		gr.query();
+
+		while (gr.next()) {
+			var id = gr.getValue('id');
+			languages.push({
+				value: id,
+				label: gr.getDisplayValue('name'),
+				flag: getFlagByLanguage(id)
+			});
+		}
+
+		return languages;
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_header_footer</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-09 09:21:32</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>6f2ed777db479b4087e2f3de3b961909</sys_id>
+        <sys_mod_count>795</sys_mod_count>
+        <sys_name>Wow Header</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_header_footer_6f2ed777db479b4087e2f3de3b961909</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-19 15:09:48</sys_updated_on>
+        <template><![CDATA[<widget id="wow-dependencies"></widget>
+<widget id="wow-backgrounds"></widget>
+<!-- Disabled for now as no CC process <widget id="wow-feedback"></widget> -->
+<widget id="wow-external-chat"></widget>
+<widget id="wow-announcements"></widget>
+
+<section id="wow-header">
+  <nav class="navbar">
+    <div class='nav-left'>
+
+      <a class="logo" href="/{{::portal.url_suffix}}">
+        <img ng-if="portal.logo" src="{{::portal.logo}}" alt="${wow_portal_name}">
+        <img ng-if="!portal.logo" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIxLjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiCgkgdmlld0JveD0iMCAwIDM2LjIgMzkuNSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzYuMiAzOS41OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6I0ZGRkZGRjt9Cjwvc3R5bGU+CjxnIGlkPSJMYXllcl8xIj4KPC9nPgo8ZyBpZD0iSXNvbGF0aW9uX01vZGUiPgoJPGcgaWQ9IkxvZ29fMV8iPgoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMi43LDEuN0MyMS41LDAuNiwxOS44LDAsMTguMSwwYy0xLjcsMC0zLjQsMC42LTQuNiwxLjdjLTEuNCwxLjItMi4xLDMtMi4xLDVjMCwyLjEsMC43LDMuOCwyLjEsNQoJCQljMS4yLDEuMSwyLjgsMS43LDQuNiwxLjdjMS43LDAsMy40LTAuNiw0LjYtMS43YzEuNC0xLjIsMi4xLTIuOSwyLjEtNUMyNC44LDQuNiwyNCwyLjksMjIuNywxLjd6IE0xNS41LDYuNwoJCQljMC0xLjksMS40LTIuOCwyLjYtMi44YzEuMywwLDIuNiwwLjksMi42LDIuOGMwLDEuOS0xLjQsMi44LTIuNiwyLjhDMTYuOCw5LjUsMTUuNSw4LjYsMTUuNSw2Ljd6Ii8+CgkJPGc+CgkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yNC42LDI0LjVjMC0wLjEsMC0wLjIsMC4xLTAuM2wxMS41LTkuN2wtNC42LTUuMkwyMS40LDE5LjZjLTIuNywyLjctMi43LDcuMiwwLDkuOWwxMCw5LjlsNC42LTUuMgoJCQkJbC0xMS4zLTkuNEMyNC42LDI0LjgsMjQuNiwyNC43LDI0LjYsMjQuNXoiLz4KCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTQuNiw5LjRMMCwxNC42bDExLjMsOS42YzAuMSwwLjEsMC4xLDAuMiwwLjEsMC4zYzAsMC4xLDAsMC4yLTAuMSwwLjNsLTExLDkuNGw0LjYsNS4ybDkuOS0xMAoJCQkJYzEuMy0xLjMsMi0zLjEsMi01YzAtMS45LTAuNy0zLjYtMi4xLTQuOUw0LjYsOS40eiIvPgoJCTwvZz4KCTwvZz4KPC9nPgo8L3N2Zz4K" alt="${wow_portal_name}">
+      </a>
+
+      <!-- mobile search toggle -->
+      <button class="mobile-search-toggle"
+              ng-if="!data.isHomepage"
+              ng-click="openSearch($event)"
+              ng-class="{'active': searchActive}">
+        <i class="material-icons">search</i>
+      </button>
+			
+      <!-- mobile alerts -->
+    	<div class="mobile-alerts" ng-if="banners && banners.length > 0">
+        <button class="alerts-btn" ng-click="openAlerts()" ng-class="{'shake-active': true}">
+          <i class="material-icons">notifications</i>
+        </button>
+        <span class="alerts-num">{{banners.length}}</span>
+      </div>
+      
+      <!-- mobile & tablet nav toggle -->
+      <button type="button"
+              class="navbar-toggle {{navOpen}}"
+              data-toggle="collapse"
+              data-target="#mobile-nav"
+              ng-click="toggleNav()">
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <!-- desktop breadcrumbs -->
+      <div class="breadcrumbs hidden-xs hidden-sm hidden-md">
+        <widget id="wow-breadcrumbs"></widget>
+      </div>
+
+    </div>
+
+    <!-- desktop search -->
+    <div class="search hidden-xs hidden-sm hidden-md" ng-class="{'active': searchActive}">
+      <widget id="wow-searchbar" options="{'hidden': false}"></widget>
+    </div>
+
+    <!-- desktop navigation -->
+    <ul class="navbar-desktop nav-right hidden-xs">
+      <li class="things-to-action">
+        <a href="?id=wow_tickets&filter=action">
+          ${wow_things_to_action}
+          <span class="badge"> {{ticketCount >= options.limit ? ticketCount + "+" : ticketCount}}</span>
+        </a>
+      </li>
+      <li class="favorites" ng-if="data.favorites.length > 0">
+        <a href="#" class="dropdown">
+          <i class="material-icons" aria-hidden="true">favorite_border</i>
+        </a>
+        <ul class="dropdown-menu">
+          <li class="favorites-group" ng-if="filterFavorites('kb_knowledge').length > 0">
+            <h4 class="list-head">${wow_articles}</h4>
+            <ul>
+              <li ng-repeat="favorite in filterFavorites('kb_knowledge')">
+                <a ng-href="{{favorite.href}}">{{favorite.label}}</a>
+              </li>
+            </ul>
+          </li>
+          <li class="favorites-group" ng-if="filterFavorites('sc_cat_item').length > 0">
+            <h4 class="list-head">${wow_services}</h4>
+            <ul>
+              <li ng-repeat="favorite in filterFavorites('sc_cat_item')">
+                <a href="{{favorite.href}}">{{favorite.label}}</a>
+              </li>
+            </ul>
+          </li>
+          <li class="favorites-group" ng-if="filterFavorites('incident').length > 0 || filterFavorites('sc_req_item').length > 0">
+            <h4 class="list-head">${wow_tickets}</h4>
+            <ul>
+              <li ng-repeat="favorite in filterFavorites('incident')">
+                <a href="{{favorite.href}}">{{favorite.label}}</a>
+              </li>
+              <li ng-repeat="favorite in filterFavorites('sc_req_item')">
+                <a href="{{favorite.href}}">{{favorite.label}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li class="cart" ng-if="data.cartItems.length > 0">
+        <a href='?id=wow_cart' class="dropdown">
+          <i class="material-icons">shopping_cart</i>
+          <span ng-if="data.cartItems.length > 0" class="badge">{{data.cartItems.length}}</span>
+        </a>
+        <div class="dropdown-menu">
+        	<widget id="wow-cart-mini"></widget>
+        </div>
+      </li>
+      <li ng-if="data.menu.length" class="options">
+        <a href="#" class="dropdown">
+          <i class="material-icons" aria-hidden="true">sort</i>
+        </a>
+        <ul class="dropdown-menu">
+          <li ng-repeat="item in data.menu">
+            <a href="{{item.href}}">{{item.title}}</a>
+          </li>
+        </ul>
+      </li>
+      <li ng-if="data.myLinks.length" class="options">
+        <a href="#" class="dropdown"> 
+          ${wow_my_links}
+        </a>
+        <ul class="dropdown-menu">
+          <li ng-repeat="item in data.myLinks">
+            <a href="{{item.href}}">{{item.title}}</a>
+          </li>
+        </ul>
+      </li>
+      <li class="profile">
+        <a href="?id=wow_profile" class="dropdown">
+          <sn-avatar show-presence="false" primary="user.sys_id" />
+        </a>
+        <ul class="dropdown-menu">
+          <li><a ng-href="?id=wow_tickets">${wow_my_area}</a></li>
+          <li><a ng-href="{{::portal.logoutUrl}}">${wow_logout}</a></li>
+          <li ng-if="availableLanguages.length > 1" class="languages">
+            <a class="language"
+               ng-repeat="option in availableLanguages"
+               ng-class="{'active':option.value == data.preferredLanguage}"
+               ng-style="{'background-image': 'url('+option.flag+')'}"
+               href="javascript:void(0)"
+               ng-click="setLanguage(option)"
+               aria-label="{{option.label}}"
+               ></a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- mobile navigation -->
+    <div class="collapse navbar-collapse {{ navOpen }}" id="mobile-nav">
+      <button class="btn close-sidenav" data-toggle="collapse" data-target="#mobile-nav" ng-click="toggleNav()">
+        <i class="material-icons">close</i>
+      </button>
+      <ul class="nav navbar-nav visible-xs">
+        <li class="things-to-action">
+          <a href="?id=wow_tickets&filter=action">
+            ${wow_things_to_action}
+            <span class="badge">{{ticketCount >= options.limit ? ticketCount + "+" : ticketCount}}</span>
+          </a>
+        </li>
+        <li ng-repeat="link in data.menu">
+          <a href="{{link.href}}">{{link.title}}</a>
+        </li>
+        <p>
+          ${wow_my_links}
+        </p>
+        <li ng-repeat="link in data.myLinks">
+          <a href="{{link.href}}">{{link.title}}</a>
+        </li>
+        <hr>
+        <li>
+          <ul class="list-inline">
+            <li><sn-avatar show-presence="false" primary="user.sys_id" /></li>
+            <li><widget id="wow-feedback"></widget></li>
+            <li><a href="{{::portal.logoutUrl}}">${wow_logout}</a></li>
+          </ul>
+          <hr>
+          <ul ng-if="availableLanguages.length > 1" class="list-inline">
+            <li class="languages">
+              <a class="language"
+                 ng-repeat="option in availableLanguages"
+                 ng-class="{'active':option.value == data.preferredLanguage}"
+                 ng-style="{'background-image': 'url('+option.flag+')'}"
+                 href="javascript:void(0)"
+                 ng-click="setLanguage(option)"
+                 aria-label="{{option.label}}"
+                 ></a>
+            </li>
+            </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- tablet search and breadcrumbs -->
+  <div class="breadcrumbs-searchbar hidden-xs hidden-lg">
+    <div class="breadcrumbs">
+      <widget id="wow-breadcrumbs"></widget>
+    </div>
+    <div class="search">
+      <widget id="wow-searchbar" options="{'hidden': false}"></widget>
+    </div>
+  </div>
+
+  <!-- mobile search -->
+  <div class="mobile-search" ng-class="{'active': searchActive}">
+    <widget id="wow-searchbar"></widget>
+  </div>
+
+</section>
+
+<div ng-class="{'visible': navOpen}" ng-click="toggleNav()" class="backdrop"></div>]]></template>
+    </sp_header_footer>
+</record_update>

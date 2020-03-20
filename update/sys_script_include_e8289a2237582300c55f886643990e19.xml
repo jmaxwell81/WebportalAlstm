@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowStack</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowStack</name>
+        <script><![CDATA[var WowStack = Class.create();
+WowStack.prototype = {
+	initialize: function(options) {
+		options = options || {};
+		
+		var portal = $sp.getPortalRecord();
+		this.searchHelper = new WowSearch(options);
+
+		this.itemsPerPage    = options.itemsPerPage || 10;
+		this.resultType      = String(options.resultType) || 'all';
+		this.sortType        = String(options.sortType) || 'latest';
+		this.totalItems      = 0;
+	},
+
+
+	setCatalog: function(catalog) {
+		this.searchHelper.setCatalog(catalog);
+	},
+	
+	
+	setCatalogs: function(catalogs) {
+		this.searchHelper.setCatalogs(catalogs);
+	},
+
+
+	setKnowledgeBase: function(knowledgeBase) {
+		this.searchHelper.setKnowledgeBase(knowledgeBase);
+	},
+	
+	
+	setKnowledgeBases: function(knowledgeBases) {
+		this.searchHelper.setKnowledgeBases(knowledgeBases);
+	},
+	
+	
+	setParentCategory: function(category) {
+		this.searchHelper.parentCategory = category;
+	},
+	
+	
+	setCategory: function(category) {
+		this.searchHelper.categories = [category];
+	},
+
+
+	setCategories: function(categories) {
+		this.searchHelper.categories = categories;
+	},
+
+
+	setQueryLimit: function(queryLimit) {
+		this.searchHelper.queryLimit = queryLimit;
+	},
+
+
+	setItemsPerPage: function(itemsPerPage) {
+		this.itemsPerPage = this.searchHelper.itemsPerPage = itemsPerPage;
+	},
+
+
+	setCurrentPage: function(currentPage) {
+		this.searchHelper.currentPage = currentPage;
+	},
+
+
+	setResultType: function(resultType) {
+		this.resultType = this.searchHelper.resultType = resultType;
+	},
+
+
+	setSortType: function(sortType) {
+		this.sortType = this.searchHelper.sortType = sortType;
+	},
+
+
+	setSearchTerm: function(searchTerm) {
+		this.searchTerm = this.searchHelper.searchTerm = searchTerm;
+	},
+
+
+	setFilteredIds: function(filteredIds) {
+		this.searchHelper.filteredIds = filteredIds;
+	},
+
+
+	setExcludedIds: function(excludedIds) {
+		this.searchHelper.excludedIds = excludedIds;
+	},
+
+
+	setSelectedCategories: function(selectedCategories) {
+		this.searchHelper.selectedCategories = selectedCategories;
+	},
+
+
+	setSearchSubcategories: function(searchSubcategories) {
+		this.searchHelper.searchSubcategories = searchSubcategories;
+	},
+
+	getTotalItems: function() {
+		return this.totalItems;
+	},
+
+
+	getItems: function() {
+		var items;
+
+		switch (this.resultType) {
+			case 'service':
+				items = this.searchHelper.getCatalogItems();
+				break;
+
+			case 'incident':
+				items = this.searchHelper.getCatalogItems();
+				break;
+
+			case 'article':
+				items = this.searchHelper.getArticles();
+				break;
+
+			default:
+				items = [].concat(this.searchHelper.getCatalogItems()).concat(this.searchHelper.getArticles());
+				break;
+		}
+
+		switch (this.sortType) {
+			case 'latest':
+				items.sort(function(a, b) {
+					return a.published > b.published ? -1 : (a.published < b.published ? 1 : 0);
+				});
+				break;
+
+			case 'atoz':
+				items.sort(function(a, b) {
+					return a.label.localeCompare(b.label);
+				});
+				break;
+
+			case 'ztoa':
+				items.sort(function(a, b) {
+					return b.label.localeCompare(a.label);
+				});
+				break;
+
+			default:
+				items.sort(function(a, b) {
+					return a.score > b.score ? -1 : (a.score < b.score ? 1 : 0);
+				});
+				break;
+		}
+
+		this.totalItems = items.length;
+
+		return items.slice(0, this.itemsPerPage);
+	},
+
+
+	getCatalogItem: function(sys_id) {
+		return this.searchHelper.getCatalogItem(sys_id);
+	},
+
+
+	getArticle: function(sys_id) {
+		return this.searchHelper.getArticle(sys_id);
+	},
+	
+	
+	getCommonItems: function(queryLimit) {
+		queryLimit = queryLimit || 10;
+		
+		var itemIds = (function() {
+			var ids = [];
+
+			var agg = new GlideAggregate('sc_req_item');
+			agg.addAggregate('COUNT', 'cat_item');
+			agg.orderByAggregate('COUNT', 'cat_item');
+			agg.groupBy('cat_item');
+			agg.setLimit(queryLimit * 2); // allow more for user criteria
+			agg.query();
+			
+			while (agg.next())
+				ids.push(agg.getValue('cat_item'));
+			
+			return ids;
+		})();
+				
+		var items = [];
+		var searchHelper = new WowSearch();
+		
+		itemIds.forEach(function(itemId, i) {
+			if (items.length < queryLimit) {
+				var item = searchHelper.getCatalogItem(itemId);
+
+				if (item)
+					items.push(item);
+			}
+		});
+		
+		return items;
+	},
+	
+	
+	getCommonArticles: function(queryLimit) {
+		queryLimit = queryLimit || 5;
+		
+		// first get a list of most used + viewed articles
+		var articleIds = (function() {
+			var ids = [];
+			
+			var agg = new GlideAggregate('kb_use');
+			agg.addQuery('used', true);
+			agg.addNotNullQuery('article');
+			agg.addAggregate('COUNT', 'article');
+			agg.orderByAggregate('COUNT', 'article');
+			agg.groupBy('article');
+			agg.setLimit(queryLimit * 2); // allow more for user criteria
+			agg.query();
+			
+			while (agg.next()) {
+			
+				ids.push(agg.getValue('article'));
+			}
+			return ids;
+		})();
+		
+		var articles = [];
+		var searchHelper = new WowSearch();
+		
+		// make sure the articles are sorted by their use
+		articleIds.forEach(function(articleId) {
+			if (articles.length < queryLimit) {
+				var article = searchHelper.getArticle(articleId);
+
+				if (article)
+					articles.push(article);
+			}
+		});
+		
+		return articles;
+	},
+	
+	getRatedArticles: function(queryLimit) {
+		queryLimit = queryLimit || 5;
+		var searchHelper = new WowSearch();
+		var ratedArticles = [];
+		var ratedArticle;
+			
+		// first get a list of most used + viewed articles
+		var ids = [];
+			
+		var rated = new GlideRecord('kb_knowledge');
+		rated.addActiveQuery();
+		rated.addQuery('workflow_state', 'published');
+		rated.orderByDesc('rating');
+		rated.setLimit(queryLimit);
+		rated.query();
+		while (rated.next()) {
+			if (ratedArticles.length < queryLimit) {
+				ratedArticle = searchHelper.getArticleVariables(rated);			
+				if (ratedArticle)
+					ratedArticles.push(ratedArticle);
+			}
+		}
+		return ratedArticles;
+	},
+	
+		getMostReadArticles: function(queryLimit) {
+		queryLimit = queryLimit || 5;
+		var searchHelper = new WowSearch();
+		var mostReadArticles = [];
+		var readArticle;
+			
+		// first get a list of most used + viewed articles
+		var ids = [];
+			
+		var read = new GlideRecord('kb_knowledge');
+		read.addActiveQuery();
+		read.addQuery('workflow_state', 'published');
+		read.orderByDesc('sys_view_count');
+		read.setLimit(queryLimit);
+		read.query();
+		while (read.next()) {
+			if (mostReadArticles.length < queryLimit) {
+				readArticle = searchHelper.getArticleVariables(read);			
+				if (readArticle)
+					mostReadArticles.push(readArticle);
+			}
+		}
+		return mostReadArticles;
+	},
+
+	getCategories: function(sortType) {
+		var categories;
+		this.searchHelper.setResultType(this.resultType);
+
+		switch (this.resultType) {
+			case 'service':
+				categories = this.searchHelper.getCatalogCategories();
+				break;
+
+			case 'article':
+				categories = this.searchHelper.getKnowledgeCategories();
+				break;
+
+			case 'top_rated':
+				categories = this.searchHelper.getKnowledgeCategories();
+				break;
+				
+			case 'incident':
+				categories = this.searchHelper.getCatalogCategories();
+				break;
+
+			default:
+				categories = [].concat(this.searchHelper.getCatalogCategories()).concat(this.searchHelper.getKnowledgeCategories());
+				break;
+		}
+
+		// dedupe categories
+		var dedupedCategories = [];
+		var categoryLookup = {};
+		categories.forEach(function(category) {
+
+			if (!categoryLookup[category.label]) {
+				categoryLookup[category.label] = {
+					ids: [category.id],
+					active: true,
+					icon: category.icon,
+					iconColor: category.iconColor,
+					label: category.label,
+					order: category.order,
+					selected: false,
+					subcategories: category.subcategories,
+					title: category.label
+				}
+			}
+
+			else {
+				var dedupedCategory = categoryLookup[category.label];
+				dedupedCategory.ids.push(category.id);
+				dedupedCategory.subcategories = dedupedCategory.subcategories.concat(category.subcategories);
+
+				// if the first category (catalog) icon is the default then look to replace this
+				if (dedupedCategory.icon == searchHelper.defaultIcons.category)
+					dedupedCategory.icon = category.icon;
+
+				// update iconColor if we can
+				if (!dedupedCategory.iconColor)
+					dedupedCategory.iconColor = category.iconColor;
+			}
+		});
+
+		for (var key in categoryLookup) {
+			dedupedCategories.push(categoryLookup[key]);
+		}
+
+		// then sort
+		switch(sortType) {
+			case 'atoz':
+			default:
+				dedupedCategories.sort(function(a, b) {
+					return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+				});
+				break;
+
+			case 'ztoa':
+				dedupedCategories.sort(function(a, b) {
+					return (b.label > a.label) ? 1 : ((a.label > b.label) ? -1 : 0);
+				});
+				break;
+
+			case 'order':
+				dedupedCategories.sort(function(a, b) {
+					return (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0);
+				});
+				break;
+		}
+
+		// now dedupe its subcategories
+		dedupedCategories.forEach(function(category) {
+			var subcategories = [];
+			var subcategoryLookup = {};
+			
+			category.subcategories.forEach(function(subcategory) {
+
+				if (!subcategoryLookup[subcategory.label]) {
+					subcategoryLookup[subcategory.label] = {
+						ids: [subcategory.id],
+						active: true,
+						order: subcategory.order,
+						selected: false,
+						label: subcategory.label,
+						icon: subcategory.icon, // picking the first one?
+						iconColor: subcategory.iconColor || category.iconColor, // picking the first one? defaulting to parent iconColor
+						subcategories: []
+					};
+				}
+
+				else
+					subcategoryLookup[subcategory.label].ids.push(subcategory.id);
+			});
+
+			for (var key in subcategoryLookup) {
+				subcategories.push(subcategoryLookup[key]);
+			}
+
+			// sort those subcategories as well
+			switch(sortType) {
+				case 'atoz':
+				default:
+					subcategories.sort(function(a, b) {
+						return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+					});
+					break;
+
+				case 'ztoa':
+					subcategories.sort(function(a, b) {
+						return (b.label > a.label) ? 1 : ((a.label > b.label) ? -1 : 0);
+					});
+					break;
+
+				case 'order':
+					subcategories.sort(function(a, b) {
+						return (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0);
+					});
+					break;
+			}
+
+			category.subcategories = subcategories;
+		});
+
+		return dedupedCategories;
+	},
+
+
+	getTags: function(keys, type) {
+		var tags = [];
+		var lookup = {};
+
+		var gr = new GlideRecord('label_entry');
+		gr.addQuery('table_key', 'IN', keys);
+		gr.orderBy('label');
+		gr.query();
+
+		while (gr.next()) {
+			var tag = gr.getDisplayValue('label');
+			var item;
+			var itemId = gr.getValue('table_key');
+			var itemCategory;
+
+			if (type == 'service')
+				item = this.getCatalogItem(itemId);
+
+			if (type == 'article')
+				item = this.getArticle(itemId);
+
+			if (item)
+				itemCategory = item.category.value;
+
+			if (!itemCategory)
+				continue;
+
+			var last = lookup[itemCategory].tags.length;
+
+			if (lookup[itemCategory]) {
+				var existsIndex = false;
+
+				for (var i = 0; i < lookup[itemCategory].tags.length; i++) {
+					if (lookup[itemCategory].tags[i].name == tag) {
+						existsIndex = i;
+					}
+				}
+
+				if (existsIndex === false) {
+					lookup[itemCategory].tags.push({
+						name: tag
+					});
+					lookup[itemCategory].tags[last].items = [itemId];
+				}
+
+				else {
+					lookup[itemCategory].tags[existsIndex].items.push(itemId);
+				}
+			}
+
+			else {
+				lookup[itemCategory] = {
+					tags: [{
+						name: tag,
+						items: [itemId]
+					}]
+				};
+			}
+		}
+
+		return lookup;
+	},
+
+
+	type: 'WowStack'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-09-05 10:21:29</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e8289a2237582300c55f886643990e19</sys_id>
+        <sys_mod_count>162</sys_mod_count>
+        <sys_name>WowStack</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_e8289a2237582300c55f886643990e19</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-19 13:37:17</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_rectangle_menu_item">
+    <sp_rectangle_menu_item action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <color>default</color>
+        <condition/>
+        <display_1/>
+        <display_2/>
+        <display_date/>
+        <filter/>
+        <glyph/>
+        <hint/>
+        <kb_article/>
+        <kb_category/>
+        <kb_topic/>
+        <label>AppStore (Win7)</label>
+        <order>200</order>
+        <record_script/>
+        <sc_cat_item/>
+        <sc_category/>
+        <short_description/>
+        <sp_page/>
+        <sp_rectangle_menu display_value="Wow My IT Links">c9dca9c2db17c050363e8a503996195e</sp_rectangle_menu>
+        <sp_rectangle_menu_item/>
+        <sys_class_name>sp_rectangle_menu_item</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-03 13:28:54</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>4a6d2106db17c050363e8a50399619e8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>AppStore (Win7)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_rectangle_menu_item_4a6d2106db17c050363e8a50399619e8</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-03 13:28:54</sys_updated_on>
+        <table/>
+        <type>url</type>
+        <url>http://unified-appstore.alstom.hub/</url>
+        <url_target>_blank</url_target>
+        <x_mono2_wow_background_color/>
+        <x_mono2_wow_description/>
+        <x_mono2_wow_icon/>
+        <x_mono2_wow_icon_color/>
+        <x_mono2_wow_image/>
+        <x_mono2_wow_text_color/>
+    </sp_rectangle_menu_item>
+    <sys_translated_text action="delete_multiple" query="documentkey=4a6d2106db17c050363e8a50399619e8"/>
+</record_update>

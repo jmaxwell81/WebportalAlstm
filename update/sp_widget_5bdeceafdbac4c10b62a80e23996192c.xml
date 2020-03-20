@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $interval, spUtil, $window, $uibModal) {
+	var c = this;
+	var interval = 60000;
+	
+	c.loading = true;
+	c.selectedDevice = null;
+		
+	$scope.refresh = undefined;
+	$scope.completed_actions = {};
+
+	/* Get initial machine score card */
+	c.$onInit = function () {
+		console.log('machine is '+c.data.machine);
+		c.getMachineScore(); // get intial data
+	
+		// setup interval
+		$scope.refresh = $interval(function () {			
+			// if we are not already refreshing, dont wait for next tick
+			if(!c.loading) {
+				console.log("updating scorecard");
+				c.getMachineScore();
+			}
+
+			// do we need to check for an action response
+			if (c.data.running_action) {
+				c.server.get({'action':'actionUpdate', 'ecc_id':c.data.running_action}).then(function (response) {
+					// is it complete?
+					if( response.data.completed_action && (response.data.completed_action.response_to == c.data.running_action)) {
+
+						// store history log output
+						$scope.completed_actions[c.data.running_action] = response.data.completed_action;
+						c.data.running_action = '';
+						spUtil.addInfoMessage("Disk clean complete, you score will update in the next few minutes");
+					}
+					
+				})
+			}
+
+		}, interval);
+	}
+
+	/* Retrieve the score card for machine currently in c.data.machine */
+	c.getMachineScore = function () {	
+		c.loading = true;
+
+		c.server.get({'action':'update_score', 'machine':c.data.machine}).then(function (response) {	
+			c.data.results = response.data.results;
+			c.data.averageScore = response.data.averageScore;	
+			
+			c.loading = false;
+		});
+	}
+
+	c.runAction = function (actionName) {
+		c.server.get({'action':actionName}).then(function (response) {			
+			c.data.last_action = response.data.last_action;
+			c.data.running_action = response.data.running_action;
+		});
+	}
+	
+	$scope.$on('$destroy', function() {
+		// make sure that the interval is destroyed too
+		$scope.stopInterval();
+	});
+	
+	$scope.stopInterval = function () {
+		if (angular.isDefined($scope.refresh)) {
+			console.log("cancelling interval refresh");
+			
+			$interval.cancel($scope.refresh);
+			$scope.refresh = undefined;
+		}
+	}
+
+	$window.onbeforeunload = $scope.stopInterval();
+	
+	$scope.openModal = function(event) {		
+		if (!(c.data.averageScore >= 0 || c.loading))
+			return;
+		
+		// select very first device
+		if (c.data.results.length > 0 && c.data.results[0].length > 0) {
+			c.selectedDevice = c.data.results[0][0];
+			c.selectedDeviceId = c.selectedDevice['WGUID'];
+			
+			$scope.modal = $uibModal.open({
+				appendTo: $scope.widgetEl,
+				templateUrl: 'wowScorecardModal.html',
+				windowClass: 'scorecard-modal',
+				scope: $scope
+			});
+		}
+	}
+	
+	$scope.closeModal = function(event) {
+		if ($scope.modal)
+			$scope.modal.close();
+	}
+	
+	$scope.getLabel = function(key) {
+		if (c.data.messages[key])
+			return c.data.messages[key].label;
+		return key;
+	}
+	
+	$scope.getDescription = function(key) {
+		if (c.data.messages[key])
+			return c.data.messages[key].description;
+		return key;
+	}
+	
+	$scope.deviceChanged = function(event) {
+		c.data.results.forEach(function(devices) {
+			devices.forEach(function(device) {
+				if (device['WGUID'])
+					c.selectedDevice = device;
+			})
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>ul {
+  @include wow-list-reset();
+}
+
+&amp; {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.scorecard {
+  background-color: $white;
+  background-color: $scorecard-bg;
+  display: flex;
+  flex-direction: column-reverse;
+  text-align: left; // just to reset
+  height: 100%;
+  padding: 2rem;
+  width: 100%;
+  
+  @media screen and (min-width: $screen-sm-min) {
+    flex-direction: row;
+  }
+}
+
+@include wow-spinner($brand-info, 50px);
+
+.average-score {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  margin: 1rem 0;
+  width: 100%;
+  
+  @media screen and (min-width: $screen-sm-min) {
+    margin: 0;
+  	width: 50%;
+  }
+
+  &gt;span {
+    color: $text-color;
+    color: $scorecard-text;
+    font-size: 6rem;
+    font-weight: 600;
+    font-weight: $font-weight-bold;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  
+  &gt;h3, &gt;h4 {
+    color: $text-color;
+    color: $scorecard-text;
+    margin: 0;
+  }
+}
+
+.image-wrapper {
+  width: 100%;
+  
+  @media screen and (min-width: $screen-sm-min) {
+  	width: 50%;
+  }
+  
+  i {
+    color: $scorecard-icon;
+
+    @if $scorecard-image != '$scorecard-image' {
+      display: none;
+    }
+  }
+  
+  .image {
+    @if $scorecard-image != '$scorecard-image' {
+      background-image: url($scorecard-image);
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+      background-size: contain;
+      height: 100%;
+      width: 100%;
+    }
+
+    @else {
+      display: none;
+    }
+  }
+}
+
+// selects
+
+.sn-select-basic {
+  @include wow-sn-select();
+  margin-bottom: 1.5rem;
+}
+
+// modal
+
+@include wow-modal();
+
+.scorecard-modal {  
+  .modal-dialog {
+    max-width: 600px;
+  }
+}
+
+.device-results {
+  display: flex;
+
+  &gt;div:nth-child(1) {
+    flex: 1;
+    margin-right: 2rem;
+  }
+
+  &gt;div:nth-child(2) {
+    margin-left: 2rem;
+    width: 150px;
+  }
+}
+
+.device-scores {
+  display: flex;
+  flex-direction: column;
+
+  li {
+    align-items: center;
+    display: flex;
+    padding: .5rem;
+    border-bottom: 1px solid darken($panel-bg, 10%);
+  }
+
+  label {
+    color: $text-color;
+    cursor: pointer;
+    margin: 0;
+    padding-right: 1rem;
+  }
+
+  .score {
+    font-size: .7rem;
+    margin-left: auto;
+  }
+}
+
+.overall-score, .score {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  color: $text-muted;
+  line-height: 1;
+
+  &gt;span {
+    color: $brand-info;
+    font-size: 2em;
+    font-weight: 600;
+    font-weight: $font-weight-bold;
+    margin-right: .2em;
+
+    &amp;.low { color: $brand-danger; }
+    &amp;.high { color: $brand-success; }
+  }
+}
+
+.overall-score {  
+  font-size: 1.2rem;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  width: 100%;
+  
+  &gt;span {
+    font-size: 3em;
+  }
+}
+
+.actions {
+  .btn {
+    margin-bottom: 1rem;
+    width: 100%;
+    
+    i {
+      font-size: 2em;
+      margin-right: .2em;
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-device-scorecard</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+	scope.widgetEl = element;
+	element.on("$destroy", function () {
+		scope.stopInterval();
+	})
+}]]></link>
+        <name>Wow Device Scorecard</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var userName = gs.getUserName();
+
+	var commandHash = {
+		'cleanDisk':'powershell -executionpolicy bypass -file c:\\ServiceNowDemo\\cleardown.ps1',
+		'fillDisk':'powershell -executionpolicy bypass -file c:\\ServiceNowDemo\\Resetdemo.ps1'
+	}
+
+	data.fillDisk = gs.hasRole('admin');
+	data.midServer = 'CECMidserver';
+
+	data.ms_active = isMidServerUp(data.midServer);
+
+	switch (userName) {
+		case 'pierre.smith':
+			var machine = data.machine = 'DESKTOP-853J24V';
+			break;
+
+		case 'remi.gas':
+			var machine = data.machine = 'DESKTOP-SBA7BIQ';
+			break;
+
+		default:
+			var machine = data.machine = 'IMOCLV03';
+			break;
+	}
+
+	data.messages = {
+		'BSODScore': {
+			label: gs.getMessage("BSOD Score"),
+			description: gs.getMessage("Some useful information about BSOD Score")
+		},
+		'HangScore': {
+			label: gs.getMessage("Hang Score"),
+			description: gs.getMessage("Some useful information about Hang Score")
+		},
+		'CrashScore': {
+			label: gs.getMessage("Crash Score"),
+			description: gs.getMessage("Some useful information about Crash Score")
+		},
+		'LatencyScore': {
+			label: gs.getMessage("Latency Score"),
+			description: gs.getMessage("Some useful information about Latency Score")
+		},
+		'TheScore': {
+			label: gs.getMessage("Overall Score"),
+			description: gs.getMessage("Some useful information about Overall Score")
+		},
+		'CPUScore': {
+			label: gs.getMessage("CPU Score"),
+			description: gs.getMessage("Some useful information about CPU Score")
+		},
+		'DiskScore': {
+			label: gs.getMessage("Disk Score"),
+			description: gs.getMessage("Some useful information about Disk Score")
+		},
+		'FreeSpaceScore': {
+			label: gs.getMessage("Free Space Score"),
+			description: gs.getMessage("Some useful information about Free Space Score")
+		},
+		'MemScore': {
+			label: gs.getMessage("Memory Score"),
+			description: gs.getMessage("Some useful information about Memory Score")
+		},
+		'BootScore': {
+			label: gs.getMessage("Boot Score"),
+			description: gs.getMessage("Some useful information about Boot Score")
+		},
+		'RAMScore': {
+			label: gs.getMessage("RAM Score"),
+			description: gs.getMessage("Some useful information about RAM Score")
+		}
+	};
+
+	
+	if (input) {
+		switch (input.action) {
+			
+			// API UPDATE SCORECARD
+			case 'update_score':
+				try {
+					if (data.ms_active) {
+						var dtObj = new Date();
+						var dt = dtObj.getTime(); 
+
+						var machineName = input.machine + '.CCEVERGREEN.COM';
+
+						var r = new sn_ws.RESTMessageV2('Lakeside Systrack', 'Score API');
+						r.setStringParameterNoEscape('machinename', machineName);
+						r.setStringParameterNoEscape('dt', dt);
+						r.setEccParameter('skip_sensor', true);
+						//r.setRequestHeader('cache-control', 'no-cache');
+
+						var response = r.execute();
+						var responseBody = response.getBody();
+						var httpStatus = response.getStatusCode();
+						var json = JSON.parse(responseBody);
+
+
+						// to work out overall average score across all devices
+						var totalRows = 0;
+						var averageScoreSum = 0;
+
+						//manipulate data into a more traditional key:value object notation			
+						var dataSets = json.data.map(function(dataSet) {
+
+							var columns = dataSet.Columns.map(function(column) {
+								return column.Name;
+							});
+
+							var rows = dataSet.Rows.map(function(row) {
+								var data = {};
+								var values = row.Values;
+
+								columns.forEach(function(column, i) {
+									data[column] = values[i];
+								});
+
+								// temporary name to be replaced!!!
+								data.name = machine; // from global var machine
+
+								totalRows++;
+								averageScoreSum += parseFloat(data['TheScore']);
+
+								return data;
+							});
+
+							return rows;
+						});
+
+						data.results = dataSets;
+						data.averageScore = (averageScoreSum / totalRows).toFixed(1);
+
+						return;
+
+					} else {
+						data.averageScore = -1;
+						return;
+					}
+				}
+
+				catch(ex) {
+					data.rest_error = message = ex.message;
+				}
+				
+				break;
+			
+			// API CHECK IF AN ACTION HAS COMPLETED
+			case 'actionUpdate':
+				
+				//lets see if we can find an input ECC response
+				var actionResponse = findResponseTo(input.ecc_id);
+				if (actionResponse)
+					data.completed_action = actionResponse;
+
+				return;
+		}
+		
+		// API RUN CLEANDISK COMMAND
+		if (input.action != '') {
+			if (commandHash[input.action] && commandHash[input.action] != '')
+				data.last_action = data.running_action = commandAction(commandHash[input.action]);
+
+			return;
+		}
+	}
+	
+	function commandAction(command) {
+		if (!command)
+			return 'ERROR NO COMMAND INPUT';
+
+		// setup XML document
+		var xml = new XMLDocument2()
+		var root = xml.createElement('parameters');
+		xml.setCurrentElement(root);
+
+		// setup Skip sensor paramter
+		var skipSensor = xml.createElement('parameter');
+		skipSensor.setAttribute('name','skip_sensor');
+		skipSensor.setAttribute('value','true');
+
+		// setup the command to be run
+		var xmlCommand = xml.createElement('parameter');
+		xmlCommand.setAttribute('name','name');
+		xmlCommand.setAttribute('value', command);
+
+		var q = new GlideRecord('ecc_queue');
+		q.initialize();
+		q.agent = 'mid.server.'+data.midServer;
+		q.topic = 'Command';
+		q.queue = 'output';
+		q.state = 'ready';
+		q.payload = xml.toString();
+		return q.insert();
+	}
+	
+	// we do this because recordWatch doesn't seem to work on ecc_queue
+	function findResponseTo(ecc_id) {
+		var qry = 'queue=input^agent=mid.server.IMOSYV01^topic=Command^sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()^response_to='+ecc_id;
+		var obj = {};
+
+		var gr = new GlideRecord('ecc_queue');
+		gr.addEncodedQuery(qry);
+		gr.query();
+
+		if (gr.next()) {
+			$sp.getRecordValues(obj, gr, 'queue,state,payload,response_to');
+			return obj;
+		}
+
+		return null;
+	}
+
+	function isMidServerUp(midserver) {
+		var gr = new GlideRecord('ecc_agent');
+		gr.addEncodedQuery('name='+midserver);
+		gr.query();
+
+		return (gr.next() && gr.status != 'Down');
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-10-23 15:01:50</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5bdeceafdbac4c10b62a80e23996192c</sys_id>
+        <sys_mod_count>21</sys_mod_count>
+        <sys_name>Wow Device Scorecard</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_5bdeceafdbac4c10b62a80e23996192c</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-24 14:10:12</sys_updated_on>
+        <template><![CDATA[<div class="scorecard" ng-click="openModal($event)">
+  <div class="average-score">
+    <wow-spinner ng-hide="data.averageScore >= 0" loading="c.loading"></wow-spinner>
+    <span ng-if="data.averageScore >= 0">
+      {{data.averageScore}}
+    </span>
+    <h3 ng-if="data.averageScore >= 0">
+      ${wow_my_device_score}
+    </h3>
+    <h4 ng-if="!(data.averageScore >= 0 || c.loading)">
+      ${wow_device_score_unavailable}
+    </h4>
+  </div>
+  <div class="image-wrapper">
+    <div class="image"></div>
+    <i class="material-icons">insert_chart</i>
+  </div>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

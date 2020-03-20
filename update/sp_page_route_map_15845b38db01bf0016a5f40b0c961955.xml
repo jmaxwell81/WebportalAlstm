@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page_route_map">
+    <sp_page_route_map action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <order>100</order>
+        <portals>2d7ab439db2a33400ef45682ca961909,f10a1769dbef3740b62a80e239961943,20dea823db2b40909a88b1b2399619b3</portals>
+        <route_from_page display_value="sc_cart">524018926730220023c82e08f585ef23</route_from_page>
+        <route_to_page display_value="wow_cart">02c28bf8dbcd7f0016a5f40b0c96190f</route_to_page>
+        <short_description>Wow Cart</short_description>
+        <sys_class_name>sp_page_route_map</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-24 07:16:30</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>15845b38db01bf0016a5f40b0c961955</sys_id>
+        <sys_mod_count>16</sys_mod_count>
+        <sys_name>524018926730220023c82e08f585ef23</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_route_map_15845b38db01bf0016a5f40b0c961955</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 11:01:31</sys_updated_on>
+    </sp_page_route_map>
+</record_update>

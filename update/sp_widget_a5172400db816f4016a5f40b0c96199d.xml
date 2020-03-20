@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@media screen and (max-width: $screen-xs-max) {
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+h4 {
+  margin-bottom: 1.5rem;
+  color: $text-color;
+  font-size: 1.8rem;
+}
+
+li {
+  margin-bottom: 1rem;
+}
+
+a {
+  display: flex;
+  align-items: flex-start;
+  font-size: 1.1rem;
+  color: $text-color;
+
+  &amp;:hover span {
+    text-decoration: underline;
+  }
+
+  i {
+    margin-right: 1rem;
+    color: $text-muted;
+    font-size: 1.5rem;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-related-articles</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Related Articles</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+	var searchHelper = new WowSearch();
+	var limit = options.limit || 5;
+	var sys_id = options.sys_id || $sp.getParameter('sys_id');
+
+	data.items = searchHelper.getRelatedArticles(sys_id, limit);
+
+ })();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-10-04 14:29:59</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>a5172400db816f4016a5f40b0c96199d</sys_id>
+        <sys_mod_count>50</sys_mod_count>
+        <sys_name>Wow Related Articles</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_a5172400db816f4016a5f40b0c96199d</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-10 11:21:26</sys_updated_on>
+        <template><![CDATA[<section ng-if="data.items.length > 0">
+
+  <h4>${wow_related_articles}</h4>
+
+  <ul class="list-unstyled">
+    <li ng-repeat="item in data.items">
+      <a href="{{item.href}}" target="_blank">
+      	<i ng-style="{'color': item.iconColor}" class="material-icons">{{item.icon}}</i>
+        <span>{{item.description}}</span>
+      </a>
+    </li>
+  </ul>
+
+</section>]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>WowStackHelper</name>
+        <script><![CDATA[function WowStackHelper($rootScope) {
+
+	var categoryObj;
+	var subCategoryObj;
+
+
+	function selectCategory(ids, scope) {
+		var idsArr = ids.split(',');
+
+		categoriesAside.menuItems.forEach(function(category) {
+			idsArr.forEach(function(catId){
+				if (category.ids.indexOf(catId) !== -1)
+					categoryObj = category;
+
+				else
+					category.subcategories.forEach(function(subCat) {
+						if (subCat.ids.indexOf(catId) !== -1) {
+							categoryObj = category;
+							subCategoryObj = subCat;
+						}
+					});
+			});
+		});
+
+		if (categoryObj) {
+			categoriesAside.menuAction(categoryObj);
+
+			if (subCategoryObj) {
+				subCategoriesAside.menuAction(subCategoryObj);
+			}
+		}
+	}
+
+
+	function selectSubCategory(id, scope) {
+		subCategoryObj = subCategoriesAside.menuItems.filter(function(subCat) {
+			return subCat.ids.indexOf(id) !== -1;
+		})[0];
+
+		subCategoriesAside.menuAction(subCategoryObj);
+	}
+
+
+	function selectItem(itemId, scope) {
+		for (var i = 0; i < scope.data.items.length; i++) {
+			if (scope.data.items[i].id == itemId) {
+				scope.itemSelect(null, scope.data.items[i], 0);
+				break;
+			}
+		}
+
+		if (!scope.currentItem)
+			history.replaceState(undefined, undefined, window.location.href.split('#')[0] + '#');
+	}
+
+
+	function orderChange(sortType, scope) {
+		for (var i = 0; i < scope.sortByDrop.length; i++) {
+			if (scope.sortByDrop[i].type == sortType) {
+				scope.sortChange(scope.sortByDrop[i]);
+				break;
+			}
+		}
+	}
+
+
+	function filterByString(searchTxt, scope) {
+		c.data.searchTerm = searchTxt;
+		scope.updatePage();
+		$rootScope.$broadcast('initial_search_text', searchTxt);
+	}
+
+
+	function showDropDownSel(dropValue, scope) {
+		for (var i = 0; i < scope.typeDrop.length; i++) {
+			//console.log(dropValue)
+			if (scope.typeDrop[i].type == dropValue) {
+				scope.typeChange(scope.typeDrop[i]);
+				break;
+			}
+		}
+	}
+
+
+	function selectTags(tags, scope) {
+		var decodedName;
+
+		tagsArr = tags.split(',');
+		tagsArr.forEach(function(tagName) {
+			decodedName = decodeURIComponent(tagName);
+			scope.tags[decodedName] = true;
+			scope.tagSelect(decodedName);
+		});
+	}
+
+
+	function getUrlVars() {
+		var vars = [], hash;
+		var queryString = window.location.href.substr(window.location.href.lastIndexOf('#'));
+
+		if (queryString) {
+			var hashes = queryString.slice(1).split('&');
+			for (var i = 0; i < hashes.length; i++) {
+				hash = hashes[i].split('=');
+				vars[hash[0]] = hash[1];
+			}
+			return vars;
+		}
+
+		else
+			return false;
+	}
+
+	function filterItemsOnLoad(scope, urlParameters) {
+
+		for (var i in urlParameters) {
+			switch(i) {
+				case 'c':
+					selectCategory(urlParameters[i], scope);
+					break;
+
+				case 'sc':
+					selectSubCategory(urlParameters[i], scope);
+					break;
+
+				case 'item':
+					selectItem(urlParameters[i], scope);
+					break;
+
+				case 'sort':
+					orderChange(urlParameters[i], scope);
+					break;
+
+				case 'q':
+					filterByString(urlParameters[i], scope);
+					break;
+
+				case 'type':
+					showDropDownSel(urlParameters[i], scope);
+					break;
+
+				case 't':
+					selectTags(urlParameters[i], scope);
+					break;
+			}
+		}
+	}
+
+
+	// building url
+
+	var paramsHelper = {
+		urlText: undefined,
+		paramsCount: 0,
+		prefix: undefined
+	};
+
+
+	function addParamToUrl(value, paramName, helperObj) {
+		if (value) {
+			helperObj.paramsCount++;
+			helperObj.prefix = helperObj.paramsCount > 1 ? '&' : '';
+
+			helperObj.urlText = helperObj.urlText + helperObj.prefix + paramName + '=' + value;
+		}
+	}
+
+
+	function buildUrl(scope) {
+		paramsHelper.paramsCount = 0;
+		paramsHelper.urlText =  '';
+
+		if (scope.currentItem)
+			addParamToUrl(scope.currentItem.id, 'item', paramsHelper);
+
+		else {
+			if (categoriesAside.selected)
+				addParamToUrl(categoriesAside.selected.ids.toString(), 'c', paramsHelper);
+
+			if (subCategoriesAside.selected)
+				addParamToUrl(subCategoriesAside.selected.ids.toString(), 'sc', paramsHelper);
+
+			if (scope.data.sortType)
+				addParamToUrl(scope.data.sortType, 'sort', paramsHelper);
+
+			if (scope.data.resultType)
+				addParamToUrl(encodeURIComponent(scope.data.resultType), 'type', paramsHelper);
+
+			if (scope.data.searchTerm)
+				addParamToUrl(scope.data.searchTerm, 'q', paramsHelper);
+
+			if (scope.activeTags && scope.activeTags.length > 0) {
+				var tags = scope.activeTags.toString();
+				addParamToUrl(tags, 't', paramsHelper);
+			}
+		}
+
+		history.replaceState(undefined, undefined, '#' + paramsHelper.urlText);
+	}
+
+
+	return {
+		getUrlVars: getUrlVars,
+		filterItemsOnLoad: filterItemsOnLoad,
+		addParamToUrl: addParamToUrl,
+		buildUrl: buildUrl
+	};
+
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-10-15 10:15:53</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>f326d0efdb4d63408e94764cbf9619c2</sys_id>
+        <sys_mod_count>74</sys_mod_count>
+        <sys_name>WowStackHelper</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_f326d0efdb4d63408e94764cbf9619c2</sys_update_name>
+        <sys_updated_by>simon.elgar</sys_updated_by>
+        <sys_updated_on>2019-04-10 11:30:29</sys_updated_on>
+        <type>service</type>
+    </sp_angular_provider>
+</record_update>

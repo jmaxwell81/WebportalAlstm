@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $timeout, spPreference, WowFilterService) {
+	var c = this;
+	var timeout;
+
+	$scope.perPageSelections = [
+		{ value: 5 },
+		{ value: 5 * 2 },
+		{ value: 5 * 4 },
+		{ value: 5 * 10 }
+	];
+
+	$scope.sortOptions = [
+		{
+			label: "${wow_newest}",
+			value: 'latest'
+		},
+		{
+			label: "${wow_last_updated}",
+			value: 'updated'
+		},
+		{
+			label: "${wow_atoz}",
+			value: 'atoz'
+		},
+		{
+			label: "${wow_ztoa}",
+			value: 'ztoa'
+		}
+	];
+
+	// set filters on init
+	$scope.filters = c.data.filters;
+
+	$scope.showFilters = false;
+	$scope.toggleFilters = function() {
+		$scope.showFilters = !$scope.showFilters;
+	}
+
+	// check filters to determine whether we have tickets or not
+	$scope.hasTickets = function() {
+		var ticketCount = 0;
+		for (var key in $scope.filters) {
+			var filters = $scope.filters[key];
+
+			for (var i = 0; i < filters.length; i++)
+				ticketCount += filters[i].count;
+
+			if (ticketCount > 0)
+				return true;
+		}
+
+		return ticketCount > 0;
+	}
+
+	$scope.hasFilters = function() {
+		for (var key in $scope.filters) {
+			var filters = $scope.filters[key];
+			if (filters.length > 1)
+				return true;
+		}
+
+		return false;
+	}
+
+	$scope.clearAll = function() {
+		for (var i in $scope.filters) {
+			var filters = $scope.filters[i];
+			for (var k in filters)
+				filters[k].selected = false;
+		}
+
+		c.data.searchTerm = "";
+		update();
+	};
+
+	$scope.search = function() {
+		if (timeout)
+			$timeout.cancel(timeout);
+
+		c.data.currentPage = 1;
+		c.data.filters = $scope.filters;
+
+		// with search we don't want to update filters
+		timeout = $timeout(function() {
+			$scope.loading = true;
+			c.server.update().then(function() {
+				$scope.loading = false;
+			});
+		}, 500);
+	}
+
+	$scope.updateSort = function(selected) {
+		c.data.sortBy = selected.value;
+		update();
+	}
+
+	$scope.updatePerPage = function(selection) {
+		c.data.itemsPerPage = $scope.itemsPerPage = selection.value;
+
+		spPreference.set('wow_tickets_per_page', selection.value);
+		update();
+	};
+
+	// listen for ticket update broadcasts and get latest tickets
+	$scope.$on('ticket_updated', function() {
+		update();
+	});
+
+	// created scoped reference to update()
+	$scope.update = update;
+
+	function update(page) {
+		c.data.currentPage = page || 1;
+		c.data.filters = $scope.filters;
+		$scope.loading = true;
+
+		// need to reset the embedded widgets to re-initiate embedded widgets in data.tickets
+		c.data.tickets.forEach(function(ticket) {
+			ticket.actionsWidget = null;
+		});
+
+		$timeout(function() {
+			c.server.update().then(function() {
+				WowFilterService.updateFilters($scope.filters, c.data.filters);
+				$scope.loading = false;
+			});
+		}, 0);
+	}
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$aside-mobile-width: 250px;
+
+@include wow-panel();
+
+a {
+  cursor: pointer;
+}
+
+section {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  transition: transform .4s ease-in-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    position: relative;
+    flex-direction:column;
+  }
+
+  &amp;.no-tickets {
+    align-items: center;
+    color: $text-muted;
+    flex-direction: column;
+    font-size: 2rem;
+    height: 250px;
+    justify-content: center;
+
+    i {
+      font-size: 3em;
+    }
+  }
+}
+
+aside {
+  @media screen and (max-width: $screen-xs-max) {
+    background-color: $white;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    visibility: hidden;
+    z-index: 10;
+    transition: all .1s linear;
+    transform: translateX(100%);
+
+    &amp;.show-filters {
+      transform: translateX(0);
+      visibility: visible;
+    }
+
+    .filters-wrapper {
+      height: 100%;
+      overflow-y: scroll;
+      padding: 1rem 1rem 5rem;
+      width: 100%;
+    }
+
+    .btn-close {
+      display: flex;
+      margin-left: auto;
+      background: transparent;
+      font-size: 2rem;
+      padding: 0;
+      color: $text-muted;
+    }
+
+    .filter-buttons {
+      bottom: 0;
+      left: 0;
+      display: flex;
+      position: fixed;
+      width: 100%;
+      min-height: 60px;
+
+      &gt;.f-btn {
+        @include wow-button();
+        border-radius: 0;
+        padding: 1rem;
+        flex: 1;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    margin-right: 2rem;
+    max-width: $aside-mobile-width;
+    width: 25%;
+  }
+
+  .filters-header {
+    align-items: flex-end;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  // hide arrow on filters header
+  .filter-toggle i { display: none }
+
+  .clear-all {
+    color: $text-muted;
+    font-weight: 300;
+    font-size: 0.9rem;
+    margin-bottom: 0.25em;
+
+    &amp;:hover { text-decoration: underline }
+  }
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
+
+  .is-loading {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: $screen-sm-max) {
+    flex: 2;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex: 0 1 auto;
+    padding: 0;
+    width: 100%;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    width: calc(100% - $aside-mobile-width - 4rem);
+
+    aside +&amp; {
+      margin-left: 2rem;
+    }
+  }
+}
+
+.search-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  width: 100%;
+
+  .searchbar {
+    max-width: $aside-mobile-width;
+    width: 25%;
+  }
+
+  @include wow-dropdown-menu($text-color) {
+    margin-left: auto;
+  }
+
+  .filter-button {
+    @include wow-button(transparent, transparent, $text-color, $text-color);
+    display: flex;
+    font-size: 1rem;
+    margin-bottom: .5rem;
+    padding: 0;
+
+    i {
+      font-size: 2rem;
+      color: $text-muted;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      display: none !important;
+    }
+  }
+}
+
+@include wow-filters(250px);
+@media screen and (max-width: $screen-xs-max) {
+  .filter-form {
+    height: auto;
+    max-height: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.wow-filters label {
+  text-transform: capitalize;
+}
+
+.searchbar {
+  align-items: center;
+  display: flex;
+  padding-bottom: .5em;
+  border-bottom: 2px solid darken($panel-bg, 20%);
+  max-width: 300px;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex: 1;
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
+
+  i {
+    font-size: 1.6rem;
+    color: darken($text-muted, 20);
+    margin-right: 0.25em;
+  }
+
+  input {
+    background-color: transparent;
+    border: 0;
+    max-width: 200px;
+    padding: 0;
+    width: 200px;
+    @include wow-placeholder($text-muted);
+
+    @media screen and (max-width: $screen-xs-max) {
+      width: 100%;
+    }
+  }
+}
+
+.subtitle {
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: darken($text-muted, 40);
+}
+
+.is-loading {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+@include wow-spinner($brand-primary, 40px);
+wow-spinner {
+  position: absolute;
+  right: calc(50% - 30px);
+  top: 200px; // rough based on main min-height
+}
+
+.tickets {
+  margin-bottom: 2.5rem;
+  list-style: none;
+  padding: 0;
+  width: 100%;
+
+  &amp;.empty {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 200px;
+
+    .btn {
+      margin-top: 1rem;
+    }
+  }
+}
+
+.ticket {
+  border-bottom: 1px solid lighten($text-muted, 30%);
+  &amp;:last-child { border: none }
+  &amp;:only-child { border-bottom: 1px solid lighten($text-muted, 30%); }
+
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: $text-color;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: .5rem;
+
+  .info-wrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    @media screen and (min-width: $screen-xs-min) {
+      width: auto;
+    }
+
+    &gt;i {
+      color: lighten($text-muted, 10);
+      font-size: 2.5rem;
+      margin-right: 1rem;
+      padding: 0;
+      flex-shrink: 0;
+    }
+  }
+
+  @media screen and (min-width: $screen-xs-min) {
+    flex-wrap: nowrap;
+  }
+
+  @media screen and (max-width: $screen-sm-max) {
+    .info a {
+      font-size: 1rem;
+    }
+  }
+
+  &amp;.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &gt;i {
+    color: lighten($text-muted, 10);
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    padding: 0;
+    flex-shrink: 0;
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin: 0 auto;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .info {
+    margin-right: 1rem;
+    color: inherit;
+    font-size: 1rem;
+    width:100%;
+
+    @media screen and (min-width: $screen-sm-min) {
+      margin-right: 2rem;
+      font-size: 1.2rem;
+    }
+
+    .description {
+      color: $text-color;
+      font-weight: 400;
+      display: flex;
+      &amp;:hover { text-decoration: underline }
+    }
+
+    .metadata {
+      align-items: center;
+      color: $text-muted;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: .9rem;
+      font-weight: 300;
+
+      span:not(:last-child) {
+        &amp;::after {
+          content: "-";
+          margin-left: .333em;
+          margin-right: .333em;
+        }
+      }
+    }
+  }
+
+  .assignment-text {
+    align-items: center;
+    color: $text-muted;
+    display: inline-flex;
+    justify-content: center;
+    margin-left: auto;
+    white-space: nowrap;
+
+    @media screen and (max-width: $screen-sm-max) {
+      margin-left: .5rem;
+      margin-top: .5rem;
+    }
+
+    i {
+      font-size: 1.5em;
+      margin-right: .25em;
+    }
+  }
+
+  .ticket-actions {
+    margin: .5rem auto 0;
+
+    @media screen and (min-width: $screen-xs-min) {
+      margin: 0;
+      margin-left: auto;
+    }
+
+    @media screen and (max-width: $screen-md-max) {
+      button {
+        &amp;, &amp;:active:focus {
+          align-items: center;
+          background: none;
+          border: none;
+          display: inline-flex;
+          padding: .5rem;
+          transition: transform .2s ease-in-out;
+          transform-origin: 50%;
+        }
+
+        &amp;:not(:last-child) {
+          margin-right: 0;
+        }
+
+        svg {
+          height: 1.666rem;
+          margin: 0;
+          width: 1.666rem;
+        }
+
+        &amp;.btn-info {
+          color: $brand-info;
+
+          svg {
+            fill: $brand-info;
+          }
+        }
+
+        &amp;.btn-success {
+          color: $brand-success;
+
+          svg {
+            fill: $brand-success;
+          }
+        }
+
+        &amp;.btn-danger {
+          color: $brand-danger;
+
+          svg {
+            fill: $brand-danger;
+          }
+        }
+
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+
+  @include wow-dropdown-menu($text-color) {
+    margin-left: auto;
+  }
+}
+
+@include wow-pagination();</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Tickets</name>
+        <option_schema>[{"name":"title","section":"Presentation","default_value":"","label":"Title","type":"string"},{"displayValue":"Instance with Menu","name":"menu","section":"Presentation","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}},{"name":"ticketType","section":"Data","label":"Ticket type","type":"choice","choices":[{"label":"incident","value":"incident"},{"label":"request","value":"request"},{"label":"approval","value":"approval"}]}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var user = gs.getUser();
+	var util = new WowUtil();
+	var ticketsHelper = new WowTickets();
+	var filtersHelper = new WowFilters();
+
+	options.title = options.title ? gs.getMessage(options.title) : null;
+	options.maxPagination = 3;
+	options.menu = options.menu || null;
+	options.ticketType = options.ticketType || null;
+
+	var currentPage = data.currentPage = (input && input.currentPage ? input.currentPage : 1);
+	var itemsPerPage = data.itemsPerPage = (input && input.itemsPerPage ? input.itemsPerPage : (user.getPreference('wow_tickets_per_page') || 5));
+	var sortBy = data.sortBy = (input && input.sortBy ? input.sortBy : 'latest');
+
+	ticketsHelper.setSortBy(sortBy);
+	ticketsHelper.setQueryLimit(options.queryLimit || 100);
+	ticketsHelper.setClosedLimit(options.closedLimit >= 0 ? options.closedLimit : 30);
+
+	var filters;
+	var filteredIds = (input && input.filters ? filtersHelper.getFilteredIds(input.filters) : []);
+	var searchTerm = (input && input.searchTerm ? input.searchTerm : null);
+
+	if (filteredIds.length)
+		ticketsHelper.setFilteredIds(filteredIds);
+
+	if (searchTerm)
+		ticketsHelper.setSearchTerm(searchTerm);
+
+	var tickets = getTickets(options.ticketType);
+
+	// if we have filtered tickets then update the filters
+	if (input && input.filters && tickets.length > 0) {
+		filters = filtersHelper.updateFilters(input.filters, tickets);
+	}
+
+	// otherwise we need to (re)build filters
+	else {
+		// if we have zero filtered tickets, then reset the tickets
+		if (input && input.filters && tickets.length == 0) {
+			ticketsHelper.setFilteredIds(null);
+			tickets = ticketsHelper.getTickets();
+		}
+
+		filters = {
+			type: filtersHelper.getFilters(tickets, 'type'),
+			state: filtersHelper.getFilters(tickets, 'state'),
+			ownership: filtersHelper.getFilters(tickets, 'ownership')
+		};
+
+		// handle "Things To Action"
+		if ($sp.getParameter('filter') == 'action') {
+			filters.state.forEach(function(filter) {
+				if (filter.label == ticketsHelper.getLabel('awaiting_my_input'))
+					filter.selected = true;
+			});
+
+			filteredIds = filters ? filtersHelper.getFilteredIds(filters) : [];
+			ticketsHelper.setFilteredIds(filteredIds);
+
+			tickets = getTickets(options.ticketType);
+			filters = filtersHelper.updateFilters(filters, tickets);
+		}
+	}
+
+
+	// handle pagination
+	var startRow = (currentPage - (currentPage > 0 ? 1 : 0)) * itemsPerPage;
+	var endRow = startRow + itemsPerPage;
+
+	tickets = tickets.slice(startRow, endRow);
+
+	// add the actions widget for each approval ticket type
+	tickets.forEach(function(ticket) {
+		if (ticket.type == 'Approval')
+			ticket.actionsWidget = $sp.getWidget('wow-approval-actions', {
+				sys_id: ticket.id
+			});
+	});
+
+	data.filters = filters;
+	data.tickets = tickets;
+	data.ticketCount = ticketsHelper.getTicketCount();
+
+	data.labels = {
+		action: ticketsHelper.getLabel('awaiting_my_input')
+	};
+
+
+	function getTickets(ticketType) {
+		switch (ticketType) {
+			case 'incident':
+				return ticketsHelper.getIncidents();
+
+			case 'request':
+				return ticketsHelper.getRequests();
+
+			case 'approval':
+				return ticketsHelper.getApprovals();
+
+			default:
+				return ticketsHelper.getTickets();
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-03 06:51:28</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>176be7f3dbabdf8087e2f3de3b9619b6</sys_id>
+        <sys_mod_count>465</sys_mod_count>
+        <sys_name>Wow Tickets</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_176be7f3dbabdf8087e2f3de3b9619b6</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-18 09:28:34</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <h1 ng-if="::options.title">{{::options.title}}</h1>
+
+  <widget id="wow-navigation" options="{menu: options.menu}"></widget>
+
+  <section ng-if="::hasTickets()">
+
+    <div class="search-sort">
+      <div class="searchbar hidden-xs">
+        <i class="material-icons">search</i>
+        <input placeholder="${wow_search_tickets}"
+               type="text"
+               ng-model="data.searchTerm"
+               ng-change="search()">
+      </div>
+
+      <button ng-if="::hasFilters()" class="btn btn-default filter-button" ng-click="toggleFilters()">
+        <i class="material-icons">filter_list</i>
+        ${wow_filter}
+      </button>
+
+      <wow-dropdown-menu label="${wow_sort_by}:"
+                         menu-items="sortOptions"
+                         selected-item-value="data.sortBy"
+                         display-value="true"
+                         selection-changed="updateSort(selection)">
+      </wow-dropdown-menu>
+    </div>
+
+    <aside ng-if="::hasFilters()" ng-class="{'show-filters': showFilters}">
+      <div class="filters-wrapper" ng-cloak>
+
+        <button class="btn btn-close visible-xs" ng-click="toggleFilters()">
+          <i class="material-icons">close</i>
+        </button>
+
+        <wow-filters ng-show="filters.type.length > 1"
+                     ng-class="{'is-loading': loading}"
+                     filter-items="filters.type"
+                     el-toggle="true"
+                     limit="99"
+                     title="${wow_ticket_type}"
+                     filters-changed="update()">
+        </wow-filters>
+
+        <wow-filters ng-show="filters.state.length > 1"
+                     ng-class="{'is-loading': loading}"
+                     filter-items="filters.state"
+                     el-toggle="true"
+                     limit="99"
+                     title="${wow_ticket_state}"
+                     filters-changed="update()">
+        </wow-filters>
+
+        <wow-filters ng-show="filters.ownership.length > 1"
+                     ng-class="{'is-loading': loading}"
+                     filter-items="filters.ownership"
+                     el-toggle="true"
+                     limit="99"
+                     title="${wow_ownership}"
+                     filters-changed="update()">
+        </wow-filters>
+
+      </div>
+
+      <div class="filter-buttons hidden-sm hidden-md hidden-lg">
+        <button class="btn btn-danger f-btn" ng-click="clearAll()">
+          ${wow_clear_filters}
+        </button>
+        <button class="btn btn-primary f-btn" ng-click="toggleFilters()">
+          ${wow_apply_filters}
+        </button>
+      </div>
+
+    </aside>
+
+    <main id="main">
+      <wow-spinner loading="loading"></wow-spinner>
+
+      <div ng-class="{'is-loading': loading}">
+        <ul class="tickets" ng-if="data.ticketCount > 0">
+          <li ng-repeat="ticket in data.tickets track by $index" ng-class="{'disabled': ticket.disabled}" class="ticket">
+            <div class="info-wrap">
+
+              <i class="material-icons">{{ticket.icon}}</i>
+
+              <div class="info">
+                <a ng-href="{{ticket.href}}" class="description">
+                  {{ticket.type == 'Approval' ? '${wow_approval_for} ' + ticket.description : ticket.description}}
+                </a>
+                <div class="metadata">
+                  <span>{{ticket.type}}</span>
+                  <span>{{ticket.type == 'Approval' ? '${wow_requested}' : '${wow_opened}'}}: {{ticket.opened | wowDate}}</span>
+                  <span>{{ticket.state}}</span>
+                </div>
+              </div>
+
+            </div>
+
+            <div ng-if="ticket.state == data.actionLabel && ticket.type != 'Approval'" class="assignment-text">
+              <i class="material-icons">timer</i>
+              {{data.actionLabel}}
+            </div>
+
+            <div ng-if="ticket.actionsWidget" class="ticket-actions">
+              <sp-widget widget="ticket.actionsWidget"></sp-widget>
+            </div>
+
+          </li>
+        </ul>
+
+        <div class="tickets empty" ng-if="data.ticketCount == 0">
+          ${wow_no_tickets_clear_filters}
+          <button class="btn btn-default" ng-click="clearAll()">
+            ${wow_clear_filters}
+          </button>
+        </div>
+
+      </div>
+
+      <div class="pagination-container">
+        <wow-pagination ng-if="data.ticketCount > data.itemsPerPage"
+                        total-items="data.ticketCount"
+                        current-page="data.currentPage"
+                        items-per-page="data.itemsPerPage"
+                        max-size="options.maxPagination"
+                        page-changed="update(data.currentPage)">
+        </wow-pagination>
+        <wow-dropdown-menu ng-if="perPageSelections"
+                           menu-items="perPageSelections"
+                           label="${wow_per_page}:"
+                           selected-item-value="data.itemsPerPage"
+                           display-value="true"
+                           selection-changed="updatePerPage(selection)">
+        </wow-dropdown-menu>
+      </div>
+
+    </main>
+  </section>
+
+  <section ng-if="::!hasTickets()" class="no-tickets">
+    <i class="material-icons">sentiment_very_satisfied</i>
+    ${wow_nothing_to_action}
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

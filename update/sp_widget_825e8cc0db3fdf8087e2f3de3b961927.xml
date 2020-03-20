@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal) {
+	var c = this;
+
+	$scope.openArticle = function($event, article) {
+		c.server.get({
+			action: 'get_article_widget',
+			sys_id: article
+		}).then(function(r) {
+			$scope.embeddedArticle = r.data.embeddedArticle;
+		});
+
+		$scope.modal = $uibModal.open({
+			appendTo: $($event.currentTarget).parent().parent(), // widget div
+			templateUrl: 'wowEmbeddedArticle.html',
+			windowClass: 'article-modal',
+			scope: $scope
+		});
+	}
+
+	var closeModal = $scope.closeModal = function($event) {
+		$scope.modal.close();
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>a {
+  cursor: pointer;
+}
+
+.wow-service-desk {
+  box-shadow: $big-shadow;
+}
+
+.service-item {
+  background-color: $panel-bg;
+  display: flex;
+  position: relative;
+
+  @media screen and (max-width: $screen-sm-max) {
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .image {
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    width: auto;
+
+    @media screen and (max-width: $screen-sm-max) {
+      margin: 2rem;
+
+      img {
+        align-self: center;
+        height: auto;
+        max-width: 100%;
+        visibility: hidden; // use img element to get height info
+      }
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      margin: 3rem;
+
+      img {
+        display: none;
+      }
+    }
+
+    i {
+      align-self: center;
+
+      @media screen and (max-width: $screen-sm-max) {
+        font-size: 60vw;
+      }
+
+      @media screen and (min-width: $screen-md-min) and (max-width: $screen-md-max) {
+        font-size: 30vw;
+      }
+
+      @media screen and (min-width: $screen-lg-min) {
+        font-size: 300px;
+      }
+    }
+  }
+
+  .text {
+    align-self: center;
+    position: relative;
+    z-index: 1;
+
+    @media screen and (max-width: $screen-sm-max) {
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      padding: 10rem 5rem;
+      width: 50%;
+    }
+
+    &amp;.full-width {
+      width: 100%;
+    }
+
+    &gt;a {
+      background-color: $btn-info-bg;
+      color: $white;
+      color: $btn-info-color;
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: $border-radius;
+    }
+  }
+
+  .title {
+    margin: 0 0 .5em;
+
+    @media screen and (max-width: $screen-xs-max) {
+      font-size: 1.5rem;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      font-size: 2.5rem;
+    }
+  }
+
+  &amp;:nth-child(odd) {
+    @media screen and (min-width: $screen-md-min) {
+    	flex-direction: row-reverse;
+    }
+  }
+
+  &amp;:nth-child(even) {
+    @media screen and (min-width: $screen-md-min) {
+	    flex-direction: row;
+    }
+  }
+
+  &amp;:nth-child(1) {
+    .title {
+      @media screen and (max-width: $screen-xs-max) {
+        font-size: 2.5rem;
+      }
+
+      @media screen and (min-width: $screen-sm-min) {
+        font-size: 4rem;
+      }
+    }
+  }
+}
+
+@include wow-modal();
+@include wow-panel();
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Service Desk</name>
+        <option_schema>[{"displayValue":"Instance with Menu","name":"menu","section":"other","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+
+	options.menu = options.menu || null;
+
+	if (input) {
+		switch (input.action) {
+			case 'get_article_widget':
+				data.embeddedArticle = $sp.getWidget('wow-article', {
+					embedded: true,
+					sys_id: input.sys_id
+				});
+				break;
+		}
+	}
+
+	else
+		data.content = util.getMenuItems(options.menu);
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-03 09:23:32</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>825e8cc0db3fdf8087e2f3de3b961927</sys_id>
+        <sys_mod_count>249</sys_mod_count>
+        <sys_name>Wow Service Desk</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_825e8cc0db3fdf8087e2f3de3b961927</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 16:04:15</sys_updated_on>
+        <template><![CDATA[<section class="wow-service-desk">
+  <div class="service-item" ng-repeat="item in data.content" ng-style="{'background-color': item.backgroundColor}">
+    <div ng-if="item.image || item.icon" class="image" ng-style="{'background-image': item.image ? 'url('+item.image+')' : null}">
+      <img ng-if="item.image" src="{{item.image}}">
+      <i ng-if="!item.image && item.icon" ng-style="{'color': item.iconColor}" class="material-icons">{{item.icon}}</i>
+    </div>
+    <div class="text" ng-class="{'full-width': !(item.image || item.icon)}">
+      <h2 class="title" ng-style="{'color': item.textColor}">{{item.title}}</h2>
+      <div class="description" ng-bind-html="item.description" ng-style="{'color': item.textColor}"></div>
+      <a ng-if="item.href && !item.article" href="{{item.href}}">{{item.title}}</a>
+      <a ng-if="item.article" ng-click="openArticle($event, item.article)">{{item.title}}</a>
+    </div>
+  </div>
+  <div class="panel" ng-if="data.content.length == 0">
+    ${wow_no_content}
+  </div>
+</section>]]></template>
+    </sp_widget>
+</record_update>

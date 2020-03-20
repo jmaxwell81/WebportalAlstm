@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="Wow Portal Background" max_length="40" name="x_mono2_wow_sp_background" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Background" mandatory="true" max_length="32" name="background" reference="x_mono2_wow_background" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Portal" mandatory="true" max_length="32" name="portal" reference="sp_portal" type="reference"/>
+        <index name="index">
+            <element name="background"/>
+        </index>
+        <index name="index2">
+            <element name="portal"/>
+        </index>
+    </element>
+</database>

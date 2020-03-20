@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>2</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">5ddce3f8db84bb0016a5f40b0c9619ed</sp_column>
+        <sp_widget display_value="Wow Stack">bb1dc148dbf1f7008e94764cbf961944</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-06-02 19:55:16</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5cc8b6e5dbb173008e94764cbf961904</sys_id>
+        <sys_mod_count>19</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_5cc8b6e5dbb173008e94764cbf961904</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-10 13:55:18</sys_updated_on>
+        <title/>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"supportedTypes": {
+		"value": "article",
+		"displayValue": "Knowledge"
+	},
+	"enableIncidentFilter": {
+		"value": "",
+		"displayValue": ""
+	},
+	"enableTags": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"enableSearch": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"searchsubcategories": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"searchPlaceholder": {
+		"value": "",
+		"displayValue": ""
+	},
+	"suggestionsTitle": {
+		"value": "Most Read",
+		"displayValue": "Most Read"
+	},
+	"suggestionsMenu": {
+		"value": "",
+		"displayValue": ""
+	},
+	"categorySort": {
+		"value": "atoz",
+		"displayValue": "Alphabetically"
+	},
+	"enableSuggestions": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"showPreviews": {
+		"value": "true",
+		"displayValue": "true"
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="delete_multiple" query="documentkey=5cc8b6e5dbb173008e94764cbf961904"/>
+</record_update>

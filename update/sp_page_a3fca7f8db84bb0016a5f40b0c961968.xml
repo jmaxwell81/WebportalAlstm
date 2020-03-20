@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css/>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_outage</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-05 15:58:11</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>a3fca7f8db84bb0016a5f40b0c961968</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>wow_outage</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_a3fca7f8db84bb0016a5f40b0c961968</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:51:47</sys_updated_on>
+        <title>Outage</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=a3fca7f8db84bb0016a5f40b0c961968"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:51:47</sys_created_on>
+        <sys_id>d4847dffdbf88010b62a80e23996194c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:51:47</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>dynamic_title_structure</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:24:17</sys_created_on>
+        <sys_id>693e297fdbb48010b62a80e239961981</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:24:17</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:51:47</sys_created_on>
+        <sys_id>5884f53bdbf88010b62a80e239961982</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:51:47</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:24:17</sys_created_on>
+        <sys_id>a53e297fdbb48010b62a80e23996197d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:24:17</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>title</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:51:47</sys_created_on>
+        <sys_id>d8847dffdbf88010b62a80e239961949</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:51:47</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Ausfall</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>a3fca7f8db84bb0016a5f40b0c961968</documentkey>
+        <fieldname>title</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:24:17</sys_created_on>
+        <sys_id>a53e297fdbb48010b62a80e23996197f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:24:17</sys_updated_on>
+        <tablename>sp_page</tablename>
+        <value>Arrêt</value>
+    </sys_translated_text>
+</record_update>

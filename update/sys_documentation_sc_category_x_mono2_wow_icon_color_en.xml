@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="x_mono2_wow_icon_color" label="Icon color" language="en" table="sc_category">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>x_mono2_wow_icon_color</element>
+            <help/>
+            <hint/>
+            <label>Icon color</label>
+            <language>en</language>
+            <name>sc_category</name>
+            <plural>Icon colors</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-07-25 09:26:14</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_id>b20525e6db3efb400ef45682ca9619b5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Icon color</sys_name>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_documentation_sc_category_x_mono2_wow_icon_color_en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-07-25 09:26:14</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

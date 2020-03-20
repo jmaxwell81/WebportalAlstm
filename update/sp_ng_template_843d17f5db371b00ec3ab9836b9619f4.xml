@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowDelegateForm.html</id>
+        <sp_widget display_value="Wow Delegates">e8430bf1dbb31b00ec3ab9836b961959</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-09 10:56:52</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>843d17f5db371b00ec3ab9836b9619f4</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>wowDelegateForm.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_843d17f5db371b00ec3ab9836b9619f4</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 16:02:16</sys_updated_on>
+        <template><![CDATA[<div class="modal-header">
+  <button ng-click="closeModal()" class="close" aria-label="Close">
+    <i class="material-icons">close</i>
+  </button>
+</div>
+
+<div class="modal-body">
+  <sp-widget widget="embeddedForm"></sp-widget>
+</div>]]></template>
+    </sp_ng_template>
+</record_update>

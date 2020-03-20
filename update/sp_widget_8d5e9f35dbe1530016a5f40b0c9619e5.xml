@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+section {
+  display: flex;
+  flex-direction: column;
+
+  @media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+    align-items: center;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    margin: 3rem 0;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    margin: 6rem 0;
+  }
+}
+
+h1 {
+  margin: 0 0 2rem;
+
+  @media screen and (max-width: $screen-xs-max) {
+    font-size: 2.5rem;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+  	font-size: 4rem;
+  }
+}
+
+h4 {
+  margin: 0 0 2rem;
+
+  @media screen and (max-width: $screen-xs-max) {
+    font-size: 1.2rem;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+  	font-size: 1.5rem;
+  }
+}
+
+ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 2rem -1rem;
+  padding: 0;
+  list-style: none;
+
+  @media screen and (max-width: $screen-md-min) {
+  	margin: 2rem auto;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    margin: 0;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    overflow: hidden;
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin: 1rem 0;
+      padding: 1rem;
+      width: 100%;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      margin: 1rem;
+      padding: 1.5rem;
+      width: calc(50% - 2rem);
+    }
+
+    @media screen and (min-width: $screen-md-min) {
+      margin: 1.5rem;
+      padding: 2rem 2rem 4rem;
+      width: calc(33.333% - 3rem);
+    }
+
+    a {
+      display: flex;
+      color: $brand-info;
+
+      &amp;:hover { color: $brand-info; }
+
+       @media screen and (min-width: $screen-md-min) {
+         flex-direction: column;
+       }
+
+      @media screen and (max-width: $screen-sm-max) {
+        align-items: center;
+        flex-direction: row;
+      }
+    }
+
+    .image {
+      align-items: center;
+      justify-content: center;
+      display: inline-flex;
+
+      img, i {
+        max-height: 100%;
+        max-width: 100%;
+      }
+
+      @media screen and (max-width: $screen-xs-max) {
+        font-size: 40px;
+        margin-right: 1rem;
+        height: 50px;
+        width: 50px;
+      }
+
+      @media screen and (min-width: $screen-sm-min) {
+        font-size: 50px;
+        margin-right: 1.5rem;
+        height: 60px;
+        width: 60px;
+      }
+
+      @media screen and (min-width: $screen-md-min) {
+        font-size: 90px;
+        margin: 0;
+        height: 150px;
+        width: auto;
+      }
+    }
+
+    .title {
+      display: flex;
+      justify-content: center;
+      color: $text-color;
+      font-size: 1.4rem;
+      flex-grow: 1;
+      margin: 0;
+
+      @media screen and (max-width: $screen-sm-max) {
+				justify-content: flex-start;
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+.no-categories {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Knowledge Categories</name>
+        <option_schema>[{"name":"title","section":"other","label":"Title","type":"string"},{"name":"subtitle","section":"other","label":"Subtitle","type":"string"},{"displayValue":"Colors","name":"textColor","section":"other","label":"Text Color","type":"reference","value":"u_sp_color","ed":{"reference":"u_sp_color"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.title = gs.getMessage(options.title || 'wow_knowledge_base');
+	options.subtitle = gs.getMessage(options.subtitle);
+
+	var util = new WowUtil();
+	var searchHelper = new WowSearch();
+
+	data.categories = searchHelper.getKnowledgeCategories();
+	data.textColor = util.getColorCode(options.textColor);
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-04-19 14:40:21</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>8d5e9f35dbe1530016a5f40b0c9619e5</sys_id>
+        <sys_mod_count>96</sys_mod_count>
+        <sys_name>Wow Knowledge Categories</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_8d5e9f35dbe1530016a5f40b0c9619e5</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-21 11:15:59</sys_updated_on>
+        <template><![CDATA[<section>
+
+  <h1 ng-style="{'color': data.textColor}">
+    {{::options.title}}
+  </h1>
+  <h4 ng-if="options.subtitle" ng-style="{'color': data.textColor}">
+    {{::options.subtitle}}
+  </h4>
+
+  <ul ng-if="data.categories.length > 0">
+    <li ng-repeat="category in data.categories" class="panel">
+      <a href="{{category.href}}">
+        <div class="image" >
+          <i ng-style="{'color': category.iconColor}" class="material-icons">{{category.icon}}</i>
+        </div>
+        <h4 class="title">{{category.label}}</h4>
+      </a>
+    </li>
+  </ul>
+
+  <div ng-if="data.categories.length == 0" class="no-categories panel">
+    ${wow_no_kb_categories}
+  </div>
+
+</section>]]></template>
+    </sp_widget>
+</record_update>

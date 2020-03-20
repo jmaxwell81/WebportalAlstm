@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>wowCarousel</name>
+        <script><![CDATA[function () {
+	return {
+		restrict: 'E',
+		scope: {
+			content: '=',
+			isContained: '=contained',
+			parentClass: '=',
+			parentElem: '='
+		},
+		template:
+			'<div class="carousel">'+
+				'<div class="carousel-wrapper">'+
+					'<div ng-repeat="item in content track by $index" class="carousel-item" ng-class="{\'contained\' : isContained}">'+
+						'<div ng-if="item.videoUrl !== null"' +
+						'ng-class="{\'overlay\' : item.image !== null && !isContained}"' +
+						'ng-style=" {\'background-image\': isContained || \'url({{item.image}})\'}"' +
+						'ng-click="openVideoModal($event, item.videoUrl)"' +
+						' >' +
+							'<div ng-if="isContained && item.image" class="item-image" ng-style=" {\'background-image\': \'url({{item.image}})\'}">' +
+							'</div>'+
+							'<span class="carousel-item-title">' +
+								'<i class="material-icons">play_circle_filled</i>' +
+									'{{ item.title }}' +
+							'</span>' +
+					'</div>' +
+					'<a ng-if="item.videoUrl === null" href="{{item.href}}" ' +
+					'ng-class="{\'overlay\' : item.image !== null && !isContained}" ' +
+					' ng-style="{\'background-image\':  isContained || \'url({{item.image}})\'} "' +
+					' >' +
+						'<div ng-if="isContained && item.image" class="item-image" ng-style="{\'background-image\': \'url({{item.image}})\'}">' +
+						'</div>'+
+						'<span class="carousel-item-title">' +
+							'{{ item.title }}' +
+						'</span>' +
+					'</a>' +
+				'</div>' +
+				'</div>' +
+				'<div class="nav-button left" ng-click="showPrev($event)" ng-disabled="!hasPrev()">' +
+					'<i class="material-icons">chevron_left</i>' +
+				'</div>' +
+				'<div class="nav-button right" ng-click="showNext($event)" ng-disabled="!hasNext()">' +
+					'<i class="material-icons">chevron_right</i>' +
+				'</div>' +
+			'</div>',
+
+		link: function ($scope) {
+			var step = 0;
+			var translateValue = 0;
+			var widgetClass = $scope.parentClass;
+			var widgetEl = $scope.parentElem;
+
+			var slidesCount = $scope.content.length;
+			var slidesVisible = 0;
+
+
+			window.addEventListener('resize', function(event){
+				slidesVisible = getSlidesVisible();
+
+				angular.element('.carousel-wrapper', widgetEl)
+					.css('transform', 'translateX(0px)');
+
+				step = 0;
+				translateValue = 0;
+			});
+
+
+			$scope.$watch('$viewContentLoaded', function() {
+				setTimeout(function() {
+					slidesVisible = getSlidesVisible();
+				});
+			});
+
+
+			$scope.hasPrev = function() {
+				return step > 0;
+			};
+
+
+			$scope.hasNext = function() {
+				return step < (slidesCount - slidesVisible);
+			};
+
+
+			$scope.showPrev = function(event) {
+				console.log($scope)
+				if(step > 0){
+					step--;
+					var itemWidth = angular.element('.carousel-item', widgetEl).outerWidth();
+					angular.element('.carousel-wrapper', widgetEl)
+						.css('transform', 'translateX('+ (translateValue+=itemWidth) +'px)');
+				}
+			};
+
+			$scope.showNext = function(event) {
+				if(Math.abs(step)+slidesVisible < slidesCount){
+					step++;
+					var itemWidth = angular.element('.carousel-item', widgetEl).outerWidth();
+					angular.element('.carousel-wrapper', widgetEl)
+						.css('transform', 'translateX('+ (translateValue+=-itemWidth) +'px)');
+				}
+			};
+
+			$scope.openVideoModal = function(event, videoUrl) {
+				$scope.currentVideoUrl = videoUrl;
+
+				$scope.modal = $uibModal.open({
+					appendTo: $(event.currentTarget).parent().parent().parent(),
+					templateUrl: 'videoModal.html',
+					windowClass: 'video-modal',
+					scope: $scope
+				});
+			};
+
+			$scope.closeModal = function() {
+				$scope.modal.close();
+			};
+
+			function getSlidesVisible() {
+				return Math.round($('.carousel-wrapper', widgetEl).outerWidth() / $('.carousel-item', widgetEl).outerWidth());
+			}
+
+		}
+	};
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>dejan.zec</sys_created_by>
+        <sys_created_on>2018-11-09 09:49:19</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>1910c16bdbad6f008e94764cbf96193b</sys_id>
+        <sys_mod_count>31</sys_mod_count>
+        <sys_name>wowCarousel</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_1910c16bdbad6f008e94764cbf96193b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-05 13:54:00</sys_updated_on>
+        <type>directive</type>
+    </sp_angular_provider>
+</record_update>

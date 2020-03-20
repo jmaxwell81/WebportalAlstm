@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_script">
+    <sys_ui_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description/>
+        <global>false</global>
+        <name>wowDateFilter</name>
+        <script><![CDATA[(function() {
+	if (typeof angular !== 'undefined') {
+		angular.module('wowDateFilter', []).filter('wowDate', function() {
+			return function(input) {
+				var momentDate = moment(input, this.g_user_date_time_format.replace('dd', 'DD').replace('yyyy', 'YYYY'));
+				if (momentDate.isValid()) {
+					if (momentDate.isSame(new Date(), 'day'))
+						return momentDate.format('LT');
+					else
+						return momentDate.format('D MMM YY');
+				}
+				else
+					return input;
+			};
+		});
+	}
+})();]]></script>
+        <script_name/>
+        <sys_class_name>sys_ui_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-07-31 14:38:44</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>636dce29379c8700998c8ddec3990e34</sys_id>
+        <sys_mod_count>19</sys_mod_count>
+        <sys_name>wowDateFilter</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_ui_script_636dce29379c8700998c8ddec3990e34</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-11 11:26:39</sys_updated_on>
+        <ui_type>1</ui_type>
+        <use_scoped_format>false</use_scoped_format>
+    </sys_ui_script>
+</record_update>

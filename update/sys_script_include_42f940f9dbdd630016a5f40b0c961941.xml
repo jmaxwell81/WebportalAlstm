@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowFavorites</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowFavorites</name>
+        <script><![CDATA[var WowFavorites = Class.create();
+WowFavorites.prototype = {
+    initialize: function() {
+		this.util = new WowUtil();
+		this.searchHelper = new WowSearch();
+		this.ticketsHelper = new WowTickets();
+    },
+
+
+	getFavorites: function() {
+		var favorites = [];
+		var userId = gs.getUserID();
+
+		var gr = new GlideRecord('x_mono2_wow_favorite');
+		gr.addQuery('user', userId);
+		gr.orderBy('label');
+		gr.query();
+
+		while (gr.next()) {
+			var favorite = {
+				document: gr.getValue('document'),
+				label: gr.getDisplayValue('label'),
+				href: gr.getValue('url'),
+				table: gr.getValue('table')
+			};
+
+			if (favorite.table && this.util.canReadRecord(favorite.table, favorite.document))
+				favorites.push(favorite);
+		}
+
+		return favorites;
+	},
+
+
+	isFavorite: function(documentId) {
+		var userId = gs.getUserID();
+
+		var gr = new GlideRecord('x_mono2_wow_favorite');
+		gr.addQuery('user', userId);
+		gr.addQuery('document', documentId);
+		gr.query();
+
+		if (gr.hasNext())
+			return true;
+
+		return false;
+	},
+
+
+	toggleFavorite: function(documentId, page, url, table) {
+		var userId = gs.getUserID();
+
+		var gr = new GlideRecord('x_mono2_wow_favorite');
+		gr.addQuery('user', userId);
+		gr.addQuery('document', documentId);
+		gr.query();
+
+		if (gr.hasNext()) {
+			while (gr.next()) {
+				gr.deleteRecord();
+				return false;
+			}
+		}
+
+		else {
+			gr.setValue('user', userId);
+			gr.setValue('document', documentId);
+
+			switch (page) {
+				case 'sc_cat_item':
+				case 'sc_order_guide':
+				case 'wow_cat_item':
+				case 'wow_catalog_item':
+				case 'wow_order_guide':
+				case 'multiform':
+					if (!this.util.canReadRecord('sc_cat_item', documentId))
+						return false;
+
+					var catItem = this.searchHelper.getCatalogItem(documentId);
+					gr.setValue('table', 'sc_cat_item');
+					gr.setValue('url', catItem.href);
+					gr.setValue('label', catItem.label);
+					break;
+
+				case 'kb_article':
+				case 'wow_article':
+					if (!this.util.canReadRecord('kb_knowledge', documentId))
+						return false;
+
+					var article = this.searchHelper.getArticle(documentId);
+					gr.setValue('table', 'kb_knowledge');
+					gr.setValue('url', url);
+					gr.setValue('label', article.label);
+					break;
+
+				case 'sc_request':
+				case 'request_item':
+				case 'wow_request_item':
+					if (!this.util.canReadRecord('sc_req_item', documentId))
+						return false;
+
+					var reqItem = this.ticketsHelper.getRequest(documentId);
+					gr.setValue('table', 'sc_req_item');
+					gr.setValue('url', url);
+					gr.setValue('label', reqItem.description);
+					break;
+
+				case 'incident':
+				case 'wow_incident':
+					if (!this.util.canReadRecord('incident', documentId))
+						return false;
+
+					var incident = this.ticketsHelper.getIncident(documentId);
+					gr.setValue('table', 'incident');
+					gr.setValue('url', url);
+					gr.setValue('label', incident.description);
+					break;
+					
+				case 'ticket':
+					var task = this.ticketsHelper.getTask(table,documentId);
+					
+					gr.setValue('table', table);
+					gr.setValue('url', url);
+					gr.setValue('label', task.description);
+					break;
+
+				case 'kb_category':
+					if (!this.util.canReadRecord('kb_category', documentId))
+						return false;
+
+					var category = this.searchHelper.getKnowledgeCategory(documentId);
+					gr.setValue('table', 'kb_category');
+					gr.setValue('url', url);
+					gr.setValue('label', category.label);
+					break;
+
+				case 'sc_category':
+					if (!this.util.canReadRecord('sc_category', documentId))
+						return false;
+
+					var category = this.searchHelper.getCatalogCategory(documentId);
+					gr.setValue('table', 'sc_category');
+					gr.setValue('url', url);
+					gr.setValue('label', category.label);
+					break;
+
+				default:
+					gr.setValue('table', 'sp_page');
+					gr.setValue('url', url);
+					break;
+			}
+
+			gr.insert();
+			return true;
+		}
+	},
+
+
+    type: 'WowFavorites'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-10-22 09:08:25</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>42f940f9dbdd630016a5f40b0c961941</sys_id>
+        <sys_mod_count>44</sys_mod_count>
+        <sys_name>WowFavorites</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_42f940f9dbdd630016a5f40b0c961941</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-29 05:44:59</sys_updated_on>
+    </sys_script_include>
+</record_update>

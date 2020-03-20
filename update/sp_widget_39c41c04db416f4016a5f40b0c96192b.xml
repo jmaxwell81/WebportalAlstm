@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, spUtil) {
+    var c = this;
+
+
+    $scope.submitted = false;
+	$scope.styleClass = "";
+
+    $scope.changeClass = function(val) {
+        if (val == "trueClass"){
+			  $scope.styleClass = "trueClass";
+			 $scope.falseClass = "falseClass";
+		}
+          
+        else{
+			  $scope.styleClass = "falseClass";
+			$scope.falseClass = "trueClass";
+		}
+          
+    }
+
+    /*$scope.helpful = function(value){
+    	$scope.submitted = false;
+    	c.data.useful = value;
+    }*/
+
+    $scope.submitComments = function() {
+        c.server.get(c.data).then(function(data) {
+            spUtil.addInfoMessage("${wow_feedback_received}");
+            $scope.submitted = true;
+        });
+    }
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>form {&#13;
+&#13;
+  h4 {&#13;
+    font-weight: 300;&#13;
+    display: inline-block;&#13;
+    margin: 0;&#13;
+  }&#13;
+&#13;
+  .rating-wrap {&#13;
+    padding-left: 2.5rem;&#13;
+    display: inline-block;&#13;
+    color: darken($text-muted, 10);&#13;
+&#13;
+    @media screen and (max-width: $screen-xs-max) {&#13;
+      margin-top: 1rem;&#13;
+      padding-left: 0;&#13;
+    }&#13;
+&#13;
+    .glyphicon-star {&#13;
+      color: $brand-primary;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  &amp;.disabled {&#13;
+    opacity: 0.5;&#13;
+    pointer-events: none;&#13;
+  }&#13;
+}&#13;
+&#13;
+.trueClass{&#13;
+color: #fff;&#13;
+background-color: #244991;&#13;
+border-color: #1f3f7d;&#13;
+}&#13;
+&#13;
+.falseClass{&#13;
+&#13;
+}&#13;
+&#13;
+.btn-primary{&#13;
+margin-top:0px!important;&#13;
+}&#13;
+&#13;
+textarea {&#13;
+  font-size: 1.05rem;&#13;
+  padding: 1rem;&#13;
+  margin-top: .5rem;&#13;
+  margin-bottom: 1.5rem;&#13;
+  resize: none;&#13;
+  background: transparent;&#13;
+  border: 1px solid rgba($text-muted, 0.5);&#13;
+  border-radius: $lloyds-border-radius;&#13;
+  box-shadow: none;&#13;
+&#13;
+  &amp;:focus {&#13;
+    box-shadow: none;&#13;
+  }&#13;
+}&#13;
+&#13;
+.rating {&#13;
+  display: flex;&#13;
+  align-items: center;&#13;
+  flex-wrap: wrap;&#13;
+}&#13;
+&#13;
+&#13;
+.rating-wrap {&#13;
+  padding: 0;&#13;
+&#13;
+  i {&#13;
+    cursor: pointer;&#13;
+    font-size: 1.5rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+#submit {&#13;
+  @include wow-button();&#13;
+  padding: 1rem 2rem;&#13;
+  font-size: 1.05rem;&#13;
+  display: block;&#13;
+  margin-top: 1rem;&#13;
+  transition: background-color ease .2s&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>wow-article-feedback</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Article Feedback</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function(){
+
+	data.sys_id = options.sys_id || $sp.getParameter('sys_id');
+	data.canFeedback = canFeedback(data.sys_id);
+	data.comments = "";
+	data.rating = null;
+
+	if (input) {
+		insertFeedback(input.sys_id, input.rating, input.comments,input.useful);
+	}
+
+
+	function canFeedback(sys_id) {
+		var gr = new GlideRecord('kb_knowledge');
+
+		if (gr.get(sys_id))
+			return gr.isValidRecord() && gr.canRead();
+
+		return false;
+	}
+
+
+	function insertFeedback(article_id, rating, comments , useful) {
+		var gr = new GlideRecord('kb_feedback');
+		gr.user = gs.getUserID();
+		gr.comments = comments;
+		gr.rating = rating;
+		gr.useful = useful;
+		gr.article = article_id;
+		return gr.insert();
+	}
+
+
+})()]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-10-04 13:10:11</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>39c41c04db416f4016a5f40b0c96192b</sys_id>
+        <sys_mod_count>68</sys_mod_count>
+        <sys_name>Wow Article Feedback</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_39c41c04db416f4016a5f40b0c96192b</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-20 09:31:06</sys_updated_on>
+        <template><![CDATA[<form ng-if="data.canFeedback" ng-submit="submitComments()" ng-class="{'disabled': submitted}">
+
+  <div class="rating">
+    <h4>${wow_rate_article}</h4>
+    <div class="rating-wrap">
+      <uib-rating ng-model="data.rating"
+                  max="5"
+                  readonly="false" />
+    </div>
+  </div>
+  
+  <div class="useful">
+    <h4>${wow_helpful}</h4>
+    <div class="rating-wrap">
+      <!--<input type="button" value="Yes" ng-class=" data.useful=='yes' ? 'trueClass' : 'falseClass'" ng-click ="data.useful = 'yes'">-->
+      <input type="button" value="Yes" ng-class="styleClass" ng-click ="data.useful = 'yes';changeClass('trueClass')">
+      <input type="button" value="No"  ng-class="falseClass" ng-click ="data.useful = 'no';changeClass('falseClass')">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <textarea ng-model="data.comments"
+              placeholder="${wow_article_feedback_comments}"
+              class="form-control"
+              rows="6"
+              id="comment">
+    </textarea>
+  </div>
+
+ <!-- <input type="submit"
+         id="submit"
+         value="${wow_submit_feedback}"
+         ng-disabled="!data.rating"
+         class="btn btn-primary"
+         ng-class="{'hidden': !data.rating}" />-->
+  <div class="row">
+    <div class="col-md-4">
+        <input type="submit"
+         id="submit"
+         value="${wow_submit_feedback}"
+         class="btn btn-primary"
+         />
+    </div>
+<div class="col-md-4">
+   <input type="reset" value="Cancel" class="btn btn-default"/>
+    </div>
+    
+
+    </div>
+</form>
+]]></template>
+    </sp_widget>
+</record_update>

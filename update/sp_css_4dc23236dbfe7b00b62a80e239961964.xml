@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css">
+    <sp_css action="INSERT_OR_UPDATE">
+        <css>/* --- Header --- */&#13;
+&#13;
+#wow-header {&#13;
+  .logo {&#13;
+    transform: scale(1.2);&#13;
+    transform-origin: 0 0;&#13;
+  }&#13;
+&#13;
+  .breadcrumbs {&#13;
+    transform: translateX(2rem);&#13;
+  }&#13;
+&#13;
+  .breadcrumbs * {&#13;
+    color: $brand-primary;&#13;
+  }&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Background --- */&#13;
+&#13;
+#wow-background::after {&#13;
+  content: "";&#13;
+  background-image: linear-gradient(195deg, rgba(36, 73, 145, 0.5), transparent 30%);&#13;
+  position: absolute;&#13;
+  top: 0;&#13;
+  bottom: 0;&#13;
+  left: 0;&#13;
+  right: 0;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Modals --- */&#13;
+&#13;
+.modal-content {&#13;
+  box-shadow: none;&#13;
+}&#13;
+&#13;
+&#13;
+/* --- Device Scorecard --- */&#13;
+&#13;
+.device-scorecard {&#13;
+  .image {&#13;
+    background-position: 100% 0!important;&#13;
+    margin-right: -4rem;&#13;
+    margin-top: -4rem;&#13;
+    transform: scale(1.7);&#13;
+    transform-origin: 100% 0;&#13;
+  }&#13;
+}</css>
+        <name>Wow Overrides</name>
+        <sys_class_name>sp_css</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-07-26 09:44:23</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>4dc23236dbfe7b00b62a80e239961964</sys_id>
+        <sys_mod_count>12</sys_mod_count>
+        <sys_name>Wow Overrides</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_css_4dc23236dbfe7b00b62a80e239961964</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-24 15:33:52</sys_updated_on>
+    </sp_css>
+</record_update>

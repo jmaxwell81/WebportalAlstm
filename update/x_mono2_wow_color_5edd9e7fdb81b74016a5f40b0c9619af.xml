@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="x_mono2_wow_color">
+    <x_mono2_wow_color action="INSERT_OR_UPDATE">
+        <name>Catskill Blue (Computacenter)</name>
+        <preview>9a0b6ebedb3273808e94764cbf961921</preview>
+        <sys_class_name>x_mono2_wow_color</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-05-03 10:57:17</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5edd9e7fdb81b74016a5f40b0c9619af</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Catskill Blue (Computacenter)</sys_name>
+        <sys_package display_value="">ec1ff2f4db04bb0016a5f40b0c961935</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>x_mono2_wow_color_5edd9e7fdb81b74016a5f40b0c9619af</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 09:10:32</sys_updated_on>
+        <value>#E9EEF4</value>
+    </x_mono2_wow_color>
+</record_update>

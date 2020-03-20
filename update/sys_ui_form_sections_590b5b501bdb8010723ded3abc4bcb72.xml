@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_form_sections form_id="590b5b501bdb8010723ded3abc4bcb72" sys_domain="global" table="announcement" version="3">
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 10:57:54</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>d50b5b501bdb8010723ded3abc4bcb73</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">590b5b501bdb8010723ded3abc4bcb72</sys_ui_form>
+            <sys_ui_section caption="NULL" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">afd49bd81b9b8010723ded3abc4bcb47</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 10:57:54</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 10:57:54</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>910b5b501bdb8010723ded3abc4bcb75</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">590b5b501bdb8010723ded3abc4bcb72</sys_ui_form>
+            <sys_ui_section caption="Behavior" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">d10b5b501bdb8010723ded3abc4bcb74</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 10:57:54</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 10:59:50</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>d17b1b901bdb8010723ded3abc4bcb8d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">590b5b501bdb8010723ded3abc4bcb72</sys_ui_form>
+            <sys_ui_section caption="Portals" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">157b1b901bdb8010723ded3abc4bcb8b</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 10:59:50</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>3</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 11:00:14</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>178b5f901bdb8010723ded3abc4bcb05</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">590b5b501bdb8010723ded3abc4bcb72</sys_ui_form>
+            <sys_ui_section caption="Audience" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">938b5f901bdb8010723ded3abc4bcb03</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 11:00:14</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form action="INSERT_OR_UPDATE">
+            <name>announcement</name>
+            <roles/>
+            <sys_class_name>sys_ui_form</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 10:57:54</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>590b5b501bdb8010723ded3abc4bcb72</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>announcement</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_form_sections_590b5b501bdb8010723ded3abc4bcb72</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 10:57:54</sys_updated_on>
+            <sys_user/>
+            <view display_value="Wow Portal" name="wow_portal">afd49bd81b9b8010723ded3abc4bcb42</view>
+            <view_name/>
+        </sys_ui_form>
+    </sys_ui_form_sections>
+</record_update>

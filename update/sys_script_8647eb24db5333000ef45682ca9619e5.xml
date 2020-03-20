@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>true</action_insert>
+        <action_label/>
+        <action_name/>
+        <action_query>false</action_query>
+        <action_run_at/>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <application/>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>sp_theme</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Update Wow Mixins</name>
+        <onclick/>
+        <order>100</order>
+        <priority>100</priority>
+        <read_access_action>false</read_access_action>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+	
+	// only update if the mixins has changed
+	if (current.getValue('x_mono2_wow_mixins') === previous.getValue('x_mono2_wow_mixins'))
+		return;
+	
+	var splitter = "// --- DO NOT EDIT BELOW THIS LINE ----------";
+	var cssVariables = current.getValue('css_variables');
+	var mixins = (function() {
+		var gr = new GlideRecord('sp_css');
+		
+		if (gr.get(current.getValue('x_mono2_wow_mixins')))
+			return gr.getValue('css');
+		
+		return null;
+	})();
+	
+	// remove existing mixins if they exist
+	if (cssVariables.indexOf(splitter) !== -1) {
+		cssVariables = cssVariables.split(splitter)[0];
+	}
+	
+	if (mixins && mixins.length > 0) {
+		cssVariables += splitter + "\r\n\r\n\r\n";
+		cssVariables += mixins;
+	}
+	
+	current.setValue('css_variables', cssVariables);
+	
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-08-13 10:22:45</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>8647eb24db5333000ef45682ca9619e5</sys_id>
+        <sys_mod_count>15</sys_mod_count>
+        <sys_name>Update Wow Mixins</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_8647eb24db5333000ef45682ca9619e5</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-08-13 10:55:53</sys_updated_on>
+        <template/>
+        <when>before</when>
+    </sys_script>
+</record_update>

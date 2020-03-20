@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element audit="false" label="Wow Favorites" max_length="40" name="x_mono2_wow_favorite" type="collection">
+        <element audit="false" label="Document" max_length="32" name="document" type="string"/>
+        <element audit="false" display="true" label="Label" max_length="255" name="label" type="string"/>
+        <element audit="false" label="Table" max_length="255" name="table" type="string"/>
+        <element audit="false" label="URL" max_length="1024" name="url" type="string"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="User" max_length="32" name="user" reference="sys_user" type="reference"/>
+        <index name="index">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

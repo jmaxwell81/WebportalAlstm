@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="DELETE">
+        <id>alstomRejectIncidentResolution.html</id>
+        <sp_widget display_value="Wow Incident">880082a1dbb3d700ec3ab9836b9619c7</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-13 14:31:41</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>cfcb5d11db678050363e8a503996199a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>alstomRejectIncidentResolution.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_cfcb5d11db678050363e8a503996199a</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-13 14:31:41</sys_updated_on>
+        <template><![CDATA[<div class="modal-header">
+  <button ng-click="closeModal()" class="close" aria-label="Close">
+    <i class="material-icons">close</i>
+  </button>
+</div>
+
+<div class="modal-body">
+  <h4>${wow_confirm_reject_incident_resolution}</h4>
+  <textarea ng-model="data.comments" placeholder="Please provide comments" class="form-control"></textarea>
+</div>
+
+<div class="modal-footer">
+  <button ng-click="confirmRejectResolution()" ng-disabled="!hasComments() || !permissions.canRejectResolution" class="btn btn-danger">
+    ${wow_reject}
+  </button>
+  <button ng-click="closeModal()" class="btn cancel">
+    ${wow_cancel}
+  </button>
+</div>]]></template>
+    </sp_ng_template>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_ng_template_cfcb5d11db678050363e8a503996199a</name>
+        <order/>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sp_ng_template"&gt;&lt;sp_ng_template action="INSERT_OR_UPDATE"&gt;&lt;id&gt;alstomRejectIncidentResolution.html&lt;/id&gt;&lt;sp_widget display_value="Wow Incident"&gt;880082a1dbb3d700ec3ab9836b9619c7&lt;/sp_widget&gt;&lt;sys_class_name&gt;sp_ng_template&lt;/sys_class_name&gt;&lt;sys_created_by&gt;DI&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2020-03-13 14:31:41&lt;/sys_created_on&gt;&lt;sys_customer_update&gt;false&lt;/sys_customer_update&gt;&lt;sys_id&gt;cfcb5d11db678050363e8a503996199a&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;alstomRejectIncidentResolution.html&lt;/sys_name&gt;&lt;sys_package display_value="Wow Portal" source="x_mono2_wow"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_replace_on_upgrade&gt;false&lt;/sys_replace_on_upgrade&gt;&lt;sys_scope display_value="Wow Portal"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_scope&gt;&lt;sys_update_name&gt;sp_ng_template_cfcb5d11db678050363e8a503996199a&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;DI&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2020-03-13 14:31:41&lt;/sys_updated_on&gt;&lt;template&gt;&lt;![CDATA[&lt;div class="modal-header"&gt;
+  &lt;button ng-click="closeModal()" class="close" aria-label="Close"&gt;
+    &lt;i class="material-icons"&gt;close&lt;/i&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="modal-body"&gt;
+  &lt;h4&gt;${wow_confirm_reject_incident_resolution}&lt;/h4&gt;
+  &lt;textarea ng-model="data.comments" placeholder="Please provide comments" class="form-control"&gt;&lt;/textarea&gt;
+&lt;/div&gt;
+
+&lt;div class="modal-footer"&gt;
+  &lt;button ng-click="confirmRejectResolution()" ng-disabled="!hasComments() || !permissions.canRejectResolution" class="btn btn-danger"&gt;
+    ${wow_reject}
+  &lt;/button&gt;
+  &lt;button ng-click="closeModal()" class="btn cancel"&gt;
+    ${wow_cancel}
+  &lt;/button&gt;
+&lt;/div&gt;]]&gt;&lt;/template&gt;&lt;/sp_ng_template&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>-841334430</payload_hash>
+        <record_name>alstomRejectIncidentResolution.html</record_name>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-13 14:31:42</sys_created_on>
+        <sys_id>0fcb5d11db678050363e8a503996199f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170d44ed9080000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-13 14:31:42</sys_updated_on>
+        <type>Angular ng-template</type>
+        <update_guid>07cb5d11ee678050bb387b67c739cd9d</update_guid>
+        <update_guid_history>07cb5d11ee678050bb387b67c739cd9d:-841334430</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-13 20:27:59">c8d1e959db678050363e8a5039961996</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-13 14:57:59</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_ng_template">sp_ng_template</sys_db_object>
+        <sys_id>4022f27199444265a314088351778e01</sys_id>
+        <sys_metadata>cfcb5d11db678050363e8a503996199a</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>alstomRejectIncidentResolution.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_ng_template_cfcb5d11db678050363e8a503996199a</sys_update_name>
+        <sys_update_version display_value="sp_ng_template_cfcb5d11db678050363e8a503996199a">0fcb5d11db678050363e8a503996199f</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-13 14:57:59</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

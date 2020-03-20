@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowSearch</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowSearch</name>
+        <script><![CDATA[var WowSearch = Class.create();
+WowSearch.prototype = {
+	initialize: function(options) {
+		options = options || {};
+
+		this.portal = $sp.getPortalRecord();
+		this.util = new WowUtil();
+
+		this.catalogs              = options.catalogs || this.getCatalogs();
+		this.knowledgeBases        = options.knowledgeBases || this.getKnowledgeBases();
+		this.parentCategory        = options.parentCategory || null;
+		this.queryLimit            = options.queryLimit || 999;
+		this.itemsPerPage          = options.itemsPerPage || 10;
+		this.resultType            = options.resultType || 'all';
+		this.sortType              = options.sortType || null;
+		this.searchTerm            = options.searchTerm || null;
+		this.filteredIds           = options.filteredIds || [];
+		this.excludedIds           = options.excludedIds || [];
+		this.advancedFilters       = options.advancedFilters || [];
+		this.categories            = options.categories || (options.category ? [options.category] : []);
+		this.searchSubcategories   = options.searchSubcategories || false;
+		this.inheritColor          = options.inheritColor || true;
+
+		this.disabledCatalogTypes = [
+			'sc_cat_item_wizard'
+		];
+
+		this.defaultIcons = {
+			catalogItem: 'build',
+			incident: 'warning',
+			article: 'description',
+			category: 'import_contacts'
+		};
+		
+		this.scoreBias = {
+			catalog: 1,
+			knowledge: 1
+		};
+	},
+
+
+	setCatalog: function(catalog) {
+		this.setCatalogs(catalog);
+	},
+
+
+	setCatalogs: function(catalogs) {
+		if (!Array.isArray(catalogs))
+			this.catalogs = [catalogs];
+
+		else
+			this.catalogs = catalogs;
+	},
+
+
+	setKnowledgeBase: function(knowledgeBase) {
+		this.setKnowledgeBases(knowledgeBase);
+	},
+
+
+	setKnowledgeBases: function(knowledgeBases) {
+		if (!Array.isArray(knowledgeBases))
+			this.knowledgeBases = [knowledgeBases];
+
+		else
+			this.knowledgeBases = knowledgeBases;
+	},
+
+
+	setParentCategory: function(category) {
+		this.parentCategory = category;
+	},
+
+
+	setCategory: function(category) {
+		this.categories = [category];
+	},
+
+
+	setCategories: function(categories) {
+		this.categories = categories;
+	},
+
+
+	setItemsPerPage: function(itemsPerPage) {
+		this.itemsPerPage = itemsPerPage;
+	},
+
+
+	setCurrentPage: function(currentPage) {
+		this.currentPage = currentPage;
+	},
+
+
+	setQueryLimit: function(limit) {
+		this.queryLimit = limit;
+	},
+
+
+	setResultType: function(resultType) {
+		this.resultType = resultType;
+	},
+
+
+	setSearchTerm: function(searchTerm) {
+		this.searchTerm = searchTerm;
+	},
+
+
+	setSortType: function(sortType) {
+		this.sortType = sortType;
+	},
+
+
+	setFilteredIds: function(filteredIds) {
+		this.filteredIds = filteredIds;
+	},
+
+
+	setExcludedIds: function(excludedIds) {
+		this.excludedIds = excludedIds;
+	},
+
+
+	setAdvancedFilters: function(advancedFilters) {
+		this.advancedFilters = advancedFilters;
+	},
+
+
+	setSearchSubcategories: function(searchSubcategories) {
+		this.searchSubcategories = searchSubcategories;
+	},
+
+
+	getCatalogItem: function(sys_id) {
+		var gr = new GlideRecord('sc_cat_item');
+
+		if (gr.get(sys_id)) {
+			if (!this.util.canReadRecord('sc_cat_item', sys_id))
+				return null;
+
+			return this.getCatalogItemVariables(gr);
+		}
+
+		return null;
+	},
+
+
+	getCatalogItems: function() {
+		var self = this;
+		var results = [];
+		var tableName = this.resultType == 'incident' ? 'sc_cat_item_producer' : 'sc_cat_item';
+		
+		var gr = new GlideRecord(tableName);
+		gr.addQuery('active', true);
+		gr.addQuery('no_search', '!=', true);
+		//gr.addQuery('x_mono2_wow_common', true);
+		gr.addQuery('visible_standalone', true);
+		gr.addQuery('sys_class_name', 'NOT IN', this.disabledCatalogTypes);
+		
+		var allowedIds; // create a sys_id query
+		
+		if (this.filteredIds.length > 0) {
+			allowedIds = this.filteredIds;
+		}
+		
+		else {
+			allowedIds = this.getAllowedCatalogItemIds();
+		}
+			
+		if (this.categories.length > 0 || this.parentCategory) {
+			var filterCategories = this.categories.length > 0 ? this.categories : [this.parentCategory];
+			var categories = [].concat(filterCategories);
+
+			if (this.searchSubcategories) {
+				filterCategories.forEach(function(categoryId) {
+					var subcategories = self.getSubcategories(categoryId, 'catalog');
+					subcategories.forEach(function(subcategory) {
+						categories.push(subcategory.id);
+						gs.info('WowStack 181 subcategory '+subcategory.title + subcategory.parent);
+					});
+				});
+			}
+
+			gr.addQuery('sys_id', 'IN', this.getCatalogItemIdsForCategories(categories, allowedIds))
+				.addOrCondition('category', 'IN', categories);
+		}
+		
+		else {
+			gr.addQuery('sys_id', 'IN', allowedIds);
+		}
+		
+		if (this.excludedIds.length > 0) {
+			gr.addQuery('sys_id', 'NOT IN', this.excludedIds);
+		}
+		
+		if (this.searchTerm) {
+			if (this.searchTerm.length <= 3)
+				gr.addQuery('IR_AND_OR_QUERY', this.searchTerm);
+
+			else
+				gr.addQuery('IR_AND_OR_QUERY', this.searchTerm+'*');
+		}
+		
+		if (this.resultType == 'incident') {
+			gr.addQuery('sys_class_name', 'sc_cat_item_producer');
+			gr.addQuery('table_name', 'incident');
+		}
+
+		if (this.advancedFilters.length > 0) {
+			this.advancedFilters.forEach(function(advancedFilter) {
+				gr.addQuery(advancedFilter.field, advancedFilter.operator || '=', advancedFilter.value);
+			});
+		}
+
+		switch (this.sortType) {
+			case 'atoz':
+				gr.orderBy('short_description');
+				break;
+
+			case 'ztoa':
+				gr.orderByDesc('short_description');
+				break;
+
+			case 'latest':
+				gr.orderByDesc('published');
+				break;
+
+			case 'popular':
+				var popularIds = this.getPopularCatalogItemIds();
+
+				// make sure we only include the most popular items up to the query limit
+				if (popularIds.length > this.queryLimit)
+					popularIds = popularIds.slice(0, this.queryLimit);
+
+				gr.addQuery('sys_id', 'IN', popularIds);
+				break;
+		}
+
+		gr.setLimit(this.queryLimit);
+		gr.query();
+
+		var count = 0;
+		while (gr.next() && count < this.queryLimit) {
+			var item = this.getCatalogItemVariables(gr);
+
+			// take out modules, unsupported
+			if (item.contentItem && item.contentItem.type == 'module')
+				continue;
+
+			results.push(item);
+			count++;
+		}
+
+		if (this.sortType == 'popular') {
+			var sortedResults = [];
+			popularIds.forEach(function(popularId) {
+				for (var i = 0; i < results.length; i++) {
+					var result = results[i];
+					if (result.id == popularId) {
+						sortedResults.push(result);
+						return;
+					}
+				}
+			});
+			results = sortedResults;
+		}
+
+		return results;
+	},
+
+
+	getPopularCatalogItemIds: function() {
+		var self = this;
+		var items = [];
+		var allowedIds;
+		var gr = new GlideAggregate('sc_req_item');
+
+		if (this.filteredIds.length > 0) {
+			allowedIds = this.filteredIds;
+		}
+		
+		else {
+			allowedIds = this.getAllowedCatalogItemIds();
+		}
+		
+		if (this.categories.length > 0) {
+			var categories = [].concat(this.categories);
+
+			if (this.searchSubcategories) {
+				this.categories.forEach(function(categoryId) {
+					var subcategories = self.getSubcategories(categoryId, 'catalog');
+					subcategories.forEach(function(subcategory) {
+						categories.push(subcategory.id);
+					});
+				});
+			}
+
+			gr.addQuery('cat_item', 'IN', this.getCatalogItemIdsForCategories(categories, allowedIds))
+				.addOrCondition('cat_item.category', 'IN', categories);
+		}
+		
+		else {
+			gr.addQuery('sys_id', 'IN', allowedIds);
+		}
+		
+		if (this.excludedIds.length > 0) {
+			gr.addQuery('cat_item', 'NOT IN', this.excludedIds);
+		}
+
+		if (this.advancedFilters.length > 0) {
+			this.advancedFilters.forEach(function(advancedFilter) {
+				gr.addQuery(advancedFilter.field, advancedFilter.operator || '=', advancedFilter.value);
+			});
+		}
+
+		gr.addAggregate('count', 'cat_item');
+		gr.orderByAggregate('count', 'cat_item');
+		gr.query();
+
+		while (gr.next()) {
+			items.push(gr.getValue('cat_item'));
+		}
+
+		return items;
+	},
+
+
+	getCatalogItemIdsForCategories: function(categories, filteredIds) {
+		if (this.catalogItemIdsForCategories && this.catalogItemIdsForCategories.length > 0)
+			return this.catalogItemIdsForCategories;
+		
+		var ids = [];
+		categories = categories || this.categories;
+
+		if (categories.length == 0)
+			return ids;
+
+		var gr = new GlideRecord('sc_cat_item_category');
+		gr.addQuery('sc_cat_item.sys_class_name', 'NOT IN', this.disabledCatalogTypes);
+		gr.addQuery('sc_category', 'IN', categories);
+		
+		if (filteredIds && filteredIds.length > 0)
+			gr.addQuery('sc_cat_item', 'IN', filteredIds);
+		
+		gr.query();
+
+		while (gr.next()) {
+			ids.push(gr.getValue('sc_cat_item'));
+		}
+		
+		this.catalogItemIdsForCategories = ids;
+
+		return this.catalogItemIdsForCategories;
+	},
+	
+	
+	getAllowedCatalogItemIds: function() {
+		if (this.allowedCatalogItems && this.allowedCatalogItems.length > 0)
+			return this.allowedCatalogItemIds;
+			
+		var allowedIds = [];
+		
+		this.catalogs.forEach(function(catalogId) {
+			var snCatalog = new sn_sc.Catalog(catalogId);
+			var ids = snCatalog.getCatalogItemIds(); // pre performed criteria check
+
+			for (var i = 0; i < ids.length; i++) {
+				if (allowedIds.indexOf(ids[i]) === -1)
+					allowedIds.push(ids[i]);
+			}
+		});
+		
+		this.allowedCatalogItemIds = allowedIds;
+		
+		return this.allowedCatalogItemIds;
+	},
+
+
+	getCatalogItemVariables: function(gr) {
+		var item = {
+			id: gr.getUniqueValue(),
+			className: gr.getValue('sys_class_name'),
+			description: gr.getDisplayValue('description'),
+			icon: this.util.getIcon(gr.getValue('x_mono2_wow_icon')),
+			iconColor: this.util.getColorCode(gr.getValue('x_mono2_wow_icon_color')),
+			label: gr.getDisplayValue('name'),
+			picture: gr.getDisplayValue('picture') ? gr.getDisplayValue('picture') + '.iix' : null,
+			published: gr.getValue('sys_created_on'),
+			score: parseInt(gr.getDisplayValue('ir_query_score')) * this.scoreBias.catalog,
+			summary: gr.getDisplayValue('short_description'),
+			type: 'service'
+		};
+
+		if (!item.icon) {
+			if (this.resultType == 'incident' && gr.getValue('table_name') == 'incident')
+				item.icon = this.defaultIcons.incident;
+			else
+				item.icon = this.defaultIcons.catalogItem;
+		}
+
+		if (this.inheritColor && !item.iconColor)
+			item.iconColor = this.util.getColorCode(gr.getElement('category.x_mono2_wow_icon_color') || gr.getElement('category.parent.x_mono2_wow_icon_color'));
+
+		if (gr.getValue('category')) {
+			item.category = {
+				value: gr.getValue('category'),
+				displayValue: gr.getDisplayValue('category')
+			};
+		}
+
+		switch (gr.getValue('sys_class_name')) {
+			case 'sc_cat_item_content':
+				item.contentItem = this.getContentItem(item.id);
+				item.href = item.contentItem.href;
+
+				// get article icon if it's a knowledge content item
+				if (item.contentItem.article && item.icon == this.defaultIcons.catalogItem) {
+					item.icon = item.contentItem.article.icon;
+					item.iconColor = item.contentItem.article.iconColor;
+				}
+
+				break;
+
+			case 'sc_cat_item_guide':
+				item.href = '?id=sc_cat_item_guide&sys_id=' + item.id;
+				break;
+
+			default:
+				item.href = '?id=sc_cat_item&sys_id=' + item.id;
+				break;
+		}
+
+		if (gr.getValue('model')) {
+			if (gr.model.getRefRecord().getValue('cmdb_model_category')) {
+				var productArray = gr.model.getRefRecord().getValue('cmdb_model_category').split(',');
+				var product = [];
+
+				for (var i in productArray) {
+					product.push(this.getModelName(productArray[i]));
+				}
+
+				item.product = product;
+			}
+		}
+
+		return item;
+	},
+
+
+	getContentItem: function(sys_id) {
+		var gr = new GlideRecord('sc_cat_item_content');
+
+		if (gr.get(sys_id)) {
+			var item = {
+				id: gr.getUniqueValue(),
+				type: gr.getValue('content_type')
+			};
+
+			switch (item.type) {
+				case 'kb':
+					item.article = this.getArticle(gr.getValue('kb_article'));
+					item.href = '?id=kb_article&sys_id=' + gr.getValue('kb_article');
+					break;
+
+				case 'external':
+					item.href = gr.getValue('url');
+					item.target = gr.getValue('target') == '_blank' ? '_blank' : '_self';
+					break;
+
+				default:
+					item.href = '?id=sc_cat_item&sys_id=' + item.id;
+					break;
+			}
+
+			return item;
+		}
+
+		return null;
+	},
+	
+
+	getArticle: function(sys_id) {
+		var gr = new GlideRecord('kb_knowledge');
+
+		if (gr.get(sys_id)) {
+			var article = this.getArticleVariables(gr);
+			article.viewCount = this.getArticleViews(gr.getUniqueValue());
+
+			return article;
+		}
+
+		return null;
+	},
+
+
+	getArticles: function() {
+		var self = this;
+		var results = [];
+
+		var gr = new GlideRecord('kb_knowledge');
+		this.includeArticlesQuery(gr);
+
+		if (this.categories.length > 0 || this.parentCategory) {
+			var filterCategories = this.categories.length > 0 ? this.categories : [this.parentCategory];
+			var categories = [].concat(filterCategories);
+
+			if (this.searchSubcategories) {
+				filterCategories.forEach(function(categoryId) {
+					var subcategories = self.getSubcategories(categoryId, 'knowledge');
+					subcategories.forEach(function(subcategory) {
+						categories.push(subcategory.id);
+					});
+				});
+			}
+
+			gr.addQuery('kb_category', 'IN', categories)
+			  .addOrCondition('kb_category.parent_id', 'IN', categories);
+		}
+
+		if (this.excludedIds.length > 0) {
+			gr.addQuery('sys_id', 'NOT IN', this.excludedIds);
+		}
+
+		if (this.filteredIds.length > 0) {
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+		}
+
+		if (this.searchTerm) {
+			if (this.searchTerm.length <= 3)
+				gr.addQuery('IR_AND_OR_QUERY', this.searchTerm);
+
+			else
+				gr.addQuery('IR_AND_OR_QUERY', this.searchTerm+'*');
+		}
+
+		if (this.advancedFilters.length > 0) {
+			this.advancedFilters.forEach(function(advancedFilter) {
+				gr.addQuery(advancedFilter.field, advancedFilter.operator || '=', advancedFilter.value);
+			});
+		}
+
+		switch (this.sortType) {
+			case 'atoz':
+				gr.orderBy('short_description');
+				break;
+
+			case 'ztoa':
+				gr.orderByDesc('short_description');
+				break;
+
+			case 'latest':
+				gr.orderByDesc('published');
+				break;
+		}
+
+		gr.setLimit(this.queryLimit);
+		gr.query();
+
+		var count = 0;
+		while (gr.next() && count < this.queryLimit) {
+			if (!$sp.canReadRecord(gr))
+				continue;
+
+			results.push(this.getArticleVariables(gr));
+			count++;
+		}
+
+		return results;
+	},
+
+
+	getRelatedArticles: function(articleId, limit) {
+		var relatedArticles = [];
+		var metas = []; // create array of meta terms to create OR query
+
+		var originalArticle = this.getArticle(articleId);
+		if (!originalArticle || !(originalArticle.category || originalArticle.meta))
+			return relatedArticles;
+
+		var gr = new GlideRecord('kb_knowledge');
+		this.includeArticlesQuery(gr);
+
+		if (originalArticle.category)
+			gr.addQuery('kb_category', originalArticle.category.value);
+
+		if (originalArticle.meta) {
+			metas = originalArticle.meta.toLowerCase().split(' ');
+			if (metas == undefined) {
+				metas = originalArticle.meta.toLowerCase().split(',');
+			}
+
+			var metaQuery = gr.addQuery('meta', 'CONTAINS', metas[0]);
+
+			// we need unique matches
+			metas.forEach(function(meta) {
+				metaQuery.addOrCondition('meta', 'CONTAINS', meta+' ');
+				metaQuery.addOrCondition('meta', 'CONTAINS', ' '+meta);
+				metaQuery.addOrCondition('meta', meta);
+			});
+		}
+
+		gr.orderByDesc('sys_view_count');
+		gr.setLimit(this.queryLimit);
+		gr.query();
+
+		while (gr.next()) {
+			if (gr.getUniqueValue() == originalArticle.id || !gr.canRead())
+				continue;
+
+			var article = this.getArticleVariables(gr);
+
+			var matches = 0;
+		
+			if (metas.length > 0 && article.meta.length > 0) {
+				var articleMetas = article.meta.toLowerCase().split(' ');
+
+				for (var i = 0; i < metas.length; i++) {
+					if (articleMetas.indexOf(metas[i]) > -1)
+						matches++;
+				}
+			}
+
+			article.matches = matches;
+			relatedArticles.push(article);
+		}
+
+		// sort array of relatedArticles by matches
+		relatedArticles.sort(function (a, b) {
+			return b.matches - a.matches;
+		});
+
+		return relatedArticles;
+	},
+
+
+	getArticleViews: function(sys_id) {
+		var gr = new GlideAggregate('kb_use');
+		gr.addQuery('article', sys_id);
+		gr.addQuery('viewed', true);
+		gr.addAggregate('COUNT');
+		gr.query();
+
+		if (gr.next())
+			return gr.getAggregate('COUNT');
+
+		return 0;
+	},
+
+
+	getArticleVariables: function(gr) {
+		var article = {
+			id: gr.getUniqueValue(),
+			author: gr.getDisplayValue('author'),
+			className: gr.getValue('sys_class_name'),
+			description: gr.getValue('short_description'),
+			href: '?id=kb_article&sys_id=' + gr.getUniqueValue(),
+			icon: this.util.getIcon(gr.getValue('x_mono2_wow_icon')) || this.defaultIcons.article,
+			iconColor: this.util.getColorCode(gr.getValue('x_mono2_wow_icon_color')),
+			label: gr.getDisplayValue('short_description'),
+			number: gr.getDisplayValue('number'),
+			published: gr.getDisplayValue('published'),
+			rating: gr.getValue('rating'),
+			score: parseInt(gr.getDisplayValue('ir_query_score')) * this.scoreBias.knowledge,
+			meta: gr.getValue('meta'),
+			text: gr.getDisplayValue('text'),
+			title: gr.getDisplayValue('short_description'),
+			type: 'article',
+			viewCount: gr.getValue('sys_view_count'),
+			portalview:gr.getDisplayValue('u_view_on_portal')
+		};
+
+		if (this.inheritColor && !article.iconColor)
+			article.iconColor = this.util.getColorCode(gr.getElement('kb_category.x_mono2_wow_icon_color') || (gr.getElement('kb_category.parent_table') === 'kb_category' ? gr.getElement('kb_category.parent_id.x_mono2_wow_icon_color') : null));
+		
+		if (gr.getValue('kb_category')) {
+			article.category = {
+				value: gr.getValue('kb_category'),
+				displayValue: gr.getDisplayValue('kb_category')
+			};
+		}
+
+		return article;
+	},
+
+
+	includeArticlesQuery: function(gr) {
+		gr.addQuery('kb_knowledge_base', 'IN', this.knowledgeBases);
+		gr.addQuery('workflow_state', 'published');
+		gr.addQuery('valid_to', '>=', (new GlideDate()).getValue());
+
+		if (gr.isValidField('language'))
+			gr.addQuery('language', this.util.getUserLanguage());
+	},
+
+
+	getCatalogs: function() {	
+		var portalCatalogs = $sp.getCatalogs();
+		return String(portalCatalogs.value).split(',');
+	},
+
+
+	getKnowledgeBases: function() {		
+		return $sp.getKnowledgeBases().split(',');
+	},
+
+
+	getCategories: function() {
+		var catalogCategories = this.getCatalogCategories();
+		var knowledgeCategories = this.getKnowledgeCategories();
+
+		var categories = [].concat(catalogCategories).concat(knowledgeCategories);
+
+		categories.sort(function(a, b) {
+			return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+		});
+
+		return categories;
+	},
+
+
+	getCatalogCategories: function() {
+		var categories = [];
+
+		var gr = new GlideRecord('sc_category');
+		gr.addQuery('active', true);
+		gr.addQuery('sys_class_name', 'sc_category');
+		gr.addQuery('sc_catalog', 'IN', this.catalogs);
+
+		if (this.filteredIds.length > 0)
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+
+		// if we're searching then we don't just want parent categories
+		if (this.searchTerm)
+			gr.addQuery('title', 'CONTAINS', this.searchTerm);
+
+		else if (this.parentCategory)
+			gr.addQuery('parent', this.parentCategory);
+
+		else
+			gr.addQuery('parent', '');
+
+		gr.orderBy('title');
+		gr.query();
+
+		var count = 0;
+		while (gr.next() && count < this.queryLimit) {
+			if (!$sp.canReadRecord(gr))
+				continue;
+				
+			if (this.hasCatalogItems(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'catalog')) {
+				var category = this.getCategoryVariables(gr);
+				category.subcategories = this.getSubcategories(gr.getUniqueValue(), 'catalog');
+				categories.push(category);
+				count++;
+			}
+		}
+
+		return categories;
+	},
+
+
+	getCatalogCategory: function(sys_id) {
+		var gr = new GlideRecord('sc_category');
+
+		if (gr.get(sys_id))
+			return this.getCategoryVariables(gr);
+
+		return null;
+	},
+
+
+	getKnowledgeCategories: function() {
+		var categories = [];
+
+		var gr = new GlideRecord('kb_category');
+		gr.addQuery('active', true);
+
+		if (this.filteredIds.length > 0)
+			gr.addQuery('sys_id', 'IN', this.filteredIds);
+
+		// if we're searching then we don't just want parent categories
+		if (this.searchTerm)
+			gr.addQuery('label', 'CONTAINS', this.searchTerm);
+
+		else if (this.parentCategory)
+			gr.addQuery('parent_id', this.parentCategory);
+
+		else
+			gr.addQuery('parent_id', 'IN', this.knowledgeBases);
+
+		gr.orderBy('label');
+		gr.query();
+
+		var count = 0;
+		while (gr.next() && count < this.queryLimit) {
+			if (!$sp.canReadRecord(gr))
+				continue;
+
+			// if we're searching, traverse one step up the tree to work out whether this category is in our knowledge base
+			if (this.searchTerm && this.knowledgeBases.indexOf(gr.getValue('parent_id') != -1)) {
+				var parentCategory = this.getKnowledgeCategory(gr.getValue('parent_id'));
+				if (parentCategory) {
+					if (!parentCategory.parent || parentCategory.parent.value != this.knowledgeBases.indexOf(parentCategory.parent.value) > -1)
+						continue;
+				}
+			}
+
+			if (this.hasArticles(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'knowledge')) {
+				var category = this.getCategoryVariables(gr);
+				category.subcategories = this.getSubcategories(gr.getUniqueValue(), 'knowledge');
+				categories.push(category);
+				count++;
+			}
+		}
+
+		return categories;
+	},
+
+
+	getKnowledgeCategory: function(sys_id) {
+		var gr = new GlideRecord('kb_category');
+
+		if (gr.get(sys_id))
+			return this.getCategoryVariables(gr, 'knowledge');
+
+		return null;
+	},
+
+
+	getSubcategories: function(categoryId, type) {
+		var categories = [];
+
+		switch (type) {
+			case 'catalog':
+				var gr = new GlideRecord('sc_category');
+				gr.addQuery('active', true);
+				gr.addQuery('sys_class_name', 'sc_category');
+				gr.addQuery('parent', categoryId);
+
+				if (this.catalogs)
+					gr.addQuery('sc_catalog', 'IN', this.catalogs);
+
+				gr.orderBy('title');
+				break;
+
+			case 'knowledge':
+				var gr = new GlideRecord('kb_category');
+				gr.addQuery('active', true);
+				gr.addQuery('parent_id', categoryId);
+
+				gr.orderBy('label');
+				break;
+		}
+
+		if (typeof gr == 'undefined')
+			return categories;
+
+		gr.query();
+
+		while (gr.next()) {
+			switch (type) {
+				case 'catalog':
+					if (this.hasCatalogItems(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'catalog'))	{
+						categories.push(this.getCategoryVariables(gr));
+						}
+
+					break;
+
+				case 'knowledge':
+					if (this.hasArticles(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'knowledge'))
+						categories.push(this.getCategoryVariables(gr));
+
+					break;
+			}
+		}
+
+		return categories;
+	},
+
+
+	getCategoryVariables: function(gr) {
+		var category = {
+			id: gr.getUniqueValue(),
+			href: this.getStackUrl(gr),
+			description: gr.getDisplayValue('short_description') || gr.getDisplayValue('description'),
+			icon: this.util.getIcon(gr.getValue('x_mono2_wow_icon')) || this.defaultIcons.category,
+			iconColor: this.util.getColorCode(gr.getValue('x_mono2_wow_icon_color')),
+			label: gr.getDisplayValue('title') || gr.getDisplayValue('label'),
+			order: parseInt(gr.getValue('order')),
+			parent: {
+				value: gr.getValue('parent_id') || gr.getValue('parent'),
+				displayValue: gr.getDisplayValue('parent_id') || gr.getDisplayValue('parent'),
+				table: gr.getValue('parent_table'),
+			},
+			title: gr.getDisplayValue('title')
+		};
+
+		if (this.inheritColor && !category.iconColor && category.parent.table === 'kb_category')
+			category.iconColor = this.util.getColorCode(gr.getElement('parent.x_mono2_wow_icon_color') || gr.getElement('parent_id.x_mono2_wow_icon_color'));
+		
+		return category;
+	},
+
+
+	hasCatalogItems: function(sc_category) {
+		var gr = new GlideRecord('sc_cat_item_category');
+		gr.addQuery('sc_cat_item.no_search', '!=', true);
+		gr.addQuery('sc_cat_item.visible_standalone', true);
+		gr.addQuery('sc_cat_item.sys_class_name', 'NOT IN', ['sc_cat_item_wizard']);
+		gr.addQuery('sc_category', sc_category);
+
+		var catalogsQuery = gr.addQuery('sc_cat_item.sc_catalogs', 'CONTAINS', this.catalogs[0]);
+		if (this.catalogs.length > 1) {
+			for (var i = 1; i < this.catalogs.length; i++)
+				catalogsQuery.addOrCondition('sc_cat_item.sc_catalogs', 'CONTAINS', this.catalogs[i]);
+		}
+
+		if (this.resultType == 'incident')
+			gr.addQuery('sc_cat_item.sys_class_name', 'sc_cat_item_producer');
+
+		gr.query();
+
+		while (gr.next()) {
+			if (this.resultType == 'incident') {
+				if (gr.getDisplayValue('sc_cat_item.table_name') == 'incident' && this.util.canReadRecord('sc_cat_item', gr.getValue('sc_cat_item')))
+					return true;
+			}
+
+			else if (this.util.canReadRecord('sc_cat_item', gr.getValue('sc_cat_item')))
+				return true;
+		}
+
+		return false;
+	},
+
+
+	hasArticles: function(kb_category) {
+		var gr = new GlideRecord('kb_knowledge');
+		this.includeArticlesQuery(gr);
+		gr.addQuery('kb_category', kb_category);
+		gr.query();
+
+		while (gr.next()) {
+			if ($sp.canReadRecord(gr))
+				return true;
+		}
+
+		return false;
+	},
+
+
+	hasSubcategories: function(categoryId, type) {
+		switch (type) {
+			case 'catalog':
+				var gr = new GlideRecord('sc_category');
+				gr.addQuery('active', true);
+				gr.addQuery('sys_class_name', 'sc_category');
+				gr.addQuery('parent', categoryId);
+
+				if (this.catalogs)
+					gr.addQuery('sc_catalog', 'IN', this.catalogs);
+
+				break;
+
+			case 'knowledge':
+				var gr = new GlideRecord('kb_category');
+				gr.addQuery('active', true);
+				gr.addQuery('parent_id', categoryId);
+
+				break;
+		}
+
+		if (typeof gr == 'undefined')
+			return false;
+
+		gr.query();
+
+		while (gr.next()) {
+			switch (type) {
+				case 'catalog':
+					if (this.hasCatalogItems(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'catalog'))
+						return true;
+
+				case 'knowledge':
+					if (this.hasArticles(gr.getUniqueValue()) || this.hasSubcategories(gr.getUniqueValue(), 'knowledge'))
+						return true;
+
+			}
+		}
+
+		return false;
+	},
+
+
+	mapTags: function(items) {
+		var lookup = {};
+		var ids = items.map(function(item) {
+			return item.id;
+		});
+
+		var gr = new GlideRecord('label_entry');
+		gr.addQuery('active', true);
+		gr.addQuery('table_key', 'IN', ids);
+		gr.orderBy('label');
+		gr.query();
+
+		while (gr.next()) {
+			var key = gr.getValue('table_key');
+
+			if (!lookup[key]) {
+				lookup[key] = [
+					gr.getDisplayValue('label')
+				];
+			}
+
+			else {
+				lookup[key].push(gr.getDisplayValue('label'));
+			}
+		}
+
+		items.forEach(function(item) {
+			item.tags = lookup[item.id] || [];
+		});
+
+		return items;
+	},
+
+
+	getStackUrl: function(gr) {
+		if (gr.getValue('parent_id') || gr.getValue('parent'))
+			return '?id=wow_stack#c='+(gr.getValue('parent_id') || gr.getValue('parent'))+'&sc='+gr.getUniqueValue();
+
+		else
+			return '?id=wow_stack#c='+gr.getUniqueValue();
+	},
+
+
+	getModelName: function(sys_id) {
+		var gr = new GlideRecord('cmdb_model_category');
+
+		if (gr.get('sys_id', sys_id))
+			return gr.getDisplayValue('name');
+
+		return "";
+	},
+
+
+	type: 'WowSearch'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-30 20:55:36</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>91764efadb2b1f8087e2f3de3b9619cc</sys_id>
+        <sys_mod_count>368</sys_mod_count>
+        <sys_name>WowSearch</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_91764efadb2b1f8087e2f3de3b9619cc</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-19 06:08:19</sys_updated_on>
+    </sys_script_include>
+</record_update>

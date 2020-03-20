@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css/>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_key_users</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description>Key Users Widget display page</short_description>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-02 14:24:30</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e950f479dbd70050363e8a5039961975</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>wow_key_users</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_page_e950f479dbd70050363e8a5039961975</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-02 14:24:30</sys_updated_on>
+        <title>Key Users</title>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=e950f479dbd70050363e8a5039961975"/>
+</record_update>

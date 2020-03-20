@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowScorecardModal.html</id>
+        <sp_widget display_value="Wow Device Scorecard">5bdeceafdbac4c10b62a80e23996192c</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-10-23 15:24:15</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>2d119623dbec4c10b62a80e239961905</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>wowScorecardModal.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_2d119623dbec4c10b62a80e239961905</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-23 15:24:15</sys_updated_on>
+        <template><![CDATA[<button class="btn close" ng-click="closeModal()">
+  <i class="material-icons">close</i>
+</button>
+
+<div class="device-results" ng-repeat="devices in ::data.results">
+  <div>
+    <div class="form-group">
+    	<h3>
+        ${wow_device_scorecard}
+      </h3>
+      <select class="sn-select-basic" ng-change="deviceChanged($event)" ng-model="c.selectedDeviceId">
+        <option class="default-option" value="" disabled>${wow_select_device}</option>
+        <option ng-repeat="device in devices" ng-value="device['WGUID']">{{device.name}}</option>
+      </select>
+    </div>
+    <ul ng-if="c.selectedDevice" class="device-scores">
+      <li ng-repeat="(key, score) in c.selectedDevice" ng-if="['BSODScore', 'HangScore', 'CrashScore', 'LatencyScore', 'CPUScore', 'DiskScore', 'FreeSpaceScore', 'MemScore', 'BootScore', 'RAMScore'].indexOf(key) > -1">
+        <label uib-tooltip="{{getDescription(key)}}" tooltip-placement="right" tooltip-class="score-tooltip">
+          {{getLabel(key)}}
+        </label>
+        <div class="score">
+          <span ng-class="{'low': score <= 5, 'high': score >= 8}">
+            {{score}}
+          </span>
+          / 10
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div ng-cloak>
+    <div ng-if="c.selectedDevice" class="overall-score">
+      <span ng-class="{'low': c.selectedDevice['TheScore'] <= 5, 'high': c.selectedDevice['TheScore'] >= 8}">
+        {{c.selectedDevice['TheScore']}}
+      </span>
+      / 10
+    </div>
+    <div class="actions">
+      <button class="btn btn-danger" ng-click="c.runAction('cleanDisk')" ng-disabled="c.data.running_action && !completed_actions[c.data.running_action]">
+        <i class="material-icons" aria-hidden="true">disc_full</i>
+        ${wow_clean_disk}
+      </button>
+    </div>
+  </div>
+</div>]]></template>
+    </sp_ng_template>
+</record_update>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="Wow Backgrounds" max_length="40" name="x_mono2_wow_background" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element audit="false" label="CSS" max_length="4000" name="css" type="string"/>
+        <element attributes="edge_encryption_enabled=true,pdf_cell_type=image" audit="false" label="Image" max_length="40" name="image" type="user_image"/>
+        <element audit="false" label="Mobile CSS" max_length="4000" name="mobile_css" type="string"/>
+        <element audit="false" display="true" label="Name" mandatory="true" max_length="255" name="name" type="string"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Parallax on scroll?" max_length="40" name="parallax" type="boolean"/>
+    </element>
+</database>

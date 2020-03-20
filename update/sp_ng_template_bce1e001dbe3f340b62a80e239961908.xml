@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowChaseRequest.html</id>
+        <sp_widget display_value="Wow Request Item">1e933679db331b00ec3ab9836b9619c5</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-26 19:29:42</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>bce1e001dbe3f340b62a80e239961908</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>wowChaseRequest.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_bce1e001dbe3f340b62a80e239961908</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-02 16:49:35</sys_updated_on>
+        <template><![CDATA[<div class="modal-header">
+  <button ng-click="closeModal()" class="close" aria-label="Close">
+    <i class="material-icons">close</i>
+  </button>
+</div>
+
+<div ng-if="!hasChased" class="modal-body" ng-class="{'hidden': chasing}">
+  <h4>${wow_chase_request_comments}</h4>
+  <textarea ng-model="data.comments" placeholder="${wow_add_comments}" class="form-control"></textarea>
+  <div ng-if="!data.sla.hasBreached" class="sla-notice alert alert-warning">
+    <i class="material-icons">warning</i>
+    ${wow_request_within_sla}
+  </div>
+</div>
+
+<div ng-if="hasChased && data.sla.hasBreached" class="launch-chat modal-body" ng-class="{'hidden': chasing}">
+  <h4>${wow_chase_request_launch_chat}</h4>
+  <button ng-click="launchChat()" class="btn btn-primary">
+    <i class="material-icons">forum</i>
+    ${wow_launch_chat}
+  </button>
+</div>
+
+<wow-spinner loading="chasing"></wow-spinner>
+
+<div class="modal-footer" ng-class="{'hidden': chasing}">
+  <button ng-click="confirmChaseRequest()" ng-if="!hasChased" ng-disabled="!hasComments() || !permissions.canChase" class="btn btn-info">
+    ${wow_chase}
+  </button>
+  <button ng-click="closeModal()" class="btn cancel">
+    ${wow_cancel}
+  </button>
+</div>]]></template>
+    </sp_ng_template>
+</record_update>

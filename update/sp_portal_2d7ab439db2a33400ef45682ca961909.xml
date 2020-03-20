@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_portal">
+    <sp_portal action="INSERT_OR_UPDATE">
+        <css_variables>$brand-primary: #244991;&#13;
+$body-bg: #fff;&#13;
+$state-success-text: #5cb85c;&#13;
+$sp-homepage-bg: #fff;&#13;
+$sp-navbar-divider-color: #1f2f68;&#13;
+$text-color: #333333;&#13;
+$sp-logo-margin-y: .5rem;&#13;
+$navbar-inverse-link-hover-color: #ffffff;&#13;
+$panel-bg: #fff;&#13;
+$brand-success: #5cb85c;&#13;
+$navbar-inverse-bg: #24387f;&#13;
+$brand-warning: #f08b4e;&#13;
+$brand-danger: #E24242;&#13;
+$sp-tagline-color: #717171;&#13;
+$navbar-inverse-link-color: #ffffff;&#13;
+$brand-info: #5bc0de;&#13;
+$link-color: #244991;&#13;
+$sp-logo-margin-x: 1rem;&#13;
+$btn-default-bg: #fff;&#13;
+$text-muted: #aeafb2;&#13;
+</css_variables>
+        <default>true</default>
+        <homepage display_value="wow_home">9579ab38db84bb0016a5f40b0c961900</homepage>
+        <icon/>
+        <kb_knowledge_base/>
+        <kb_knowledge_page display_value="wow_knowledge">dddce3f8db84bb0016a5f40b0c96196b</kb_knowledge_page>
+        <login_page/>
+        <logo>a455f84ddbe3f340b62a80e23996198a</logo>
+        <notfound_page/>
+        <quick_start_config/>
+        <sc_catalog/>
+        <sc_catalog_page display_value="wow_stack">b53debb8db84bb0016a5f40b0c9619db</sc_catalog_page>
+        <sc_category_page/>
+        <sp_chat_queue/>
+        <sp_rectangle_menu display_value="Wow &quot;My Area&quot;">d2685741dbbf93c087e2f3de3b961931</sp_rectangle_menu>
+        <sqanda_knowledge_base/>
+        <sys_class_name>sp_portal</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-07-10 12:10:23</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>2d7ab439db2a33400ef45682ca961909</sys_id>
+        <sys_mod_count>33</sys_mod_count>
+        <sys_name>Wow Portal</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_portal_2d7ab439db2a33400ef45682ca961909</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-18 09:33:52</sys_updated_on>
+        <theme display_value="Wow">4de853ffdb079b4087e2f3de3b9619ac</theme>
+        <title>Wow Portal</title>
+        <ts_index_group/>
+        <url_suffix>wow</url_suffix>
+        <x_mono2_wow_contact_info><![CDATA[<p>Based on the impact and urgency this looks like a serious issue. You should call the Service Desk on +<strong>44 (0)1234 567890</strong>. Alternatively, please review your impact and urgency selections.</p>]]></x_mono2_wow_contact_info>
+        <x_mono2_wow_copyright_notice>Copyright Computacenter plc. All rights reserved.</x_mono2_wow_copyright_notice>
+        <x_mono2_wow_external_chat_url/>
+        <x_mono2_wow_footer_menu display_value="Wow Footer Menu">c5b4327cdbe7d78087e2f3de3b96195b</x_mono2_wow_footer_menu>
+        <x_mono2_wow_incident_cat_item display_value="PC Performance Issue">c6d873b8dbaf8c10363e8a503996196c</x_mono2_wow_incident_cat_item>
+        <x_mono2_wow_news_kb display_value="Knowledge">dfc19531bf2021003f07e2c1ac0739ab</x_mono2_wow_news_kb>
+    </sp_portal>
+    <sys_translated_text action="delete_multiple" query="documentkey=2d7ab439db2a33400ef45682ca961909"/>
+    <sys_attachment action="INSERT_OR_UPDATE">
+        <average_image_color/>
+        <chunk_size_bytes>734003</chunk_size_bytes>
+        <compressed>true</compressed>
+        <content_type>image/svg+xml</content_type>
+        <file_name>logo</file_name>
+        <image_height/>
+        <image_width/>
+        <size_bytes>11781</size_bytes>
+        <size_compressed>3336</size_compressed>
+        <state>available</state>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-26 20:53:57</sys_created_on>
+        <sys_domain display_value="">global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>a455f84ddbe3f340b62a80e23996198a</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>guest</sys_updated_by>
+        <sys_updated_on>2020-02-24 14:17:43</sys_updated_on>
+        <table_name>ZZ_YYsp_portal</table_name>
+        <table_sys_id>2d7ab439db2a33400ef45682ca961909</table_sys_id>
+    </sys_attachment>
+    <sys_attachment_doc action="INSERT_OR_UPDATE">
+        <data>H4sIAAAAAAAAAA==</data>
+        <length>16</length>
+        <position>0</position>
+        <sys_attachment display_value="logo" sys_id="a455f84ddbe3f340b62a80e23996198a">a455f84ddbe3f340b62a80e23996198a</sys_attachment>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-26 20:53:57</sys_created_on>
+        <sys_id>e455f84ddbe3f340b62a80e23996198a</sys_id>
+    </sys_attachment_doc>
+    <sys_attachment_doc action="INSERT_OR_UPDATE">
+        <data>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</data>
+        <length>4436</length>
+        <position>1</position>
+        <sys_attachment display_value="logo" sys_id="a455f84ddbe3f340b62a80e23996198a">a455f84ddbe3f340b62a80e23996198a</sys_attachment>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-26 20:53:57</sys_created_on>
+        <sys_id>6855f84ddbe3f340b62a80e23996198a</sys_id>
+    </sys_attachment_doc>
+</record_update>

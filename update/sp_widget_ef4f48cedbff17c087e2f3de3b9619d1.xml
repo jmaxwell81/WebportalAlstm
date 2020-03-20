@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope) {
+  var c = this;
+	var userId = $scope.user.sys_id;
+	var notifications;
+
+
+	updateNotifications();
+
+
+	$scope.closeNotification = function(notification) {
+		// add to local storage
+		storeNotification(notification);
+
+		var index = notifications.indexOf(notification);
+		if (index != -1)
+			notifications.splice(index, 1);
+
+		$rootScope.$broadcast("outages_updated", {count: notifications.length});
+	}
+
+
+	function updateNotifications() {
+		c.server.get({
+			filteredIds: getStoredNotifications()
+		}).then(function(r) {
+			c.data.notifications = r.data.notifications;
+			notifications = $scope.notifications = getNotifications();
+			$rootScope.$broadcast('outages_updated', {
+				count: notifications.length
+			});
+		});
+	}
+
+
+	function getNotifications() {
+		var notifications = [];
+		var stored = getStoredNotifications();
+
+		c.data.notifications.forEach(function(notification) {
+			if (stored.indexOf(notification.id) == -1)
+				notifications.push(notification);
+		});
+
+		return notifications;
+	}
+
+
+	function getStoredNotifications() {
+		try {
+			var storedNotifications = JSON.parse(localStorage.getItem('wow_notifications'));
+			for (var key in storedNotifications)
+				if (key == userId)
+					return storedNotifications[key];
+		}
+
+		// if this throws an error then reset the
+		catch (e) {
+			console.log(e);
+			clearStoredNotifications();
+		}
+
+		return [];
+	}
+
+
+	function storeNotification(notification) {
+		var storedNotifications = localStorage.getItem('wow_notifications');
+
+		if (storedNotifications)
+			storedNotifications = JSON.parse(storedNotifications);
+
+		else
+			storedNotifications = {};
+
+		// find existing user stored notifications
+		if (storedNotifications[userId])
+			storedNotifications[userId].push(notification.id);
+
+		// otherwise create user store
+		else
+			storedNotifications[userId] = [notification.id];
+
+		return localStorage.setItem('wow_notifications', JSON.stringify(storedNotifications));
+	}
+
+
+	function clearStoredNotifications() {
+		return localStorage.removeItem('wow_notifications');
+	}
+
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>ul {
+  float: right;
+  list-style: none;
+  margin: -.8rem;
+  width: 350px;
+  padding: .8rem;
+  overflow-y: scroll;
+  max-height: 450px;
+  @include wow-scrollbar(rgba($text-muted, .6), $panel-bg, 10px);
+}
+
+.notification {
+  padding: 1rem .75rem;
+  pointer-events: all;
+  position: relative;
+
+  &amp;:not(:last-child) {
+    border-bottom: 1px solid rgba($text-muted, .5);
+    padding-bottom: 1.4rem;
+  }
+
+  &amp;:not(:first-child) {
+    padding-top: 1.4rem;
+  }
+
+  .type {
+    align-items: center;
+    display: flex;
+    font-size: 1.2rem;
+
+    i {
+      font-size: 1.5em;
+      margin-right: .25em;
+      &amp;.outage { color: $brand-danger }
+      &amp;.planned { color: $brand-warning }
+      &amp;.degradation { color: $brand-primary }
+    }
+  }
+
+  .service {
+    color: $text-muted;
+    display: flex;
+    margin: .5rem 0;
+    width: 100%;
+  }
+
+  .description {
+    display: flex;
+    margin: .5rem 0;
+    opacity: .75;
+    white-space: normal;
+    width: 100%;
+  }
+
+  a {
+    align-items: center;
+    display: inline-flex;
+    color: $text-color;
+    text-decoration: underline;
+    font-weight: 600;
+    margin-top: .5rem;
+    padding: 0 !important;
+    &amp;:last-child { margin-left: 1rem}
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-outages</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Outages</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.queryLimit = options.queryLimit || 10;
+	options.plannedNotice = options.plannedNotice || 7; // 7 days advance notice
+
+	var outagesHelper = new WowOutages();
+
+	outagesHelper.setQueryLimit(options.queryLimit);
+	outagesHelper.setPlannedNotice(options.plannedNotice);
+
+	// we only want to fetch outages when we know which ones the user has already dismissed in browser cache
+	if (!input)
+		return;
+
+	if (input && input.filteredIds)
+		outagesHelper.setFilteredIds(input.filteredIds);
+
+	data.notifications = outagesHelper.getOutages();
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-09 14:37:12</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>ef4f48cedbff17c087e2f3de3b9619d1</sys_id>
+        <sys_mod_count>168</sys_mod_count>
+        <sys_name>Wow Outages</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_ef4f48cedbff17c087e2f3de3b9619d1</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 05:51:10</sys_updated_on>
+        <template><![CDATA[<ul class="outages">
+  <li ng-repeat="notification in notifications" class="notification">
+    <div ng-if="notification.type == 'outage'" class="type">
+      <i class="material-icons {{notification.type}}">warning</i>
+      ${wow_service_alert}
+    </div>
+    <div ng-if="notification.type == 'degradation'" class="type">
+      <i class="material-icons">error</i>
+      ${wow_service_degradation}
+    </div>
+    <div ng-if="notification.type == 'planned'" class="type">
+      <i class="material-icons">error</i>
+      ${wow_planned_outage}
+    </div>
+    <span class="service" ng-if="notification.service">{{notification.service}}</span>
+    <span class="description" ng-if="notification.description">{{notification.description}}</span>
+    <a ng-click="closeNotification(notification)" href="{{notification.href}}">
+      ${wow_details}
+    </a>
+    <a ng-click="closeNotification(notification)" ng-href="javascript:void(0)">
+      ${wow_dismiss}
+    </a>
+  </li>
+</ul>
+]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_form_sections form_id="9de037a8db933b00b62a80e2399619c3" sys_domain="global" table="sp_theme" version="3">
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>0</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-08-13 11:00:50</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>1de037a8db933b00b62a80e2399619c4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sp_theme" name="sp_theme" sys_domain="global" view="Default view">9de037a8db933b00b62a80e2399619c3</sys_ui_form>
+            <sys_ui_section caption="NULL" display_value="sp_theme" name="sp_theme" sys_domain="global" view="Default view">1364c923cb00020000f8d856634c9cc0</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-08-13 11:00:50</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>1</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-08-13 11:00:50</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>e9e037a8db933b00b62a80e2399619c5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sp_theme" name="sp_theme" sys_domain="global" view="Default view">9de037a8db933b00b62a80e2399619c3</sys_ui_form>
+            <sys_ui_section caption="Wow Portal" display_value="sp_theme" name="sp_theme" sys_domain="global" view="Default view">3917e324db5333000ef45682ca96199b</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-08-13 11:00:50</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form action="INSERT_OR_UPDATE">
+            <name>sp_theme</name>
+            <roles/>
+            <sys_class_name>sys_ui_form</sys_class_name>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-08-13 11:00:50</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>9de037a8db933b00b62a80e2399619c3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>sp_theme</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="Service Portal - Core" source="com.glide.service-portal">d245434edb50130090c649ee3b961964</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_form_sections_9de037a8db933b00b62a80e2399619c3</sys_update_name>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-08-13 11:00:50</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_form>
+    </sys_ui_form_sections>
+</record_update>

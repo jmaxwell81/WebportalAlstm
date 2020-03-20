@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" extends="sys_metadata" label="公告" max_length="40" name="announcement" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" dependent="x_mono2_wow_document_table" dependent_on_field="x_mono2_wow_document_table" label="Document" max_length="32" name="x_mono2_wow_document" type="document_id" use_dependent_field="true"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" choice="1" label="Task Type" max_length="40" name="x_mono2_wow_document_table" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Change" value="change_request"/>
+                <element inactive_on_update="false" label="Incident" value="incident"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" audit="false" label="Knowledge Article" max_length="32" name="x_mono2_wow_knowledge_article" reference="kb_knowledge" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" choice="3" default="normal" label="Urgency" max_length="40" name="x_mono2_wow_urgency" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Normal" value="normal"/>
+                <element inactive_on_update="false" label="Urgent" value="urgent"/>
+            </choice>
+        </element>
+        <index name="index">
+            <element name="x_mono2_wow_document"/>
+        </index>
+        <index name="index2">
+            <element name="x_mono2_wow_knowledge_article"/>
+        </index>
+    </element>
+</database>

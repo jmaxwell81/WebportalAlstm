@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_package_dependency_m2m">
+    <sys_package_dependency_m2m action="INSERT_OR_UPDATE">
+        <dependency display_value="System Import Sets" source="com.glide.system_import_set">e5d6fdac614b10000a4f78d286040372</dependency>
+        <min_version>1.0.0</min_version>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-02-28 09:32:24</sys_created_on>
+        <sys_id>b84780b9db1fcc10363e8a503996190d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-02-28 09:32:24</sys_updated_on>
+    </sys_package_dependency_m2m>
+</record_update>

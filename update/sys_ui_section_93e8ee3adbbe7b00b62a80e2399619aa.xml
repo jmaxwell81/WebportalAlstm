@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="93e8ee3adbbe7b00b62a80e2399619aa" sys_domain="global" table="x_mono2_wow_background" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>active</element>
+            <position>0</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>5f6a623edbbe7b00b62a80e239961975</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>css</element>
+            <position>1</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>d36a623edbbe7b00b62a80e239961976</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>mobile_css</element>
+            <position>2</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>5b6a623edbbe7b00b62a80e239961976</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>name</element>
+            <position>3</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>df6a623edbbe7b00b62a80e239961976</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.begin_split</element>
+            <position>4</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>576a623edbbe7b00b62a80e239961977</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type>.begin_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>image</element>
+            <position>5</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>db6a623edbbe7b00b62a80e239961977</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>6</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>536a623edbbe7b00b62a80e239961978</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>sys_scope</element>
+            <position>7</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>d76a623edbbe7b00b62a80e239961978</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>parallax</element>
+            <position>8</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>5f6a623edbbe7b00b62a80e239961978</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>9</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>d36a623edbbe7b00b62a80e239961979</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>12M.x_mono2_wow_background.x_mono2_wow_sp_background.background</element>
+            <position>10</position>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:07:52</sys_created_on>
+            <sys_id>1b6ae63edbbe7b00b62a80e23996195a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="x_mono2_wow_background" name="x_mono2_wow_background" sys_domain="global" view="Default view">93e8ee3adbbe7b00b62a80e2399619aa</sys_ui_section>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:07:52</sys_updated_on>
+            <sys_user/>
+            <type>list</type>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_mono2_wow_background</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>mono_se</sys_created_by>
+            <sys_created_on>2019-07-26 09:01:18</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>93e8ee3adbbe7b00b62a80e2399619aa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_mono2_wow_background</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_section_93e8ee3adbbe7b00b62a80e2399619aa</sys_update_name>
+            <sys_updated_by>mono_se</sys_updated_by>
+            <sys_updated_on>2019-07-26 09:01:18</sys_updated_on>
+            <sys_user/>
+            <title>true</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

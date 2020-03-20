@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowHtmlUtil</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowHtmlUtil</name>
+        <script><![CDATA[var WowHtmlUtil = Class.create();
+WowHtmlUtil.prototype = {
+	initialize: function() {
+	},
+
+	trimHtml: function(html, options) {
+		options = options || {};
+
+		var limit = options.limit || 100,
+			preserveTags = (typeof options.preserveTags !== 'undefined') ? options.preserveTags : true,
+			wordBreak = (typeof options.wordBreak !== 'undefined') ? options.wordBreak : false,
+			suffix = options.suffix || '...';
+
+		var arr = html.replace(/</g, "\n<")
+			.replace(/>/g, ">\n")
+			.replace(/\n\n/g, "\n")
+			.replace(/^\n/g, "")
+			.replace(/\n$/g, "")
+			.split("\n");
+
+		var sum = 0,
+			row, cut, add,
+			tagMatch,
+			tagName,
+			tagStack = [];
+
+		for (var i = 0; i < arr.length; i++) {
+
+			row = arr[i];
+			// count multiple spaces as one character
+			rowCut = row.replace(/[ ]+/g, ' ');
+
+			if (!row.length) {
+				continue;
+			}
+
+			if (row[0] !== "<") {
+
+				if (sum >= limit) {
+					row = "";
+				}
+
+				else if ((sum + rowCut.length) >= limit) {
+					cut = limit - sum;
+
+					if (row[cut - 1] === ' ') {
+						while(cut){
+							cut -= 1;
+							if(row[cut - 1] !== ' '){
+								break;
+							}
+						}
+					}
+
+					else {
+						add = row.substring(cut).split('').indexOf(' ');
+
+						// break on halh of word
+						if(!wordBreak) {
+							if (add !== -1) {
+								cut += add;
+							} else {
+								cut = row.length;
+							}
+						}
+					}
+
+					row = row.substring(0, cut) + suffix;
+					sum = limit;
+
+				}
+
+				else {
+					sum += rowCut.length;
+				}
+			}
+
+			else if (!preserveTags) {
+				row = '';
+			}
+
+			else if (sum >= limit) {
+				tagMatch = row.match(/[a-zA-Z]+/);
+				tagName = tagMatch ? tagMatch[0] : '';
+
+				if (tagName) {
+					if (row.substring(0, 2) !== '</') {
+						tagStack.push(tagName);
+						row = '';
+					}
+
+					else {
+						while (tagStack[tagStack.length - 1] !== tagName && tagStack.length) {
+							tagStack.pop();
+						}
+
+						if (tagStack.length) {
+							row = '';
+						}
+
+						tagStack.pop();
+					}
+				}
+
+				else {
+					row = '';
+				}
+			}
+
+			arr[i] = row;
+		}
+
+		return arr.join("\n").replace(/\n/g, "");
+	},
+
+	type: 'WowHtmlUtil'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-09-05 10:40:22</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>876c562637582300c55f886643990ea1</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>WowHtmlUtil</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_876c562637582300c55f886643990ea1</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-10 11:47:37</sys_updated_on>
+    </sys_script_include>
+</record_update>

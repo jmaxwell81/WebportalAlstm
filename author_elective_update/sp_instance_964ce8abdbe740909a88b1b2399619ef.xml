@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="DELETE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>2</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">de4ce8abdbe740909a88b1b2399619e7</sp_column>
+        <sp_widget display_value="Wow Content Grid">90287874dba3d78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>964ce8abdbe740909a88b1b2399619ef</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Wow Content Grid (asp2)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_964ce8abdbe740909a88b1b2399619ef</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:27</sys_updated_on>
+        <title>Wow Content Grid (asp2)</title>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"defaultTemplate": {
+		"value": "Layout 2",
+		"displayValue": "Layout 2"
+	},
+	"approverTemplate": {
+		"value": "",
+		"displayValue": "-- None --"
+	},
+	"menu": {
+		"value": "178ed8f3dbdd338016a5f40b0c9619c7",
+		"displayValue": "Wow Content Grid (asp2)"
+	},
+	"enableNews": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"enableAnimations": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"translucentTiles": {
+		"value": "",
+		"displayValue": ""
+	},
+	"addMargins": {
+		"value": "",
+		"displayValue": ""
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="DELETE" query="documentkey=964ce8abdbe740909a88b1b2399619ef"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_instance_964ce8abdbe740909a88b1b2399619ef</name>
+        <order/>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sp_instance"&gt;&lt;sp_instance action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;class_name/&gt;&lt;color&gt;default&lt;/color&gt;&lt;css/&gt;&lt;glyph/&gt;&lt;id/&gt;&lt;order&gt;2&lt;/order&gt;&lt;roles/&gt;&lt;short_description/&gt;&lt;size&gt;md&lt;/size&gt;&lt;sp_column display_value="1"&gt;de4ce8abdbe740909a88b1b2399619e7&lt;/sp_column&gt;&lt;sp_widget display_value="Wow Content Grid"&gt;90287874dba3d78087e2f3de3b9619a0&lt;/sp_widget&gt;&lt;sys_class_name&gt;sp_instance&lt;/sys_class_name&gt;&lt;sys_created_by&gt;Warren&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2020-03-20 10:50:26&lt;/sys_created_on&gt;&lt;sys_customer_update&gt;false&lt;/sys_customer_update&gt;&lt;sys_id&gt;964ce8abdbe740909a88b1b2399619ef&lt;/sys_id&gt;&lt;sys_mod_count&gt;1&lt;/sys_mod_count&gt;&lt;sys_name&gt;Wow Content Grid (asp2)&lt;/sys_name&gt;&lt;sys_package display_value="Wow Portal" source="x_mono2_wow"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_replace_on_upgrade&gt;false&lt;/sys_replace_on_upgrade&gt;&lt;sys_scope display_value="Wow Portal"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_scope&gt;&lt;sys_update_name&gt;sp_instance_964ce8abdbe740909a88b1b2399619ef&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;Warren&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2020-03-20 10:50:27&lt;/sys_updated_on&gt;&lt;title&gt;Wow Content Grid (asp2)&lt;/title&gt;&lt;url/&gt;&lt;widget_parameters&gt;&lt;![CDATA[{
+	"defaultTemplate": {
+		"value": "Layout 2",
+		"displayValue": "Layout 2"
+	},
+	"approverTemplate": {
+		"value": "",
+		"displayValue": "-- None --"
+	},
+	"menu": {
+		"value": "178ed8f3dbdd338016a5f40b0c9619c7",
+		"displayValue": "Wow Content Grid (asp2)"
+	},
+	"enableNews": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"enableAnimations": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"translucentTiles": {
+		"value": "",
+		"displayValue": ""
+	},
+	"addMargins": {
+		"value": "",
+		"displayValue": ""
+	}
+}]]&gt;&lt;/widget_parameters&gt;&lt;/sp_instance&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=964ce8abdbe740909a88b1b2399619ef"/&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>357965106</payload_hash>
+        <record_name>Wow Content Grid (asp2)</record_name>
+        <reverted_from/>
+        <source>90598c75db5fcc10363e8a5039961958</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:27</sys_created_on>
+        <sys_id>224c2cabdbe740909a88b1b239961938</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170f790cf8c0000001</sys_recorded_at>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:27</sys_updated_on>
+        <type>Instance</type>
+        <update_guid>ee4c2cab60e740906edd70c0dc98e436</update_guid>
+        <update_guid_history>ee4c2cab60e740906edd70c0dc98e436:357965106,924ce8ab17e740901a3d5ba977c53dfd:-2020594718</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-20 16:24:58">ac5da42fdbe740909a88b1b2399619d2</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:54:58</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_instance">sp_instance</sys_db_object>
+        <sys_id>028ae969ea5e46e08308f84ef7425900</sys_id>
+        <sys_metadata>964ce8abdbe740909a88b1b2399619ef</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Wow Content Grid (asp2)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_instance_964ce8abdbe740909a88b1b2399619ef</sys_update_name>
+        <sys_update_version display_value="sp_instance_964ce8abdbe740909a88b1b2399619ef">224c2cabdbe740909a88b1b239961938</sys_update_version>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:54:58</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

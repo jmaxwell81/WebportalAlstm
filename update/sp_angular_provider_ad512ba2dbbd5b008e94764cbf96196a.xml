@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>wowDropdownMenu</name>
+        <script><![CDATA[function () {
+	return {
+		restrict: 'E',
+		scope: {
+			label: '@',
+			menuItems: '=',
+			selectedItemValue: '=',
+			selectionChanged: '&'
+		},
+		template:
+			'<div class="wow-dropdown-menu" uib-dropdown is-open="status.menuIsOpen">' +
+				'<span class="dropdown-toggle"  tabindex="0" aria-expanded="{{status.menuIsOpen}}' +
+					   '"ng-class="{\'open\': status.menuIsOpen}">' +
+					'<label>{{label}}</label>' +
+					'<span uib-dropdown-toggle class="value">{{selectedItem.label || selectedItem.value}}' +
+						'<i class="fa fa-chevron-up" ng-class="status.menuIsOpen ? \'rotate-up\' : \'rotate-down\'"></i>' +
+					'</span>' +
+					'<ul class="dropdown-menu" uib-dropdown-menu>' +
+						'<li ng-repeat="item in menuItems" tabindex="0" ng-click="selectMenuFilter(item)">' +
+							'<span ng-class="{\'active\': item.value == selectedItem.value}">' +
+								'<i ng-if="item.value == selectedItem.value" class="material-icons">check</i>' +
+								'{{item.label || item.value}}' +
+							'</span>'+
+						'</li>'+
+					'</ul>'+
+				'</span>'+
+			'</div>',
+		controller: function ($scope) {
+
+			$scope.selectMenuFilter = function (menuItem) {
+				$scope.selectedItem = menuItem;
+				$scope.selectionChanged({
+					selection: menuItem
+				});
+			};
+
+			$scope.$watch('selectedItemValue', function() {
+				if ($scope.selectedItem.value != $scope.selectedItemValue) {
+					$scope.menuItems.forEach(function(item) {
+						if ($scope.selectedItemValue == item.value)
+							$scope.selectedItem = item;
+					});
+				}
+			});
+
+			init();
+
+			function init() {
+				$scope.menuItems.forEach(function(item) {
+					if ($scope.selectedItemValue == item.value)
+						$scope.selectedItem = item;
+				});
+
+				if (!$scope.selectedItem)
+					$scope.selectedItem = $scope.menuItems[0];
+			}
+		}
+	};
+
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-05-04 09:04:44</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>ad512ba2dbbd5b008e94764cbf96196a</sys_id>
+        <sys_mod_count>75</sys_mod_count>
+        <sys_name>wowDropdownMenu</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_ad512ba2dbbd5b008e94764cbf96196a</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-03 16:19:30</sys_updated_on>
+        <type>directive</type>
+    </sp_angular_provider>
+</record_update>

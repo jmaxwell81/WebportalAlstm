@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowWorkflowStages.html</id>
+        <sp_widget display_value="Wow Request Item">1e933679db331b00ec3ab9836b9619c5</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-26 22:01:31</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>158409c5db27f340b62a80e2399619d3</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>wowWorkflowStages.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_158409c5db27f340b62a80e2399619d3</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-26 22:13:48</sys_updated_on>
+        <template><![CDATA[<ul ng-if="data.choiceList.length > 0" class="wow-workflow-progress">
+  <li ng-repeat="stage in data.choiceList">
+    <div ng-switch="stage.image" class="icon">
+      <i ng-switch-when="icon-cross-circle.png" class="material-icons rejected">warning</i>
+      <i ng-switch-when="icon-check-circle.png" class="material-icons complete">check_circle</i>
+      <i ng-switch-when="icon-arrow-right.png" class="material-icons active">timelapse</i>
+      <i ng-switch-default class="material-icons pending">access_time</i>
+    </div>
+    <div class="description">
+      <span aria-hidden="true">{{stage.label.split('(')[0]}}</span>
+      <span ng-if="stage.label.indexOf('(') !== -1" class="state" aria-hidden="true">{{stage.label.split('(')[1].replace(')', '')}}</span>
+    </div>
+  </li>
+</ul>]]></template>
+    </sp_ng_template>
+</record_update>

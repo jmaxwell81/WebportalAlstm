@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal, $rootScope, $window, $timeout, $location, $document, spAnnouncement, spUtil) {
+	var c = this;
+
+	c.banners = [];
+	c.modals = [];
+
+	c.bannerIndex = 0;
+	c.modalsIndex = 0;
+	
+	$scope.isMobile = false;
+	$scope.$on('open-alerts', function() {
+		c.toggleMobileView();
+	})
+	
+	function getAnnouncements() {
+		// call server script which appends incident and article details to announcement
+		c.server.get({
+			action: 'map_announcements',
+			announcements: spAnnouncement.get()
+		}).then(function(r) {
+			c.banners = r.data.banners;
+			c.modals = r.data.modals;
+			
+			$rootScope.$broadcast('wow_announcements_updated', c.banners)
+			
+			if (c.modals.length > 0) {
+				c.currentModal = c.modals[0];
+				showModal();
+			}
+
+			if (c.banners.length > 0) {
+				c.bannerIndex = 0;
+				c.banners[c.bannerIndex].active = true;
+			}
+		})
+	}
+
+	function showModal() {
+		if (c.modal)
+			c.modal.close();
+
+		c.modal = $uibModal.open({
+			appendTo: $($scope.widgetEl),
+			templateUrl: 'wowAnnouncementModal.html',
+			scope: $scope,
+			backdrop: 'static'
+		});
+	}
+
+	c.closeModal = function() {
+		c.modal.close();
+		c.dismiss(c.currentModal);
+		c.modalsIndex++;
+
+		if (c.modalsIndex < c.modals.length) {
+			c.currentModal = c.modals[c.modalsIndex];
+			showModal();
+		}
+	}
+
+	c.dismiss = function(announcement) {
+		if (c.canDismiss(announcement)) {
+			spAnnouncement.dismiss(announcement.id);
+
+			for (var i = 0; i < c.banners.length; i++) {
+				if (c.banners[i].id === announcement.id) {
+					c.banners.splice(i, 1);
+
+					// reset to first banner
+					c.banners.forEach(function(banner, i) {
+						banner.active = (i === 0);
+					});
+					
+					break;
+				}
+			}
+			getAnnouncements();
+		}
+	}
+
+	c.canDismiss = function(announcement) {
+		return announcement.dismissOption != 'NOT_DISMISSIBLE'
+	}
+
+	c.reportIncident = function(announcement) {
+		if (!announcement.canReportIncident)
+			return;
+
+		c.server.get({
+			action: 'report_incident',
+			incident: announcement.incident
+		}).then(function(r) {
+			if (r.data.redirectUrl) {
+				announcement.canReportIncident = false;
+				c.closeModal();
+				spUtil.addInfoMessage("${wow_incident_reported}");
+
+				if (c.canDismiss(announcement))
+					spAnnouncement.dismiss(announcement.id);
+
+				$timeout(function() {
+					$location.url(r.data.redirectUrl);
+				}, 1500);
+			}
+		});
+	}
+
+	c.hasActions = function(announcement) {
+		return c.canDismiss(announcement) || announcement.article || announcement.canReportIncident;
+	}
+
+	c.nextBanner = function() {
+		if (c.hasNext()) {
+			c.banners[c.bannerIndex].active = false;
+			c.banners[c.bannerIndex+1].active = true;
+			c.bannerIndex++;
+		}
+	}
+
+	c.previousBanner = function() {
+		if (c.hasPrevious()) {
+			c.banners[c.bannerIndex].active = false;
+			c.banners[c.bannerIndex-1].active = true;
+			c.bannerIndex--;
+		}
+	}
+
+	c.hasNext = function() {
+		return (c.bannerIndex+1) < c.banners.length;
+	}
+
+	c.hasPrevious = function() {
+		return c.bannerIndex > 0;
+	}
+	
+	c.toggleMobileView = function() {
+		c.showMobileView = !c.showMobileView;
+	}
+
+	$scope.$on('wow_incident_reported', function(event, args) {
+		var incidentId = args.incidentId;
+
+		for (var i = 0; i < c.banners.length; i++) {
+			if (c.banners[i].incident && c.banners[i].incident.id === incidentId) {
+				c.banners[i].canReportIncident = false;
+				break;
+			}
+		}
+
+		for (var i = 0; i < c.modals.length; i++) {
+			if (c.modals[i].incident && c.modals[i].incident.id === incidentId) {
+				c.modals[i].canReportIncident = false;
+				break;
+			}
+		}
+	});
+
+	getAnnouncements();
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$zindex-announcements-modal: $zindex-mask + 1;
+
+.mobile-toggles {
+  @media screen and (min-width: $screen-sm-min) {
+    display: none;
+  }
+
+  background: rgba(255,255,255, 0.8);
+  height: 70px;
+  width: 100%;
+  position: absolute;
+  z-index: $zindex-announcements-modal;
+}
+
+.mobile-toggle-open {
+  align-items: center;
+  background-color: $banner-info-bg;
+  border: none;
+  color: $white;
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  width: 100%;
+}
+
+.mobile-alert-icon {
+  color: $text-color;
+  position: fixed;
+  left: 1rem;
+  top: 1.2rem;
+  z-index: $zindex-announcements-modal + 1;
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  opacity: 1;
+
+  i {
+    font-size: 2.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.mobile-toggle-close {
+  color: $white;
+  position: fixed;
+  right: 1rem;
+  top: 1.2rem;
+  background: transparent;
+  border: none;
+  z-index: $zindex-announcements-modal + 1;
+  opacity: 1;
+
+  i {
+    color: $text-color;
+    font-size: 2.5rem;
+  }
+}
+
+.fade-out.ng-hide {
+  opacity: 0;
+}
+
+.fade-out.ng-hide-add, .fade-out.ng-hide-remove {
+  transition: all linear 0.15s;
+}
+
+@include wow-modal(600px);
+
+#wow-announcements-modal {
+  &amp;.urgent {
+    .modal-header {
+      i {
+        color: $brand-danger;
+      }
+    }
+  }
+
+  .header-title {
+    align-items: center;
+    display: flex;
+    margin: .75rem 0 1rem;
+
+    i {
+      color: $brand-info;
+      font-size: 3rem;
+      margin-right: 1rem;
+    }
+  }
+
+  .actions {
+    align-items: center;
+    display: flex;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    @include wow-button();
+  }
+
+  .btn-report-incident {
+    &amp;[disabled] {
+      background-color: darken($panel-bg, 5%);
+      border: none;
+      color: $text-color;
+      font-size: 1.2rem;
+      opacity: 1;
+
+      i {
+        color: $brand-success;
+      }
+    }
+  }
+
+  .btn-dismiss {
+    margin-right: 1rem;
+  }
+
+  .btn-read-more {
+    margin-right: auto;
+  }
+
+  .btn-report-incident {
+    margin-left: auto;
+  }
+}
+
+#wow-announcements-banner {
+  padding: 0;
+  position: relative;
+  max-height:0;
+  overflow:hidden;
+  transition: max-height 1s ease-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    &amp;:not(.open) {
+      opacity: 0;
+      z-index: -1;
+    }
+
+    opacity: 1;
+    transition: all 0.4s;
+    background-color: rgba($panel-bg, 0.6);
+    background: $panel-bg;
+    background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 45%, rgba(255,255,255,0.32) 100%);
+    flex-direction: column;
+    top:0;
+    bottom: 0;
+    overflow-y: scroll;
+    position: fixed;
+    width: 100%;
+    align-items: center;
+    padding: 1rem;
+    padding-top: 5rem;
+    z-index: $zindex-announcements-modal;
+  }
+
+  nav {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 160px;
+
+    @media screen and (max-width: $screen-xs-max) {
+      display: none;
+    }
+
+    span {
+      color: $white;
+      margin-right: 1rem;
+    }
+
+    .btn {
+      align-items: center;
+      background-color: rgba(0, 0, 0, .15);
+      border-radius: 0;
+      display: inline-flex;
+      height: 2rem;
+      justify-content: center;
+      margin-left: 1px;
+      padding: 0;
+      width: 2rem;
+
+      &amp;[disabled] {
+        opacity: .2;
+      }
+
+      i {
+        color: $white;
+        font-size: 1.5rem;
+        margin: 0;
+      }
+    }
+  }
+
+  .banner {
+    align-items: center;
+    background-color: $brand-info;
+    background-color: $banner-info-bg;
+    color: $white;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+
+    &amp;.mobile {
+      transition: all 0.4s;
+      align-items: flex-start;
+      //flex: 1;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem 1rem;
+      width: 100%;
+      border-radius: 6px;
+      // min-height: 190px;
+
+      &amp;.is-active {
+        transform: translateY(0px) !important;
+      }
+
+      &amp;:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+
+      .details {
+        h2 {
+          font-size: 1.7rem;
+        }
+      } 
+    }
+
+    @media screen and (max-width: $screen-xs-max) {
+      &amp;.mobile {
+        display: block;
+      }
+
+      &amp;.desktop {
+        display: none;
+      }
+    }
+
+    &amp;.urgent {
+      background-color: $brand-danger;
+      background-color: $banner-urgeny-bg;
+
+      .btn:not(.btn-dismiss) {
+        color: $text-color;
+      }
+    }
+  }
+
+  &amp;.has-nav {
+    .banner {
+      padding-right: 160px; // nav width
+    }
+  }
+
+  .fa {
+    color: $white;
+    font-size: 2rem;
+    margin-right: 1rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .summary {
+    margin-top: .5rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    margin-left: auto;
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin-left: 0px;
+    }
+
+    .btn {
+      @include wow-button($white, $white, $brand-primary);
+      margin-left: 1rem;
+
+      &amp;[disabled] {
+        opacity: .5;
+      }
+
+      @media screen and (max-width: $screen-xs-max) {
+        margin-top:1rem;
+        margin-left: 0rem;
+        margin-right: 1rem;
+      }
+    }
+
+    .btn-dismiss {
+      @include wow-button(transparent, $white, $white);
+      border-width: 2px;
+    }
+  }
+}
+
+
+#wow-announcements-banner.data-loaded {
+	max-height:75px;
+  transition: max-height 1s ease-out;
+}
+
+
+/////
+
+@-webkit-keyframes grow {
+  from {
+    -webkit-transform:scaleY(0);
+  }
+  to {
+    -webkit-transform:scaleY(1);
+  }
+}
+@-moz-keyframes grow {
+  from {
+    -moz-transform:scaleY(0);
+  }
+  to {
+    -moz-transform:scaleY(1);
+  }
+}
+@keyframes grow {
+  from {
+    transform:scaleY(0);
+  }
+  to {
+    transform:scaleY(1);
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-announcements</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, element) {
+	scope.widgetEl = element;
+}]]></link>
+        <name>Wow Announcements</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var announcementsHelper = new WowAnnouncements();
+
+	if (input) {
+		switch (input.action) {
+			case 'map_announcements':
+				var announcements = announcementsHelper.mapAnnouncements(input.announcements);
+
+				announcements = announcements.filter(function(announcement) {
+					return announcement.dismissed === 'undefined' || announcement.dismissed != true;
+				});
+
+				announcements.forEach(function(announcement) {
+					announcement.types = [];
+					var types = announcement.type.split(',');
+
+					for (var i = 0; i < types.length; i++)
+						announcement.types.push(types[i].trim());
+
+					delete announcement.type;
+				});
+
+				data.banners = announcements.filter(function(announcement) {
+					return announcement.types.indexOf('Wow Banner') >= 0;
+				});
+
+				data.modals = announcements.filter(function(announcement) {
+					return announcement.types.indexOf('Wow Modal') >= 0;
+				});
+
+				break;
+
+			case 'report_incident':
+				var incident = input.incident;
+				if (incident) {
+					var incidentId = announcementsHelper.reportIncident(incident.id);
+
+					if (incidentId)
+						data.redirectUrl = '?id=wow_incident&sys_id=' + incidentId;
+				}
+
+				break;
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-09-19 12:15:36</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>97677e8fdba463008e94764cbf96198b</sys_id>
+        <sys_mod_count>501</sys_mod_count>
+        <sys_name>Wow Announcements</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_97677e8fdba463008e94764cbf96198b</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-19 15:48:45</sys_updated_on>
+        <template><![CDATA[<section id="wow-announcements-banner"
+         class="show-hide"
+         ng-class="{'has-nav': c.banners.length > 1 
+                   && !c.showMobileView, 'open': c.showMobileView, 'data-loaded':c.banners.length > 0}"
+         ng-cloak>
+
+  <div class="banner desktop"
+       ng-repeat="banner in c.banners"
+       ng-show="banner.active"
+       ng-class="{'urgent': banner.urgency === 'urgent'}">
+    <i ng-if="banner.glyph" class="fa fa-{{banner.glyph}}"></i>
+    <div class="details">
+      <h2 class="title">{{banner.title}}</h2>
+      <div class="summary" ng-if="banner.summary" ng-bind-html="banner.summary"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-report-incident"
+              ng-if="banner.incident"
+              ng-click="c.reportIncident(banner)"
+              ng-disabled="!banner.canReportIncident">
+        <i ng-if="!banner.canReportIncident" class="material-icons">check</i>
+        ${wow_im_impacted}
+      </button>
+      <a class="btn btn-read-more"
+         ng-href="{{banner.article.href}}"
+         ng-if="banner.article"
+         ng-click="c.dismiss()">
+        ${wow_read_more}
+      </a>
+      <button class="btn btn-dismiss"
+              ng-if="c.canDismiss(banner)"
+              ng-click="c.dismiss(banner)">
+        ${wow_dismiss}
+      </button>
+    </div>
+  </div>
+  
+	<div class="banner mobile"
+       id="{{'banner_'+$index}}"
+       ng-repeat="banner in c.banners"
+       ng-show="c.showMobileView"
+       ng-style="{transform: 'translateY(-'+100*($index+1)+'px)'}"
+       ng-class="{'urgent': banner.urgency === 'urgent', 'is-active': c.showMobileView}">
+    <i ng-if="banner.glyph" class="fa fa-{{banner.glyph}}"></i>
+    <div class="details">
+      <h2 class="title">{{banner.title}}</h2>
+      <div class="summary" ng-if="banner.summary" ng-bind-html="banner.summary"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-report-incident"
+              ng-if="banner.incident"
+              ng-click="c.reportIncident(banner)"
+              ng-disabled="!banner.canReportIncident">
+        <i ng-if="!banner.canReportIncident" class="material-icons">check</i>
+        ${wow_im_impacted}
+      </button>
+      <a class="btn btn-read-more"
+         ng-href="{{banner.article.href}}"
+         ng-if="banner.article"
+         ng-click="c.dismiss()">
+        ${wow_read_more}
+      </a>
+      <button class="btn btn-dismiss"
+              ng-if="c.canDismiss(banner)"
+              ng-click="c.dismiss(banner)">
+        ${wow_dismiss}
+      </button>
+    </div>
+  </div>
+
+  <nav ng-if="c.banners.length > 1">
+    <span class="banner-paging">
+      {{"${wow_[0]_of_[1]}".replace('[0]', (c.bannerIndex + 1)).replace('[1]', c.banners.length)}}
+    </span>
+    <button class="btn" ng-click="c.previousBanner()" ng-disabled="!c.hasPrevious()">
+      <i class="material-icons">chevron_left</i>
+    </button>
+    <button class="btn" ng-click="c.nextBanner()" ng-disabled="!c.hasNext()">
+      <i class="material-icons">chevron_right</i>
+    </button>
+  </nav>
+
+</section>
+
+<div class="mobile-toggles" ng-if="c.showMobileView">
+  <div ng-show="c.showMobileView" class="mobile-alert-icon fade-out">
+    <i class="material-icons">notifications</i>
+    <span>${You have} {{c.banners.length}} {{c.banners.length > 1 ? '${alerts}' : '${alert}' }}</span>  
+  </div>
+  <button class="mobile-toggle-close fade-out"
+          ng-class="{'open': c.showMobileView}"
+          ng-show="c.showMobileView"
+          ng-click="c.toggleMobileView()">
+    <i class="material-icons">close</i>
+  </button>
+</div>]]></template>
+    </sp_widget>
+</record_update>

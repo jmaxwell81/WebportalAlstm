@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowUtil</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowUtil</name>
+        <script><![CDATA[var WowUtil = Class.create();
+WowUtil.prototype = {
+	initialize: function() {
+
+	},
+
+
+	getUserLanguage: function(userId) {
+		if (!userId) {
+			var lang = gs.getSession().getLanguage();
+
+			if (lang)
+				return lang;
+		}
+
+		var gr = new GlideRecord('sys_user');
+
+		if (gr.get(userId || gs.getUserID()))
+			return gr.getValue('preferred_language');
+
+		return 'en';
+	},
+	
+	
+	getUserDomain: function() {
+		var gr = new GlideRecord('sys_user');
+		
+		if (gr.get(gs.getUserID()))
+			return gr.getValue('sys_domain');
+		
+		return 'global';
+	},
+
+
+	getMenuItems: function(menu) {
+		var self = this;
+		var content = [];
+
+		if (!menu)
+			return content;
+
+		var items = $sp.getMenuItems(menu);
+		
+		items.forEach(function(item) {
+			content.push({
+				article: item.kb_article,
+				backgroundColor: self.getColorCode(item.x_mono2_wow_background_color),
+				catItem: item.sc_cat_item,
+				description: item.x_mono2_wow_description,
+				icon: self.getIcon(item.x_mono2_wow_icon),
+				iconColor: self.getColorCode(item.x_mono2_wow_icon_color),
+				href: item.href,
+				image: self.getAttachment(item.sys_id, 'x_mono2_wow_image'),
+				order: item.order,
+				shortDescription: item.short_description,
+				target: item.url_target,
+				textColor: self.getColorCode(item.x_mono2_wow_text_color),
+				title: item.label,
+				type: item.type
+			});
+		});
+
+		content.sort(function(a, b) {
+			return a.order - b.order;
+		});
+
+		return content;
+	},
+
+
+	getCartItems: function() {
+		var self = this;
+		var cartItems = [];
+		var cartJS = new sn_sc.CartJS();
+		var searchHelper = new WowSearch();
+		
+		var cartDetails = cartJS.getCartDetails(true);
+		
+		for (var key in cartDetails.cart_items) {
+			if (typeof cartDetails.cart_items[key] === 'object')
+				cartItems = cartItems.concat(cartDetails.cart_items[key].items);
+		}
+				
+		return cartItems.map(function(item) {
+			var cartItem = {
+				id: item.cart_item_id,
+				name: item.name,
+				price: item.show_price ? item.price_display : null,
+				quantity: parseInt(item.quantity),
+				subtotal: item.show_price ? item.subtotal_price_display : null,
+				recurringPrice: item.show_recurring_price ? item.recurring_price_display : null,
+				recurringSubtotal: item.show_recurring_price ? item.recurring_subtotal_price_display : null,
+				picture: item.picture
+			};
+			
+			var catItem = searchHelper.getCatalogItem(item.item_id);
+
+			if (catItem) {
+				cartItem.catItem = catItem.id;
+				cartItem.icon = catItem.icon;
+				cartItem.iconColor = catItem.iconColor;
+				cartItem.href = catItem.href;
+			}
+			
+			return cartItem;
+		});
+	},
+
+
+	getAttachment: function(sys_id, fileName) {
+		var gr = new GlideRecord('sys_attachment');
+		gr.addQuery('table_sys_id', sys_id);
+		gr.addQuery('file_name', fileName);
+		gr.query();
+
+		while (gr.next())
+			return gr.getUniqueValue() + '.iix';
+
+		return null;
+	},
+	
+	
+	getAssets: function(filteredIds) {
+		var assets = [];
+		var userId = gs.getUserID();
+
+		//var gr = new GlideRecord('alm_asset');
+		var gr = new GlideRecord('alm_hardware');
+		gr.addNotNullQuery('model');
+		gr.addQuery('display_name', '!=', "Unknown");
+		gr.addQuery('assigned_to', userId);
+		gr.addQuery('install_status','1');
+
+		if (filteredIds && filteredIds.length > 0)
+			gr.addQuery('sys_id', 'IN', filteredIds);
+		
+		gr.query();
+		
+		while (gr.next()) {
+			assets.push({
+				id: gr.getUniqueValue(),
+				description: gr.getDisplayValue('model.name') || gr.getDisplayValue('display_name'),
+				serialNumber: gr.getValue('serial_number'),
+				model: gr.getDisplayValue('model'),
+				category: gr.getDisplayValue('model_category'),
+				state: gr.getDisplayValue('install_status'),
+				substate: gr.getDisplayValue('substatus'),
+				assignedTo: gr.getDisplayValue('assigned_to'),
+				product: gr.getDisplayValue('model'),
+				pcCategory: gr.getValue('u_support_vendor'), 
+				assetTag: gr.getValue('asset_tag'),
+				usageType: gr.getValue('u_component_criticality'),
+				owner: gr.getDisplayValue('u_asset_owner')
+			});
+		}
+
+		return assets;
+	},
+
+
+	getImage: function(sys_id) {
+		var gr = new GlideRecord('db_image');
+
+		if (gr.get(sys_id))
+			return gr.getValue('sys_name');
+
+		return null;
+	},
+
+
+	getIcon: function(sys_id) {
+		var gr = new GlideRecord('x_mono2_wow_icon');
+
+		if (gr.get(sys_id))
+			return gr.getValue('ligature');
+
+		return null;
+	},
+
+
+	getColorCode: function(sys_id) {
+		var gr = new GlideRecord('x_mono2_wow_color');
+
+		if (gr.get(sys_id))
+			return gr.getValue('value');
+
+		return null;
+	},
+
+
+	getBoolean: function(value) {
+		return value === true || value === "1" || value === "true";
+	},
+
+
+	showCart: function() {
+		var portal = $sp.getPortalRecord();
+		return this.getBoolean(portal.getValue('x_mono2_wow_show_cart'));
+	},
+
+
+	getUserPreference: function(key) {
+		var gr = new GlideRecord('x_mono2_wow_page_preference');
+		var userId = gs.getUserID();
+
+		gr.addQuery('user', userId);
+		gr.query();
+
+		while(gr.next())
+			return gr.getDisplayValue('page');
+
+		return null;
+	},
+
+
+	setUserPreference: function(key, page_id){
+		var gr = new GlideRecord('x_mono2_wow_page_preference');
+		var userId = gs.getUserID();
+		var pageId = this.getSysId('sp_page', [{
+			key: 'id',
+			value: page_id
+		}]);
+
+		if (gr.get(userId)) {
+			gr.setValue('key', key);
+			gr.setValue('page', pageId);
+		}
+
+		else {
+			gr.setValue('user', userId);
+			gr.setValue('key', key);
+			gr.setValue('page', pageId);
+		}
+
+		gr.update();
+	},
+
+
+	getSysId: function(table, filters) {
+		var gr = new GlideRecord(table);
+
+		filters.forEach(function(filter) {
+			gr.addQuery(filter.key, filter.operator || '=', filter.value);
+		});
+
+		gr.query();
+
+		while (gr.next())
+			return gr.getUniqueValue();
+
+
+		return null;
+	},
+	
+	
+	getGlideRecord: function(table, sys_id) {
+		var gr = new GlideRecord(table);
+		
+		if (gr.isValid() && gr.get(sys_id))
+			return gr;
+		
+		return null;
+	},
+	
+	
+	getTemplate: function(templateId) {
+		var gr = new GlideRecord('sp_ng_template');
+		gr.addQuery('id', templateId);
+		gr.query();
+		
+		if (gr.next())
+			return gr.getValue('template');
+		
+		return null;
+	},
+	
+	
+	canReadRecord: function(table, sys_id) {
+		switch (table) {
+			case 'sc_cat_item':
+				var scCatItem = new sn_sc.CatItem(sys_id);
+				return scCatItem.canView() && scCatItem.isVisibleServicePortal();
+			
+			default:
+				var gr = new GlideRecord(table);
+				return gr.isValid() && gr.get(sys_id) && $sp.canReadRecord(gr);
+		}
+	},
+
+
+	type: 'WowUtil'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>Simon@monochrome.co.uk</sys_created_by>
+        <sys_created_on>2017-07-15 20:28:23</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>630409e8db004380e386f3731d9619f3</sys_id>
+        <sys_mod_count>134</sys_mod_count>
+        <sys_name>WowUtil</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_630409e8db004380e386f3731d9619f3</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-19 12:36:59</sys_updated_on>
+    </sys_script_include>
+</record_update>

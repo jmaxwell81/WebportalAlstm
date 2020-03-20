@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
+        <client_script><![CDATA[function($scope, $rootScope) {
+	var c = this;
+
+	$scope.marking = false;
+
+	$scope.markFavorite = function() {
+		c.data.isFavorite = !c.data.isFavorite;
+		$scope.marking = true;
+
+		c.server.get(c.data).then(function(r) {
+			c.data.isFavorite = r.data.isFavorite;
+			$scope.marking = false;
+			$rootScope.$broadcast('favorites.updated');
+		});
+	};
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>&amp; {
+  display: flex;
+  align-items: center;
+  padding: 0;
+
+  span[ng-click] {
+    cursor: pointer;
+  }
+
+  span[ng-click]:focus {
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+
+  i {
+    font-size: 1.1rem;
+    margin-right: 4px;
+  }
+
+  i.is-favorite {
+    color: $brand-danger;
+  }
+
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>wow-mark-favorite</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Mark As Favorite</name>
+        <option_schema>[{"hint":"Limit the number of favourites a user can set","name":"limit","label":"Limit","type":"integer"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var helper = new WowFavorites();
+	var page = (input && input.page) ? input.page : (options.page || $sp.getParameter('id'));
+	var documentId = (input && input.documentId) ? input.documentId : (options.sys_id || $sp.getParameter('sys_id'));
+	var table = (input && input.table) ? input.table : $sp.getParameter('table');
+
+	if (input) {
+		var href = '?id=' + page + '&sys_id=' + documentId;
+		data.isFavorite = helper.toggleFavorite(documentId, page, href, table);
+	}
+
+	else {
+		data.page = page;
+		data.documentId = documentId;
+		data.isFavorite = helper.isFavorite(documentId);
+	}
+
+})()]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>Peter.Symoens</sys_created_by>
+        <sys_created_on>2016-11-22 14:39:37</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e395adb46f93ea00587bb9969f3ee4f6</sys_id>
+        <sys_mod_count>188</sys_mod_count>
+        <sys_name>Wow Mark As Favorite</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_e395adb46f93ea00587bb9969f3ee4f6</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-07-26 16:53:19</sys_updated_on>
+        <template><![CDATA[<span aria-pressed="{{data.isFavorite}}"
+      tabindex="0"
+      ng-click="markFavorite()"
+      ng-disabled="marking">
+  <i class="fa" ng-class="data.isFavorite ? 'fa-heart is-favorite' : 'fa-heart-o'" ></i>
+  ${wow_favorite_page}
+</span>]]></template>
+    </sp_widget>
+</record_update>

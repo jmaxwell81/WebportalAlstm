@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $interval, $timeout) {
+  var c = this;
+	var animationInterval = 5000;
+	var widgetEl = $scope.widgetEl;
+
+	$scope.selected = 0;
+	$scope.news = c.data.news;
+
+	var interval = animate();
+
+	$scope.showPrev = function() {
+		$interval.cancel(interval);
+		prev();
+
+		$timeout(function() {
+			interval = animate();
+		}, 0);
+	}
+
+	$scope.showNext = function() {
+		$interval.cancel(interval);
+		next();
+
+		$timeout(function() {
+			interval = animate();
+		}, 0);
+	}
+
+	$scope.$on('$destroy', function() {
+		$interval.cancel(interval);
+	});
+
+	function animate() {
+		return $interval(function() {
+			if ($scope.selected < $scope.news.length - 1)
+				next();
+			else
+				goTo(0);
+		}, animationInterval);
+	}
+
+	function prev() {
+		if ($scope.selected !== 0) {
+			$scope.selected--;
+			var animValue = $scope.selected * -100;
+			angular
+				.element('.sch-carousel-inner', widgetEl)
+				.css('transform', 'translateX(' + animValue + '%)');
+		}
+	}
+
+	function next() {
+		if ($scope.selected < $scope.news.length - 1) {
+			$scope.selected++;
+			var animValue = $scope.selected * -100;
+			angular
+				.element('.sch-carousel-inner', widgetEl)
+				.css('transform', 'translateX(' + animValue + '%)');
+		}
+	}
+
+	function goTo(index) {
+		if (index < $scope.news.length - 1) {
+			$scope.selected = index;
+			var animValue = index * -100;
+			angular
+				.element('.sch-carousel-inner', widgetEl)
+				.css('transform', 'translateX(' + animValue + '%)');
+		}
+	}
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.wow-news-ticker {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+  position: relative;
+  width: 100%;
+
+   &amp;.no-news {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+h3 {
+	font-size: 1.2rem;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: .5em;
+  opacity: 0.7;
+}
+
+h4 {
+	font-size: 1.8rem;
+}
+
+.carousel-wrapper {
+	overflow: hidden;
+}
+
+.sch-carousel-inner {
+	display: flex;
+  transition: all .2s;
+
+  .carousel-item {
+  	flex: 1 0 auto;
+    width: 100%;
+
+    a {
+      color: $white;
+      color: $news-ticker-text;
+      font-size: 1rem;
+      display: inline-block;
+      margin-top: 1rem;
+    	display: flex;
+      align-items: center;
+
+      i {
+      	margin-left: 1rem;
+      }
+    }
+  }
+}
+
+.carousel-nav {
+	display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  bottom: 1rem;
+  right: 0;
+
+  &gt;div {
+    i {
+    	font-size: 1.75rem;
+      line-height: 1.5;
+    }
+  }
+
+  .counter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .disabled {
+    pointer-events: none;
+
+    i {
+      opacity: 0.4;
+    }
+  }
+}
+
+.counter {
+  span {
+    font-size: 1.2rem;
+  	padding: 0 1px;
+    opacity: 0.4;
+
+    &amp;.selected-slide {
+      font-size: 1.5rem;
+    	opacity: 1;
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-news-ticker</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>Wow News Ticker</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.title = gs.getMessage(options.title || 'wow_latest_news');
+
+	var queryLimit = options.query_limit || 5;
+	var portal = $sp.getPortalRecord();
+	var searchHelper = new WowSearch();
+	var knowledgeBase = portal.getValue('x_mono2_wow_news_kb');
+
+	searchHelper.setKnowledgeBase(knowledgeBase);
+	searchHelper.setQueryLimit(queryLimit);
+
+	data.news = knowledgeBase ? searchHelper.getArticles() : [];
+	/*var i = data.news.length;
+	while(i--){
+		if(data.news[i].portalview == 'false'){
+			data.news.splice(i,1);
+			
+		}
+	}*/
+	
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-07 07:51:41</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>2d6e9c9ddb33d3c087e2f3de3b961915</sys_id>
+        <sys_mod_count>189</sys_mod_count>
+        <sys_name>Wow News Ticker</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_2d6e9c9ddb33d3c087e2f3de3b961915</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:51:01</sys_updated_on>
+        <template><![CDATA[<section ng-if="data.news.length > 0 " class="wow-news-ticker">
+  <div class="carousel-wrapper">
+    <h3>{{::options.title}}</h3>
+    <div class="sch-carousel-inner">
+      <div class="carousel-item" ng-repeat="item in data.news">
+        <h4>{{item.description}}</h4>
+        <a href="{{item.href}}">
+          ${wow_read_article}
+          <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="carousel-nav" ng-swipe-left="showNext()" ng-swipe-right="showPrev()">
+    <div class="counter">
+      <span class="selected-slide">{{selected + 1}}</span>
+      <span> / </span>
+      <span>{{data.news.length}}</span>
+    </div>
+    <div ng-click="showPrev()"
+         ng-class="{disabled: selected === 0}">
+      <i class="material-icons">chevron_left</i>
+    </div>
+    <div ng-click="showNext()"
+         ng-class="{disabled: selected === data.news.length - 1}">
+      <i class="material-icons">chevron_right</i>
+    </div>
+  </nav>
+</section>
+
+
+
+<section ng-if="data.news.length == 0" class="wow-news-ticker no-news">
+  <h3>{{::options.title}}</h3>
+  <h4>${wow_no_news}</h4>
+</section>]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="테마" max_length="40" name="sp_theme" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Mixins" max_length="32" name="x_mono2_wow_mixins" reference="sp_css" type="reference"/>
+        <index name="index">
+            <element name="x_mono2_wow_mixins"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope, $location, $timeout, $anchorScroll) {
+	var c = this;
+	var timeout;
+
+	// $timeout adds a new event to the browser event queue (the rendering engine is already in this queue) so it will complete the execution before the new timeout event
+	if (!c.data.canEdit) {
+		timeout = $timeout(disableCtrlRightClick, 0);
+
+		// when we change page we need to check to see when the new set of widgets have been loaded into the DOM and disable the context menu for new widgets
+		$scope.$on('$locationChangeSuccess', function() {
+			var initialWidgets = [];
+			$('[sp-context-menu] [widget]').each(function(i, widget) {
+				initialWidgets.push(widget.id);
+			});
+
+			var interval = setInterval(function() {
+
+				$('[sp-context-menu] [widget]').each(function(i, widget) {
+					if (initialWidgets[i] !== widget.id) {
+						timeout = $timeout(disableCtrlRightClick, 0);
+						clearInterval(interval);
+						return false;
+					}
+				});
+
+			}, 200);
+		});
+	}
+
+	// portal page loading
+	$scope.loading = false;
+	$scope.currentPage = $location.url();
+	$scope.currentPage = $scope.currentPage.indexOf('#') != -1 ? $scope.currentPage.substr(0,$scope.currentPage.indexOf('#')) : $scope.currentPage;
+	var $pageEl = $('section.page');
+
+	$scope.$on('sp_loading_indicator', function(e, value) {
+		// make sure we only show loader when the page is changing
+		if (value) {
+			var next = $location.url();
+			next = next.indexOf('#') != -1 ? next.substr(0,next.indexOf('#')) : next;
+
+			// new page is loading
+			if (next != $scope.currentPage) {
+				$pageEl.addClass('is-loading');
+				$scope.loading = true;
+				$scope.currentPage = next;
+				$rootScope.$broadcast('page_change');
+			}
+
+			// something is loading but it wasn't initiated by a page change
+			else if (!$scope.loading) {
+				$pageEl.removeClass('is-loading');
+				$scope.loading = false;
+			}
+		}
+
+		else {
+			$pageEl.removeClass('is-loading');
+			$scope.loading = false;
+			$anchorScroll();
+		}
+	});
+
+	$scope.$on('$destroy', function() {
+		if (timeout)
+			$timeout.cancel(timeout);
+	});
+
+	function disableCtrlRightClick() {
+		if (timeout)
+			$timeout.cancel(timeout);
+
+		$('[sp-context-menu] [widget]').contextmenu(function(e) {
+			if (e.ctrlKey || e.altKey || e.metaKey){
+				e.preventDefault();
+				return false;
+			}
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-spinner($loading-spinner, 50px) {
+  bottom: calc(50% - 25px);
+  left: calc(50% - 25px);
+  position: fixed;
+  z-index: $zindex-loading;
+
+  .spinner::before {
+    background-color: $loading-bg;
+    content: "";
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+    z-index: $zindex-loading;
+  }
+
+  .blob {
+    z-index: $zindex-loading + 1;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-dependencies</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Dependencies</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.contextMenuRoles = options.contextMenuRoles ? options.contextMenuRoles.split(',') : ['admin', 'portal_admin', 'sp_admin'];
+	data.canEdit = canEdit();
+
+	function canEdit() {
+		var user = gs.getUser();
+		var userRoles = user.getRoles();
+
+		for (var i = 0; i < options.contextMenuRoles.length; i++) {
+			if (userRoles.indexOf(options.contextMenuRoles[i]) >= 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+})()]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-23 10:52:33</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>24597354db67978087e2f3de3b961903</sys_id>
+        <sys_mod_count>45</sys_mod_count>
+        <sys_name>Wow Dependencies</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_24597354db67978087e2f3de3b961903</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-08-15 08:15:51</sys_updated_on>
+        <template><![CDATA[<wow-spinner loading="loading"></wow-spinner>]]></template>
+    </sp_widget>
+</record_update>

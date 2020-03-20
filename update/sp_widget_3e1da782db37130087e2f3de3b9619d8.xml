@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function ($scope, $element, $window, $location, $rootScope, $timeout, snAttachmentHandler, $http, spUtil) {
+
+	var fieldExcludes = {
+		sys_user: [
+			'name',
+			'introduction',
+			'title',
+			'department',
+			'location',
+			'photo',
+			'manager',
+			'company'
+		],
+		live_profile: [
+			'short_description',
+			'photo'
+		]
+	}
+
+	$scope.openConnectConversation = function() {
+		$window.open('/$c.do#?user=' + $scope.data.liveProfileID, '_blank');
+	}
+
+	$scope.uploadNewProfilePicture = function($event) {
+		setTimeout(function() {
+			$event.stopPropagation();
+			var $el = $element.find('input[type=file]');
+			$el.click();
+		}, 0)
+	}
+
+	$scope.attachFiles = function(files) {
+		snAttachmentHandler.create("live_profile", $scope.data.liveProfileID).uploadAttachment(files.files[0], {
+			sysparm_fieldname: "photo"
+		}).then(function(response) {
+			$scope.avatarPicture = {
+				'background-image': "url('" + response.sys_id + ".iix')",
+				'color': 'transparent'
+			};
+			$rootScope.$broadcast("sp.avatar_changed");
+		});
+	}
+
+	$scope.avatarPicture = "";
+
+	$http.get('/api/now/live/profiles/sys_user.' + $scope.data.sysUserID).then(function (response) {
+		if (response.data.result && response.data.result.avatar){
+			var avatarPicture = response.data.result.avatar.replace("?t=small", "");
+			$scope.avatarPicture = {
+				'background-image': "url('" + avatarPicture + "')",
+				'color': 'transparent'
+			};
+		}
+	});
+
+	spUtil.recordWatch($scope, "sys_user", "sys_id=" + $scope.data.sysUserID);
+	spUtil.recordWatch($scope, "live_profile", "sys_id=" + $scope.data.liveProfileID);
+
+	$scope.connectEnabled = function() {
+		return $scope.data.connectEnabled && !$scope.data.isLoggedInUsersProfile;
+	}
+
+	$scope.openUserProfile = function($event, userID) {
+		$event.stopPropagation();
+		$event.preventDefault();
+		$location.search("id=user_profile&sys_id=" + userID);
+	}
+
+	$scope.getSysUserModelFields = function() {
+		return $scope.data.sysUserModelList
+			.filter(function(field) {
+			return $scope.displayField("sys_user", field.name)
+		});
+	}
+
+	var models = {
+		sys_user: $scope.data.sysUserModel,
+		live_profile: $scope.data.liveProfileModel
+	}
+
+	$scope.displayField = function(tableName, field, isHeader) {
+		if (!isHeader && fieldExcludes[tableName].indexOf(field) > -1) return false;
+
+		if (models[tableName][field] && models[tableName][field].type === "boolean") return false;
+
+		if ($scope.data.isLoggedInUsersProfile) {
+			if (models[tableName][field] && models[tableName][field].readonly)
+				return models[tableName][field].displayValue;
+			else
+				return models[tableName][field];
+		} else {
+			return models[tableName][field] && models[tableName][field].displayValue;
+		}
+	}
+
+	$timeout(function(){
+		$rootScope.$broadcast('finishedChanged', {profile: $scope.data.teamData});
+	});
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+.profile {
+  display: flex;
+  margin-top: 3rem;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex-direction: column;
+  }
+}
+
+.profile-image {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-left: 3rem;
+  margin-right: 6rem;
+
+  .img-mob, .details-mob {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .img-mob {
+    margin-right: 1rem;
+  }
+
+  .details-mob {
+    align-items: flex-start;
+
+    h3 {
+      margin-top: 0;
+    }
+  }
+
+  .upload-image {
+    @include wow-button();
+  }
+
+  @media screen and (max-width: $screen-md-max) {
+    margin: 0 3rem 0 0;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    align-items: flex-start;
+    margin: 0 0 1rem 0;
+    flex-direction: row;
+  }
+
+  .avatar {
+    .sub-avatar {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      font-size: 6em;
+
+      @media screen and (max-width: $screen-xs-max) {
+        font-size: 4em;
+      }
+    }
+  }
+}
+
+.avatar-container {
+  cursor: default;
+  width: 12rem;
+  height: 12rem;
+
+  @media screen and (max-width: $screen-md-min) {
+    width: 9rem;
+    height: 9rem;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+.upload-image {
+  margin-top: 1rem;
+  padding: .75rem 1rem;
+  cursor: pointer;
+  background: #efefef;
+  color: $text-color;
+  border: none;
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+.profile-details {
+  flex: 1;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex: 0 1 auto;
+  }
+}
+
+.profile-fields {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  margin: 1.5rem 0;
+  padding-right: 1.5rem;
+  width: 33.333%;
+
+  @media screen and (max-width: $screen-md-max) {
+    width: 50%;
+    flex: 1 1 50%;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    width: 100%;
+    padding: 0;
+    flex: 1 1 100%;
+  }
+
+  &gt;label {
+    color: $text-muted;
+  }
+
+  .sp-editable-field {
+    font-weight: 600;
+  }
+}
+
+.location {
+  width: 66.666%;
+}
+
+.biography {
+  width: 100%;
+}
+
+.popover-content {
+  padding: 0;
+
+  form {
+    padding: 1rem;
+  }
+
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.popover-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem 1rem;
+
+  .btn {
+    @include wow-button();
+    float: none!important; // override .pull-right
+    margin: 0!important;
+    margin-left: .5rem!important;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow "My Profile" (deprecated)</name>
+        <option_schema>[{"name":"title","section":"other","default_value":"My Area","label":"Title","type":"string"},{"displayValue":"Instance with Menu","name":"menu","section":"other","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+
+	options.title = gs.getMessage(options.title || 'wow_my_area');
+	options.menu = options.menu || null;
+
+	data.menu = $sp.getWidget('wow-navigation', {
+		menu: options.menu
+	});
+
+	data.sysUserID = $sp.getParameter("sys_id");
+	if (!data.sysUserID)
+		data.sysUserID = gs.getUser().getID();
+
+	var sysUserGR = new GlideRecord("sys_user");
+	data.userExists = sysUserGR.get(data.sysUserID) && sysUserGR.canRead();
+
+	if (data.userExists) {
+		data.name = sysUserGR.getValue("name");
+		var loggedInSysUserID = gs.getUser().getID();
+		data.connectEnabled = GlidePluginManager().isActive('com.glide.connect');
+		data.liveProfileID = "";
+
+		// get live profile id for sending connect messages
+		if (GlidePluginManager().isActive('com.glideapp.live_common')) {
+			var liveProfileGR = new GlideRecord("live_profile");
+			liveProfileGR.addQuery("document", data.sysUserID);
+			liveProfileGR.query();
+
+			if (liveProfileGR.next()) {
+				data.liveProfileID = liveProfileGR.getValue("sys_id");
+				data.liveProfileModel = $sp.getForm("live_profile", data.liveProfileID)._fields;
+			}
+
+			else
+				data.connectEnabled = false; //can't find a live profile for this user, so lets not integrate Connect
+		}
+
+		data.isLoggedInUsersProfile = loggedInSysUserID.equals(data.sysUserID);
+		var sysUserForm = $sp.getForm("sys_user", data.sysUserID);
+		data.sysUserView = sysUserForm._view;
+		data.sysUserModel = sysUserForm._fields;
+		data.sysUserModelList = [];
+
+		for (var i = 0; i < data.sysUserView.length; i++) {
+			data.sysUserModelList.push(data.sysUserModel[data.sysUserView[i].name]);
+		}
+
+		data.directReports = [];
+		data.teamData = {};
+		data.teamData.direct_reports = [];
+		data.teamData.members = [];
+
+		if (!data.isLoggedInUsersProfile) {
+			data.teamData.user = {
+				sys_id: data.sysUserID
+			}
+		}
+
+		//Calculate manager
+		var managerGR = new GlideRecord("sys_user");
+		if (managerGR.get(sysUserGR.getValue("manager"))) {
+			data.teamData.manager = buildUser(managerGR);
+		}
+
+		//Calculate team
+		if (data.teamData.manager) {
+			var teamGR = new GlideRecord("sys_user");
+			teamGR.addActiveQuery();
+			teamGR.addQuery("manager", data.teamData.manager.sys_id);
+			teamGR.query();
+			while(teamGR.next()) {
+				if (!teamGR.getValue("sys_id").equals(data.sysUserID))
+					data.teamData.members.push(buildUser(teamGR));
+			}
+		}
+
+		//Calculate direct reports
+		var directReportGR = new GlideRecord("sys_user");
+		directReportGR.addActiveQuery();
+		directReportGR.addQuery("manager", data.sysUserID);
+		directReportGR.query();
+
+		while(directReportGR.next())
+			data.teamData.direct_reports.push(buildUser(directReportGR));
+
+		data.teamWidget = $sp.getWidget('sp-my-team', {glyph: 'user', color: 'primary'});
+
+		//get the user Preferences of the user
+		data.userPreferences = getUserPreferences(data.sysUserID);
+	}
+
+	function buildUser(userGR) {
+		return {
+			email: userGR.getValue("email") || "",
+			first_name: userGR.getValue("first_name"),
+			last_name: userGR.getValue("last_name"),
+			name: userGR.getValue("name"),
+			phone: userGR.getValue("phone") || "",
+			sys_id: userGR.getValue("sys_id")
+		}
+	}
+
+	// returns the user preferences from the platform
+	function getUserPreferences(userID){
+		var user = GlideUser.getUserByID(userID);
+		return {
+			accessibility: {
+				key: 'glide.ui.accessibility',
+				value: user.getPreference('glide.ui.accessibility') == 'true'
+			}
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-10 06:45:18</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>3e1da782db37130087e2f3de3b9619d8</sys_id>
+        <sys_mod_count>153</sys_mod_count>
+        <sys_name>Wow "My Profile" (deprecated)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_3e1da782db37130087e2f3de3b9619d8</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 12:06:43</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <h1>{{::options.title}}</h1>
+
+  <sp-widget widget="data.menu"></sp-widget>
+
+  <section class="profile">
+
+    <div class="profile-image">
+
+      <div class="img-mob">
+        <div class="avatar-container">
+          <div class="avatar soloAvatar">
+            <div class="sub-avatar" ng-style="avatarPicture">
+              <i class="fa fa-user"></i>
+            </div>
+          </div>
+        </div>
+
+        <span ng-if="::data.isLoggedInUsersProfile">
+          <input ng-show="false" type="file" ng-file-select="attachFiles({files: $files})" />
+          <button ng-click="uploadNewProfilePicture($event)"
+                  type="button"
+                  class="btn btn-default upload-image hidden-xs">${wow_change_photo}</button>
+        </span>
+      </div>
+
+      <div class='details-mob'>
+        <h3 class="profile-name visible-xs">{{data.name}}</h3>
+        <span ng-if="::(displayField('sys_user', 'title', true) || displayField('sys_user', 'company', true))" class="company-and-role visible-xs">
+          <sp-editable-field ng-if="::displayField('sys_user', 'title', true)" editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.title" on-change="titleOnChange" on-submit="titleOnSubmit"></sp-editable-field>
+          <span ng-if="::(displayField('sys_user', 'company', true) && displayField('sys_user', 'title', true))" class="light-text">at</span>
+          <span ng-if="::(displayField('sys_user', 'company', true) && !displayField('sys_user', 'title', true))" class="light-text">Works at</span>
+          <sp-editable-field ng-if="::displayField('sys_user', 'company', true)" editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.company"></sp-editable-field>
+        </span>
+      </div>
+
+
+    </div>
+
+    <div class="profile-details">
+
+      <h2 class="profile-name hidden-xs">{{data.name}}</h2>
+
+      <h4 ng-if="::(displayField('sys_user', 'title', true) || displayField('sys_user', 'company', true))" class="company-and-role hidden-xs hidden-sm">
+        <sp-editable-field ng-if="::displayField('sys_user', 'title', true)" editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.title" on-change="titleOnChange" on-submit="titleOnSubmit"></sp-editable-field>
+        <span ng-if="::(displayField('sys_user', 'company', true) && displayField('sys_user', 'title', true))" class="light-text">at</span>
+        <span ng-if="::(displayField('sys_user', 'company', true) && !displayField('sys_user', 'title', true))" class="light-text">Works at</span>
+        <sp-editable-field ng-if="::displayField('sys_user', 'company', true)" editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.company"></sp-editable-field>
+      </h4>
+
+      <div class="profile-fields">
+
+        <div ng-if="::displayField('sys_user', 'department', true)" class="profile-field">
+          <label>${wow_department}</label>
+          <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.department"></sp-editable-field>
+        </div>
+
+        <div ng-if="::displayField('sys_user', 'location', true)" class="profile-field location">
+          <label>${wow_location}</label>
+          <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.location"></sp-editable-field>
+        </div>
+
+        <div ng-if="::displayField('sys_user', 'email', true)" class="profile-field">
+          <label>${wow_email}</label>
+          <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.email"></sp-editable-field>
+        </div>
+
+        <div ng-if="::displayField('sys_user', 'phone', true)" class="profile-field">
+          <label>${wow_business_phone}</label>
+          <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.phone"></sp-editable-field>
+        </div>
+
+        <div ng-if="::displayField('sys_user', 'mobile_phone', true)" class="profile-field">
+          <label>${wow_mobile_phone}</label>
+          <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="sys_user" table-id="data.sysUserID" field-model="data.sysUserModel.mobile_phone"></sp-editable-field>
+        </div>
+
+      </div>
+
+      <div ng-if="::(data.liveProfileID && displayField('live_profile', 'short_description', true))" class="profile-field biography">
+        <label>${wow_biography}</label>
+        <sp-editable-field editable-by-user="data.isLoggedInUsersProfile" table="live_profile" table-id="data.liveProfileID" field-model="data.liveProfileModel.short_description"></sp-editable-field>
+      </div>
+
+    </div>
+
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

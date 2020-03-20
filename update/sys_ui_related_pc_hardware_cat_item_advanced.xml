@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_related sys_domain="global" table="pc_hardware_cat_item" version="2" view="advanced">
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="Hardware Catalog - Advanced" name="pc_hardware_cat_item" related_list="NULL" sys_domain="global" view="7966be310a0a0b8c00bd504090503227">fbd384a6dbb5f3008e94764cbf9619bd</list_id>
+            <order_by/>
+            <position>0</position>
+            <related_list>sc_cat_item_children.parent</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_id>37d384a6dbb5f3008e94764cbf9619cb</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="Hardware Catalog - Advanced" name="pc_hardware_cat_item" related_list="NULL" sys_domain="global" view="7966be310a0a0b8c00bd504090503227">fbd384a6dbb5f3008e94764cbf9619bd</list_id>
+            <order_by/>
+            <position>1</position>
+            <related_list>item_option_new.cat_item</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_id>33d384a6dbb5f3008e94764cbf9619cc</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="Hardware Catalog - Advanced" name="pc_hardware_cat_item" related_list="NULL" sys_domain="global" view="7966be310a0a0b8c00bd504090503227">fbd384a6dbb5f3008e94764cbf9619bd</list_id>
+            <order_by/>
+            <position>2</position>
+            <related_list>sc_cat_item_user_criteria_mtom.sc_cat_item</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_id>b7d384a6dbb5f3008e94764cbf9619cc</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="Hardware Catalog - Advanced" name="pc_hardware_cat_item" related_list="NULL" sys_domain="global" view="7966be310a0a0b8c00bd504090503227">fbd384a6dbb5f3008e94764cbf9619bd</list_id>
+            <order_by/>
+            <position>3</position>
+            <related_list>sc_cat_item_user_criteria_no_mtom.sc_cat_item</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_id>3fd384a6dbb5f3008e94764cbf9619cc</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="Hardware Catalog - Advanced" name="pc_hardware_cat_item" related_list="NULL" sys_domain="global" view="7966be310a0a0b8c00bd504090503227">fbd384a6dbb5f3008e94764cbf9619bd</list_id>
+            <order_by/>
+            <position>4</position>
+            <related_list>sc_cat_item_category.sc_cat_item</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_id>b3d384a6dbb5f3008e94764cbf9619cd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list action="INSERT_OR_UPDATE">
+            <calculated_name>Hardware Catalog - Advanced</calculated_name>
+            <filter/>
+            <name>pc_hardware_cat_item</name>
+            <order_by/>
+            <position/>
+            <related_list/>
+            <sys_class_name>sys_ui_related_list</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-06-05 09:18:54</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>fbd384a6dbb5f3008e94764cbf9619bd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Hardware Catalog - Advanced</sys_name>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_related_pc_hardware_cat_item_advanced</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-06-05 09:18:54</sys_updated_on>
+            <sys_user/>
+            <view display_value="Advanced" name="advanced">7966be310a0a0b8c00bd504090503227</view>
+            <view_name/>
+        </sys_ui_related_list>
+    </sys_ui_related>
+</record_update>

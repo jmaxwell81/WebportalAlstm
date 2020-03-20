@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement">
+    <announcement action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <click_target/>
+        <details/>
+        <details_link_text/>
+        <details_page/>
+        <details_url/>
+        <dismiss_options>session_dismissible</dismiss_options>
+        <display_first>false</display_first>
+        <display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style>
+        <from>2019-08-06 12:46:02</from>
+        <glyph>star</glyph>
+        <glyph_alt_text/>
+        <name>Testing announcements</name>
+        <public>true</public>
+        <roles/>
+        <summary/>
+        <sys_class_name>announcement</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-06 12:46:24</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>f2c58862dbc7b300b62a80e23996199f</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Testing announcements</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>announcement_f2c58862dbc7b300b62a80e23996199f</sys_update_name>
+        <sys_updated_by>tuadmin_dp</sys_updated_by>
+        <sys_updated_on>2019-08-27 09:17:58</sys_updated_on>
+        <title>This is a normal announcement!</title>
+        <to/>
+        <type>eb894826dbc7b300b62a80e2399619ad</type>
+        <x_mono2_wow_document/>
+        <x_mono2_wow_document_table/>
+        <x_mono2_wow_knowledge_article/>
+        <x_mono2_wow_urgency/>
+    </announcement>
+    <sys_translated_text action="delete_multiple" query="documentkey=f2c58862dbc7b300b62a80e23996199f"/>
+</record_update>

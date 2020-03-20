@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>1</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">708f6e0edb4b73000ef45682ca96197f</sp_column>
+        <sp_widget display_value="Wow Incident Wizard">ad9ee20edb4b73000ef45682ca9619bb</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-08-05 11:50:32</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>2b8faa4edb4b73000ef45682ca961981</sys_id>
+        <sys_mod_count>25</sys_mod_count>
+        <sys_name>Log an Incident</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_2b8faa4edb4b73000ef45682ca961981</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-17 15:58:51</sys_updated_on>
+        <title>Log an Incident</title>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"recordProducer": {
+		"value": "c6d873b8dbaf8c10363e8a503996196c",
+		"displayValue": "PC Performance Issue"
+	},
+	"descriptionVariable": {
+		"value": "short_description",
+		"displayValue": "short_description"
+	},
+	"categoryVariable": {
+		"value": "category",
+		"displayValue": "category"
+	},
+	"assetVariable": {
+		"value": "",
+		"displayValue": ""
+	},
+	"subcategoryVariable": {
+		"value": "",
+		"displayValue": ""
+	},
+	"issueVariable": {
+		"value": "description",
+		"displayValue": "description"
+	},
+	"impactVariable": {
+		"value": "impact",
+		"displayValue": "impact"
+	},
+	"urgencyVariable": {
+		"value": "urgency",
+		"displayValue": "urgency"
+	},
+	"title": {
+		"value": "Log an Incident",
+		"displayValue": "Log an Incident"
+	},
+	"subtitle": {
+		"value": "",
+		"displayValue": ""
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="delete_multiple" query="documentkey=2b8faa4edb4b73000ef45682ca961981"/>
+</record_update>

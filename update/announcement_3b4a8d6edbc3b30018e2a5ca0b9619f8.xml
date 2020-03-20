@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement">
+    <announcement action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <click_target/>
+        <details/>
+        <details_link_text/>
+        <details_page/>
+        <details_url/>
+        <dismiss_options>dismissible</dismiss_options>
+        <display_first>false</display_first>
+        <display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style>
+        <from>2019-08-06 17:45:23</from>
+        <glyph>meh-o</glyph>
+        <glyph_alt_text/>
+        <name>Remedy has crashed (again)</name>
+        <public>true</public>
+        <roles/>
+        <summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</summary>
+        <sys_class_name>announcement</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-06 17:45:59</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>3b4a8d6edbc3b30018e2a5ca0b9619f8</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Remedy has crashed (again)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>announcement_3b4a8d6edbc3b30018e2a5ca0b9619f8</sys_update_name>
+        <sys_updated_by>tuadmin_dw</sys_updated_by>
+        <sys_updated_on>2019-08-12 16:00:38</sys_updated_on>
+        <title>Remedy has crashed (again)</title>
+        <to/>
+        <type>13c3ec74db78a74016a5f40b0c9619e9,eb894826dbc7b300b62a80e2399619ad</type>
+        <x_mono2_wow_document/>
+        <x_mono2_wow_document_table/>
+        <x_mono2_wow_knowledge_article/>
+        <x_mono2_wow_urgency/>
+    </announcement>
+    <sys_translated_text action="delete_multiple" query="documentkey=3b4a8d6edbc3b30018e2a5ca0b9619f8"/>
+</record_update>

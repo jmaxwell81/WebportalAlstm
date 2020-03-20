@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement">
+    <announcement action="DELETE">
+        <active>true</active>
+        <click_target/>
+        <details/>
+        <details_link_text/>
+        <details_page/>
+        <details_url/>
+        <dismiss_options>dismissible</dismiss_options>
+        <display_first>false</display_first>
+        <display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style>
+        <from>2020-03-06 13:02:32</from>
+        <glyph/>
+        <glyph_alt_text/>
+        <name>INC0000003</name>
+        <public>true</public>
+        <roles/>
+        <summary/>
+        <sys_class_name>announcement</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-06 13:02:32</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>b4448543dbd30c50363e8a5039961907</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>INC0000003</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>announcement_b4448543dbd30c50363e8a5039961907</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-06 13:02:32</sys_updated_on>
+        <title>INC0000003 - Wireless access is down in my area</title>
+        <to/>
+        <type>67eaf134e7a3320075c2a117c2f6a9d2,52fa79f8e763320075c2a117c2f6a991</type>
+        <x_mono2_wow_document>e8caedcbc0a80164017df472f39eaed1</x_mono2_wow_document>
+        <x_mono2_wow_document_table>incident</x_mono2_wow_document_table>
+        <x_mono2_wow_knowledge_article/>
+        <x_mono2_wow_urgency>normal</x_mono2_wow_urgency>
+    </announcement>
+    <sys_translated_text action="DELETE" query="documentkey=b4448543dbd30c50363e8a5039961907"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>announcement_b4448543dbd30c50363e8a5039961907</name>
+        <order/>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement"><announcement action="INSERT_OR_UPDATE"><active>true</active><click_target/><details/><details_link_text/><details_page/><details_url/><dismiss_options>dismissible</dismiss_options><display_first>false</display_first><display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style><from>2020-03-06 13:02:32</from><glyph/><glyph_alt_text/><name>INC0000003</name><public>true</public><roles/><summary/><sys_class_name>announcement</sys_class_name><sys_created_by>DI</sys_created_by><sys_created_on>2020-03-06 13:02:32</sys_created_on><sys_customer_update>false</sys_customer_update><sys_id>b4448543dbd30c50363e8a5039961907</sys_id><sys_mod_count>0</sys_mod_count><sys_name>INC0000003</sys_name><sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package><sys_policy/><sys_replace_on_upgrade>false</sys_replace_on_upgrade><sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope><sys_update_name>announcement_b4448543dbd30c50363e8a5039961907</sys_update_name><sys_updated_by>DI</sys_updated_by><sys_updated_on>2020-03-06 13:02:32</sys_updated_on><title>INC0000003 - Wireless access is down in my area</title><to/><type>67eaf134e7a3320075c2a117c2f6a9d2,52fa79f8e763320075c2a117c2f6a991</type><x_mono2_wow_document>e8caedcbc0a80164017df472f39eaed1</x_mono2_wow_document><x_mono2_wow_document_table>incident</x_mono2_wow_document_table><x_mono2_wow_knowledge_article/><x_mono2_wow_urgency>normal</x_mono2_wow_urgency></announcement><sys_translated_text action="delete_multiple" query="documentkey=b4448543dbd30c50363e8a5039961907"/></record_update>]]></payload>
+        <payload_hash>-1524383455</payload_hash>
+        <record_name>INC0000003</record_name>
+        <reverted_from/>
+        <source>875944b5db5fcc10363e8a5039961950</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-06 13:02:33</sys_created_on>
+        <sys_id>f0448543dbd30c50363e8a503996190b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170aff0b6600000001</sys_recorded_at>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-06 13:02:33</sys_updated_on>
+        <type>Announcement</type>
+        <update_guid>b844854365d30c50d3c9a5c5c2643d09</update_guid>
+        <update_guid_history>b844854365d30c50d3c9a5c5c2643d09:-1524383455</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-06 18:32:49">3c540d43dbd30c50363e8a50399619ee</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>DI</sys_created_by>
+        <sys_created_on>2020-03-06 13:02:49</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="Announcement" name="announcement">announcement</sys_db_object>
+        <sys_id>24bf10c9bab64e70b032c58ccdfcb100</sys_id>
+        <sys_metadata>b4448543dbd30c50363e8a5039961907</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>INC0000003</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>announcement_b4448543dbd30c50363e8a5039961907</sys_update_name>
+        <sys_update_version display_value="announcement_b4448543dbd30c50363e8a5039961907">f0448543dbd30c50363e8a503996190b</sys_update_version>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-06 13:02:49</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

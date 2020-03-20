@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="ligature" label="Ligature" language="en" table="x_mono2_wow_icon">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>ligature</element>
+            <help/>
+            <hint/>
+            <label>Ligature</label>
+            <language>en</language>
+            <name>x_mono2_wow_icon</name>
+            <plural>Ligatures</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2019-07-10 11:38:03</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_id>5f53b871db2a33400ef45682ca96197c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Ligature</sys_name>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_documentation_x_mono2_wow_icon_ligature_en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2019-07-10 11:38:03</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

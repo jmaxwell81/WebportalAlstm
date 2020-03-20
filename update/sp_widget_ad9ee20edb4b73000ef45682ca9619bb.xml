@@ -1,0 +1,2068 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope, $timeout, $location, spAnnouncement, spUtil) {
+  var c = this;
+	var gForm;
+
+	var constants = $scope.constants = {
+		'MIN_SEARCHTERM_LENGTH': 5,
+		'STEP_KNOWN': 0,
+		'STEP_COMMON': 1,
+		'STEP_DESCRIBE': 2,
+		'STEP_CATEGORIZE': 3,
+		'STEP_FORM': 4,
+		'TRANSFORM_SPEED': 500
+	};
+
+	var validations = $scope.validations = {};
+	var selections = $scope.selections = {};
+	var categoriesLimit = $scope.categoriesLimit = 10;
+	var showKUWidget = $scope.showKUWidget = false;
+
+	c.showKeyUsersWidget = function(){
+		$scope.showKUWidget = true;
+		return $scope.showKUWidget;
+	}
+	
+	c.searchTerm = "";
+
+
+	/* --- navigation --- */
+
+	$scope.activeStep = constants.STEP_KNOWN;
+	$scope.showPreview = false;
+
+	var steps = $scope.steps = [
+		{
+			active: true,
+			label: "${wow_known_issues}",
+			visited: true
+		},
+		{
+			active: false,
+			label: "${wow_common_issues}",
+			visited: false
+		},
+		{
+			active: false,
+			label: "${wow_describe_issue}",
+			visited: false
+		},
+		{
+			active: false,
+			label: "${wow_categorise_issue}",
+			visited: false
+		},
+		{
+			active: false,
+			label: "${wow_issue_details}",
+			visited: false
+		}
+	];
+
+
+	var next = $scope.next = function() {
+		if (hasNext() && canContinue()) {
+			if ($scope.showPreview) {
+				$scope.showPreview = false;
+				resetWidgets();
+			}
+
+			$scope.activeStep++;
+			loadStep($scope.activeStep);
+
+			steps.forEach(function(step, i) {
+				step.active = (i === $scope.activeStep);
+
+				if (i <= $scope.activeStep)
+					step.visited = true;
+			});
+
+			$scope.scrollTop();
+		}
+
+		else {
+			switch ($scope.activeStep) {
+				case constants.STEP_DESCRIBE:
+					validations.searchTerm = false;
+					searchFocus();
+					return;
+
+				case constants.STEP_CATEGORIZE:
+					validations.category = false;
+					return;
+			}
+		}
+	}
+
+
+	var previous = $scope.previous = function() {
+		if (hasPrevious()) {
+			if ($scope.showPreview) {
+				$scope.showPreview = false;
+				resetWidgets();
+			}
+
+			else if ($scope.activeStep > 0) {
+				steps.forEach(function(step, i) {
+					step.active = (i === ($scope.activeStep - 1));
+				});
+
+				$scope.activeStep--;
+				loadStep($scope.activeStep);
+			}
+
+			$scope.scrollTop();
+		}
+	}
+
+
+	var gotoStep = $scope.gotoStep = function(index) {
+		if ($scope.activeStep < index && !canContinue()) {
+
+			switch ($scope.activeStep) {
+								
+				case constants.STEP_DESCRIBE:
+					//validations.searchTerm = false;
+					searchFocus();
+					return;
+
+				case constants.STEP_CATEGORIZE:
+					validations.category = false;
+					return;
+			}
+
+			return;
+		}
+		else if ($scope.activeStep > index && index == 0){
+			 showKUWidget = $scope.showKUWidget = false;
+		}
+		
+		if ($scope.showPreview) {
+			$scope.showPreview = false;
+			resetWidgets();
+		}
+
+		if (index < steps.length) {
+			var step = steps[index];
+			loadStep(index);
+
+			// can only skip back to steps already visited or next step
+			if (step.visited) { // add "|| (index > 0 && steps[index-1].visited)" to support left hand nav advance
+				steps.forEach(function(step, i) {
+					step.active = (index === i);
+
+					if (i <= index)
+						step.visited = true;
+				});
+
+				$scope.activeStep = index;
+			}
+		}
+	}
+
+	var showKeyUsers = $scope.showKeyUsers = function() {
+		return $scope.showKUWidget;
+	}
+
+	var hasNext = $scope.hasNext = function() {
+		return steps.length > ($scope.activeStep + 1);
+	}
+
+
+	var hasPrevious = $scope.hasPrevious = function() {
+		//return $scope.activeStep > 0 || $scope.showPreview;
+		return ($scope.activeStep > 0 && !$scope.showKUWidget) || $scope.showPreview;
+	}
+
+
+	var canContinue = $scope.canContinue = function() {
+		if ($scope.activeStep === constants.STEP_COMMON)
+			return !showKeyUsers();
+
+		if ($scope.activeStep === constants.STEP_DESCRIBE)
+			return !isHighPriority() && selections.impact && selections.urgency && getSearchTerm().length >= constants.MIN_SEARCHTERM_LENGTH;
+
+		else if ($scope.activeStep === constants.STEP_CATEGORIZE) {
+			if (selections.issue)
+				return true;
+
+			else if (selections.subcategory && (!selections.subcategory.categories || (selections.subcategory.categories && selections.subcategory.categories.length === 0)))
+				return true;
+
+			else if (selections.category && (!selections.category.categories || (selections.category.categories && selections.category.categories.length === 0)))
+				return true;
+
+			return false;
+		}
+
+		return true;
+	}
+
+
+	function loadStep(index) {
+		switch (index) {
+			case constants.STEP_FORM:
+				//if (!$scope.recordProducer)
+				getRecordProducer($scope.selections.category.value);
+				break;
+
+			case constants.STEP_DESCRIBE:
+				searchFocus();
+				break;
+		}
+	}
+
+
+	$scope.getNextLabel = function() {
+		switch ($scope.activeStep) {
+			case constants.STEP_KNOWN:
+				return "${wow_different_issue}";
+
+			case constants.STEP_COMMON:
+				return selections.asset ? "${wow_next}" : "${wow_different_issue}";
+		}
+
+		return "${wow_next}";
+	}
+
+
+	$scope.getPreviousLabel = function() {
+		return "${wow_back}";
+	}
+
+
+	function resetWidgets() {
+		$scope.previewWidget = null;
+	}
+
+
+	/* --- previews --- */
+
+	$scope.openPreview = function(item) {
+		$scope.loadingPreview = true;
+		$scope.showPreview = true;
+		$scope.scrollTop();
+
+		// add timeout in time with transform to make it feel slicker
+		var timeout = $timeout(function() {
+			c.server.get({
+				action: 'get_widget',
+				item: item
+			}).then(function(r) {
+				$scope.previewWidget = r.data.widget;
+				$scope.loadingPreview = false;
+				$timeout.cancel(timeout);
+			});
+		}, constants.TRANSFORM_SPEED);
+	}
+
+
+	/* --- assets --- */
+
+	$scope.setAsset = function(asset) {
+		if (selections.asset === asset)
+			selections.asset = null;
+
+		else
+			selections.asset = asset;
+
+		if (gForm && c.options.assetVariable)
+			gForm.setValue(c.options.assetVariable, (selections.asset ? selections.asset.id : ""));
+	}
+
+
+	/* --- this affects me --- */
+
+	$scope.reportIncident = function(announcement) {
+		var incident = announcement.incident;
+		announcement.canReportIncident = false;
+
+		c.server.get({
+			action: 'report_incident',
+			incident: incident
+		}).then(function(r) {
+			if (r.data.redirectUrl) {
+				spUtil.addInfoMessage("${wow_incident_reported}");
+				$rootScope.$broadcast('wow_incident_reported', {
+					incidentId: incident.id
+				});
+
+				var timeout = $timeout(function() {
+					$location.url(r.data.redirectUrl);
+					$timeout.cancel(timeout);
+				}, 1500);
+			}
+
+			else
+				announcement.canReportIncident = true;
+		});
+	}
+
+
+	/* --- impact and urgency --- */
+
+	$scope.selectImpact = function(impact) {
+		if (selections.impact === impact)
+			selections.impact = null;
+
+		else
+			selections.impact = impact;
+
+		validations.impact = (selections.impact !== null);
+
+		if (gForm && c.options.impactVariable)
+			gForm.setValue(c.options.impactVariable, (selections.impact ? selections.impact.value : ""));
+	}
+
+
+	$scope.selectUrgency = function(urgency) {
+		if (selections.urgency === urgency)
+			selections.urgency = null;
+
+		else
+			selections.urgency = urgency;
+
+		validations.urgency = (selections.urgency !== null);
+
+		if (gForm && c.options.urgencyVariable)
+			gForm.setValue(c.options.urgencyVariable, (selections.urgency ? selections.urgency.value : ""));
+	}
+
+
+	/* --- search --- */
+
+	$scope.typeahead = function(searchTerm) {
+		if (searchTerm.length === 0) {
+			c.data.results = null;
+			return;
+		}
+
+		if (validations.searchTerm === false && searchTerm.length >= constants.MIN_SEARCHTERM_LENGTH)
+			validations.searchTerm = true;
+
+		$scope.searching = true;
+
+		c.server.get({
+			action: 'search',
+			searchTerm: searchTerm
+		}).then(function(r) {
+			$scope.searching = false;
+			c.data.results = r.data.results;
+		});
+
+		if (gForm && c.options.descriptionVariable)
+			gForm.setValue(c.options.descriptionVariable, searchTerm);
+	}
+
+
+	$scope.clearSearch = function() {
+		c.searchTerm = "";
+		c.data.results = null;
+		searchFocus();
+	}
+
+
+	function getSearchTerm() {
+		return c.searchTerm;
+	}
+
+
+	function searchFocus() {
+		$timeout(function() {
+			$('input[name="q"]', $scope.widgetEl).focus();
+		}, 250);
+	}
+
+
+	/* --- categories --- */
+
+	var selectCategory = $scope.selectCategory = function(category) {
+
+		if (c.data.categories.indexOf(category) !== -1) {
+			if (selections.category === category) {
+				resetCategory(selections.category);
+				selections.category = selections.subcategory = selections.issue = null;
+			}
+
+			else {
+				for (var i = 0; i < c.data.categories.length; i++) {
+					if (c.data.categories[i] !== category)
+						resetCategory(c.data.categories[i]);
+				}
+
+				category.active = true;
+				selections.category = category;
+				selections.subcategory = selections.issue = null;
+				categorySearchFocus();
+
+				if (category.categories.length === 1)
+					selectCategory(category.categories[0]);
+			}
+		}
+
+		else if (selections.category && selections.category.categories.indexOf(category) !== -1) {
+			if (selections.subcategory === category) {
+				resetCategory(selections.subcategory);
+				selections.subcategory = selections.issue = null;
+				categorySearchFocus();
+			}
+
+			else {
+				for (var i = 0; i < selections.category.categories.length; i++) {
+					if (selections.category.categories[i] !== category)
+						resetCategory(selections.category.categories[i]);
+				}
+
+				category.active = true;
+				selections.subcategory = category;
+				selections.issue = null;
+
+				if (category.categories.length === 1)
+					selectCategory(category.categories[0]);
+			}
+		}
+
+		else if (selections.subcategory && selections.subcategory.categories.indexOf(category) !== -1) {
+			if (selections.issue === category) {
+				resetCategory(selections.issue);
+				selections.issue = null;
+			}
+
+			else {
+				for (var i = 0; i < selections.subcategory.categories.length; i++) {
+					if (selections.subcategory.categories[i] !== category)
+						resetCategory(selections.subcategory.categories[i]);
+				}
+
+				category.active = true;
+				selections.issue = category;
+			}
+		}
+
+		validations.category = true;
+
+		if (gForm) {
+			if (c.options.categoryVariable && selections.category)
+				gForm.setValue(c.options.categoryVariable, selections.category.value);
+
+			if (c.options.subcategoryVariable && selections.subcategory)
+				gForm.setValue(c.options.subcategoryVariable, selections.subcategory.value);
+
+			if (c.options.issueVariable && selections.issue)
+				gForm.setValue(c.options.issueVariable, selections.issue.value);
+		}
+	}
+
+
+	$scope.filterCategories = function(categories, searchTerm) {
+		var count = 0;
+		var searchTerms = searchTerm.toLowerCase().split(" ");
+
+		categories.forEach(function(category) {
+			if (searchTerm == "")
+				category.hidden = false;
+
+			else {
+				for (var i = 0; i < searchTerms.length; i++) {
+					if (category.label.toLowerCase().indexOf(searchTerms[i]) === -1) {
+						category.hidden = true;
+						return;
+					}
+
+					category.hidden = false;
+				}
+			}
+		});
+	}
+
+
+	$scope.limitCategories = function(categories) {
+		return categories.filter(function(category, i) {
+			return !category.hidden;
+		}).slice(0, categoriesLimit);
+	}
+
+
+	$scope.exceedsCategoriesLimit = function(categories) {
+		var count = 0;
+
+		for (var i = 0; i < categories.length; i++) {
+			if (!categories[i].hidden) {
+				count++;
+
+				if (count > categoriesLimit)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	function resetCategory(category) {
+		category.active = false;
+
+		if (category.categories) {
+			category.categories.forEach(resetCategory);
+		}
+	}
+
+
+	function categorySearchFocus() {
+		$timeout(function() {
+			$('input[name="scq"]', $scope.widgetEl).focus();
+		}, 250);
+	}
+
+
+	var showChatLink = $scope.showChatLink = function() {
+		if (!c.data.hasChat)
+			return false;
+
+		if (steps[constants.STEP_DESCRIBE].active)
+			return isHighPriority();
+
+		if (steps[constants.STEP_CATEGORIZE].active)
+			return !selections.category || (selections.issue && selections.issue.value.toLowerCase() === 'other');
+
+		return false;
+	}
+
+
+	$scope.launchChat = function() {
+		$rootScope.$broadcast('wow_launch_chat');
+	}
+
+
+	var showContactInfo = $scope.showContactInfo = function() {
+		if (showChatLink() || !c.data.contactInformation)
+			return false;
+
+		if (steps[constants.STEP_DESCRIBE].active)
+			return isHighPriority();
+
+		if (steps[constants.STEP_CATEGORIZE].active)
+			return !selections.category || (selections.issue && selections.issue.value.toLowerCase() === 'other');
+
+		return false;
+	}
+
+
+	var isHighPriority = $scope.isHighPriority = function() {
+		return selections.impact && selections.impact.value == '1' && selections.urgency && selections.urgency.value == '1';
+	}
+
+
+	$scope.hasSelectedSomething = function() {
+		return selections.asset || selections.category || selections.impact || selections.urgency;
+	}	
+	
+	/* --- record producer --- */
+
+	function getRecordProducer(category) {
+		//if ($scope.recordProducer)
+			//return;
+
+		$scope.loadingForm = true;
+
+		c.server.get({
+			action: 'get_record_producer',
+			cat: category
+		}).then(function(r) {
+			$scope.recordProducer = r.data.widget;
+			$scope.loadingForm = false;
+		});
+	}
+
+
+	$scope.$on('spModel.gForm.initialized', function(e, instance) {
+		// make sure this gform instance is the correct one
+		// i.e. gForm isn't already defined, we have loaded the record producer and this instance is of the same type
+		if (!gForm && $scope.recordProducer && instance.getSysId() === c.options.recordProducer) {
+			gForm = instance;
+
+			if (c.options.descriptionVariable && getSearchTerm())
+				gForm.setValue(c.options.descriptionVariable, getSearchTerm());
+
+			if (c.options.categoryVariable && selections.category)
+				gForm.setValue(c.options.categoryVariable, selections.category.value);
+
+			if (c.options.subcategoryVariable && selections.subcategory)
+				gForm.setValue(c.options.subcategoryVariable, selections.subcategory.value);
+
+			if (c.options.issueVariable && selections.issue)
+				gForm.setValue(c.options.issueVariable, selections.issue.value);
+
+			if (c.options.assetVariable && selections.asset)
+				gForm.setValue(c.options.assetVariable, selections.asset.id);
+
+			if (c.options.impactVariable && selections.impact)
+				gForm.setValue(c.options.impactVariable, selections.impact.value);
+
+			if (c.options.urgencyVariable && selections.urgency)
+				gForm.setValue(c.options.urgencyVariable, selections.urgency.value);
+
+			$scope.scrollTop();
+		}
+	});
+
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$aside-width: 300px;&#13;
+$border-color: darken($panel-bg, 15%);&#13;
+&#13;
+@include wow-panel();&#13;
+&#13;
+.panel {&#13;
+  border: none;&#13;
+  overflow: hidden;&#13;
+  padding: 0;&#13;
+&#13;
+  &amp;.no-record-producer {&#13;
+    padding: 2.5rem;&#13;
+    text-align: center;&#13;
+  }&#13;
+}&#13;
+&#13;
+.top {&#13;
+  padding: 2.5rem;&#13;
+&#13;
+  h1 {&#13;
+    margin: 0;&#13;
+  }&#13;
+&#13;
+  h3 {&#13;
+    font-size: 1.2rem;&#13;
+    font-weight: $font-weight-normal;&#13;
+    margin: 1rem 0 0;&#13;
+  }&#13;
+}&#13;
+&#13;
+.wizard {&#13;
+  border-top: 1px solid $border-color;&#13;
+  display: flex;&#13;
+ 	@media screen and (max-width: $screen-xs-max) {&#13;
+    flex-wrap: wrap;&#13;
+    position: relative;&#13;
+  }&#13;
+}&#13;
+&#13;
+aside {&#13;
+  background-color: $aside-bg;&#13;
+  flex-shrink: 0;&#13;
+  padding: 2.5rem;&#13;
+  position: relative;&#13;
+  z-index: 1;&#13;
+	width: 100%;&#13;
+  @media screen and (min-width: $screen-sm-min) {&#13;
+    width: $aside-width;&#13;
+  }&#13;
+}&#13;
+&#13;
+.steps {&#13;
+  @include wow-list-reset();&#13;
+  counter-reset: wow-counter;&#13;
+&#13;
+  li {&#13;
+    color: darken($aside-bg, 20%);&#13;
+    counter-increment: wow-counter;&#13;
+    font-size: 1.1rem;&#13;
+    margin-bottom: 2em;&#13;
+&#13;
+    &amp;::before {&#13;
+      align-items: center;&#13;
+      background-color: darken($aside-bg, 20%);&#13;
+      border-radius: 50%;&#13;
+      color: $aside-bg;&#13;
+      content: counter(wow-counter);&#13;
+      display: inline-flex;&#13;
+      height: 2rem;&#13;
+      justify-content: center;&#13;
+      line-height: 1;&#13;
+      margin-right: 1rem;&#13;
+      width: 2rem;&#13;
+    }&#13;
+&#13;
+    &amp;.visited {&#13;
+      color: $text-color;&#13;
+      cursor: pointer;&#13;
+&#13;
+      &amp;::before {&#13;
+        background-color: $text-color;&#13;
+      }&#13;
+    }&#13;
+&#13;
+    &amp;.active {&#13;
+      color: $brand-primary;&#13;
+&#13;
+      &amp;::before {&#13;
+        background-color: $brand-primary;&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+main {&#13;
+  background-color: $panel-bg;&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  flex-grow: 1;&#13;
+  flex-shrink: 0;&#13;
+  padding: 2.5rem;&#13;
+  transition: transform .5s ease-out, opacity .5s ease-out;&#13;
+	width: 100%;&#13;
+  @media screen and (min-width: $screen-sm-min) {&#13;
+    width: calc(100% - $aside-width);&#13;
+  }&#13;
+&#13;
+  .show-preview &amp; {&#13;
+    opacity: .25;&#13;
+    transform: translateX(-25%);&#13;
+    @media screen and (max-width: $screen-xs-max) {&#13;
+  		display: none;&#13;
+  	}&#13;
+  }&#13;
+&#13;
+  &gt;div {&#13;
+    display: flex;&#13;
+    flex-direction: column;&#13;
+    width: 100%;&#13;
+  }&#13;
+&#13;
+  .section-title {&#13;
+    margin: 0 0 2rem;&#13;
+  }&#13;
+&#13;
+  .section-subtitle {&#13;
+    margin: 0 0 2rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+ .wide-btn {&#13;
+   width: 100%;&#13;
+    i {&#13;
+      margin-left: .25em;&#13;
+      margin-right: 0;&#13;
+    }&#13;
+&#13;
+    &amp;:hover {&#13;
+      i {&#13;
+        transform: translateX(10%);&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+&#13;
+   &#13;
+.tall-wide-btn {&#13;
+   width: 100%;&#13;
+   padding: 20px 30px;&#13;
+    font-size: 30px;&#13;
+    border-radius: 10px;&#13;
+   i {&#13;
+      margin-left: .25em;&#13;
+      margin-right: 0;&#13;
+    }&#13;
+&#13;
+    &amp;:hover {&#13;
+      i {&#13;
+        transform: translateX(10%);&#13;
+      }&#13;
+    }&#13;
+}&#13;
+nav {&#13;
+  border-top: 1px solid $border-color;&#13;
+  display: flex;&#13;
+  flex-wrap: wrap;&#13;
+  margin-top: auto;&#13;
+  padding-top: 2rem;&#13;
+  width: 100%;&#13;
+&#13;
+  .btn {&#13;
+    @include wow-button();&#13;
+&#13;
+    i {&#13;
+      transition: transform .3s ease-out;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  .prev-btn {&#13;
+    background-color: $white;&#13;
+    margin-right: auto;&#13;
+    transition: border-color .3s ease-out;&#13;
+&#13;
+    &amp;:hover {&#13;
+      background-color: $white;&#13;
+      border-color: darken($white, 40%);&#13;
+&#13;
+      i {&#13;
+        transform: translateX(-10%);&#13;
+      }&#13;
+    }&#13;
+&#13;
+  }&#13;
+&#13;
+  .next-btn {&#13;
+    i {&#13;
+      margin-left: .25em;&#13;
+      margin-right: 0;&#13;
+    }&#13;
+&#13;
+    &amp;:hover {&#13;
+      i {&#13;
+        transform: translateX(10%);&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.selected-items {&#13;
+  @include wow-list-reset();&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  justify-content: flex-end;&#13;
+  margin-bottom: 1.5rem;&#13;
+  width: 100%;&#13;
+&#13;
+  li {&#13;
+    align-items: center;&#13;
+    display: flex;&#13;
+    justify-content: center;&#13;
+    margin-bottom: .5rem;&#13;
+&#13;
+    strong {&#13;
+      margin-right: 1em;&#13;
+    }&#13;
+&#13;
+    span {&#13;
+      align-items: center;&#13;
+      display: inline-flex;&#13;
+&#13;
+      i {&#13;
+        color: $text-muted;&#13;
+      }&#13;
+    }&#13;
+&#13;
+    &amp;.selected-asset {&#13;
+      i {&#13;
+        margin-right: .5em;&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.preview {&#13;
+  background-color: $panel-bg;&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  flex-shrink: 0;&#13;
+  padding: 2.5rem;&#13;
+  transition: transform .5s ease-out;&#13;
+  &#13;
+  @media screen and (min-width: $screen-sm-min) {&#13;
+    width: calc(100% - $aside-width - 2rem);&#13;
+  }&#13;
+&#13;
+  @include wow-spinner($brand-primary, 40px) {&#13;
+    .spinner {&#13;
+      margin-bottom: 10rem;&#13;
+      margin-top: 10rem;&#13;
+    }&#13;
+  }&#13;
+	@media screen and (max-width: $screen-xs-max) {&#13;
+  	display: none;&#13;
+  }&#13;
+  .show-preview &amp; {&#13;
+    box-shadow: $panel-shadow;&#13;
+    transform: translateX(-100%);&#13;
+    @media screen and (max-width: $screen-xs-max) {&#13;
+      width: 100%;&#13;
+      z-index: $zindex-mask;&#13;
+      display: block;&#13;
+      transform: translateX(0px);&#13;
+      // position: absolute;&#13;
+      height: 100%;&#13;
+      // right: 0px;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.preview-widget {&#13;
+  margin-bottom: 2rem;&#13;
+}&#13;
+&#13;
+/* --- announcements --- */&#13;
+&#13;
+.announcements {&#13;
+  @include wow-list-reset();&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  margin-bottom: 2rem;&#13;
+&#13;
+  .announcement {&#13;
+    /*margin-bottom: 1.5rem;&#13;
+    padding: 1.5rem;*/&#13;
+    margin-bottom: 0.5rem;&#13;
+    padding: 0.5rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+.announcement {&#13;
+  align-items: center;&#13;
+  border: 1px solid $border-color;&#13;
+  border-radius: $border-radius;&#13;
+  display: flex;&#13;
+  padding: 0.5rem;&#13;
+  /*padding: 1.5rem;*/&#13;
+&#13;
+  .icon,&#13;
+  .actions {&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  .icon {&#13;
+    margin-right: 1.5rem;&#13;
+&#13;
+    i {&#13;
+      color: $brand-danger;&#13;
+      font-size: 3rem;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  .details {&#13;
+    flex-grow: 1;&#13;
+&#13;
+    .title {&#13;
+      margin: 0;&#13;
+    }&#13;
+&#13;
+    .summary {&#13;
+      margin-top: 1rem;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  .actions {&#13;
+    margin-left: 2.5rem;&#13;
+&#13;
+    .btn {&#13;
+      @include wow-button();&#13;
+&#13;
+      &amp;[disabled] {&#13;
+        background-color: darken($panel-bg, 5%);&#13;
+        border: none;&#13;
+        color: $text-color;&#13;
+        opacity: 1;&#13;
+&#13;
+        i {&#13;
+          color: $brand-success;&#13;
+        }&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+/* --- common articles --- */&#13;
+&#13;
+.common-articles {&#13;
+  @include wow-list-reset();&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  /*margin-bottom: 2rem;*/&#13;
+  margin-bottom: 0.5rem;&#13;
+&#13;
+  .article {&#13;
+    /*margin-bottom: 1rem;*/&#13;
+    margin-bottom: .3rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+.article {&#13;
+  align-items: center;&#13;
+  display: flex;&#13;
+&#13;
+  /*@include wow-item-image(60px) {*/&#13;
+  @include wow-item-image(40px) {&#13;
+    align-items: center;&#13;
+    justify-content: center;&#13;
+    margin-right: 1.5rem;&#13;
+  }&#13;
+&#13;
+  .title {&#13;
+    margin: 0 0 .5rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+/* --- common items and assets --- */&#13;
+&#13;
+.common-items,&#13;
+.assets {&#13;
+  @include wow-list-reset();&#13;
+  display: flex;&#13;
+  flex-wrap: wrap;&#13;
+  margin-bottom: 2rem;&#13;
+  margin-left: -1rem;&#13;
+  margin-right: -1rem;&#13;
+&#13;
+  .item,&#13;
+  .asset {&#13;
+    margin: 1rem;&#13;
+    padding: 1.5rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+.item,&#13;
+.asset {&#13;
+  align-items: center;&#13;
+  border: 1px solid $border-color;&#13;
+  border-radius: $border-radius;&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  justify-content: center;&#13;
+  margin: 1rem;&#13;
+  padding: 1.5rem;&#13;
+  text-align: center;&#13;
+  transition: border-color .3s ease-out;&#13;
+  width: calc(33.333% - 2rem);&#13;
+&#13;
+  &amp;:hover,&#13;
+  &amp;.selected {&#13;
+    border-color: $brand-primary;&#13;
+    box-shadow: 0 4px 10px rgba($black, .2);&#13;
+  }&#13;
+}&#13;
+&#13;
+.item {&#13;
+  @include wow-item-image(100px) {&#13;
+    align-items: center;&#13;
+    justify-content: center;&#13;
+  }&#13;
+}&#13;
+&#13;
+.asset {&#13;
+  i {&#13;
+    color: $brand-info;&#13;
+    font-size: 75px;&#13;
+  }&#13;
+}&#13;
+&#13;
+/* --- impact and urgency --- */&#13;
+&#13;
+.impact,&#13;
+.urgency {&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  margin-bottom: 2rem;&#13;
+&#13;
+  ul {&#13;
+    @include wow-list-reset();&#13;
+    display: flex;&#13;
+    margin-top: 1rem;&#13;
+&#13;
+    li {&#13;
+      margin-right: -1px;&#13;
+      padding: 1rem 1.5rem;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  li {&#13;
+    align-items: center;&#13;
+    border: 1px solid $border-color;&#13;
+    display: inline-flex;&#13;
+   	font-size: 1.2rem;&#13;
+&#13;
+    &amp;:first-child {&#13;
+      border-top-left-radius: $border-radius;&#13;
+      border-bottom-left-radius: $border-radius;&#13;
+    }&#13;
+&#13;
+    &amp;:last-child {&#13;
+      border-top-right-radius: $border-radius;&#13;
+      border-bottom-right-radius: $border-radius;&#13;
+    }&#13;
+&#13;
+    &amp;:hover {&#13;
+      border-color: $brand-primary;&#13;
+      position: relative; // to help with margin -1px&#13;
+    }&#13;
+&#13;
+    &amp;.selected {&#13;
+      background-color: $brand-primary;&#13;
+      border-color: $brand-primary;&#13;
+      color: $white;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+/* --- search --- */&#13;
+&#13;
+.search {&#13;
+  min-height: 300px;&#13;
+&#13;
+  @include wow-spinner($brand-primary, 40px) {&#13;
+    display: flex;&#13;
+&#13;
+    .spinner {&#13;
+      margin-bottom: 2rem;&#13;
+      padding: 5rem 0;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  .form-group {&#13;
+    align-items: center;&#13;
+    border: 1px solid $border-color;&#13;
+    border-radius: $border-radius;&#13;
+    display: flex;&#13;
+    margin: 1rem 0 2rem;&#13;
+&#13;
+    &amp;.error {&#13;
+      border-color: $brand-danger;&#13;
+    }&#13;
+&#13;
+    &gt;i {&#13;
+      margin-left: 1rem;&#13;
+    }&#13;
+&#13;
+    &gt;span {&#13;
+      align-items: center;&#13;
+      display: inline-flex;&#13;
+      margin-right: 1rem;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  input {&#13;
+    border: none;&#13;
+    margin: 0;&#13;
+    padding: 1rem;&#13;
+    width: 100%;&#13;
+  }&#13;
+&#13;
+  .no-results {&#13;
+    font-size: 1.1rem;&#13;
+    margin-bottom: 2rem;&#13;
+    padding: 5rem 0;&#13;
+    text-align: center;&#13;
+  }&#13;
+}&#13;
+&#13;
+.results {&#13;
+  @include wow-list-reset();&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  margin-bottom: 2rem;&#13;
+&#13;
+  .result {&#13;
+    margin-bottom: 1rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+.result {&#13;
+  align-items: center;&#13;
+  display: flex;&#13;
+&#13;
+  @include wow-item-image(60px) {&#13;
+    align-items: center;&#13;
+    justify-content: center;&#13;
+    margin-right: 1.5rem;&#13;
+  }&#13;
+&#13;
+  .title {&#13;
+    margin: 0 0 .5rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+/* --- categories --- */&#13;
+&#13;
+.category-browser {&#13;
+  border: 1px solid $border-color;&#13;
+  border-radius: $border-radius;&#13;
+  display: flex;&#13;
+  margin: 2rem 0;&#13;
+  overflow: hidden;&#13;
+&#13;
+  ul {&#13;
+    @include wow-list-reset();&#13;
+    display: flex;&#13;
+    flex-direction: column;&#13;
+    flex-grow: 1;&#13;
+&#13;
+    &amp;:not(:last-child) {&#13;
+      border-right: 1px solid $border-color;&#13;
+    }&#13;
+&#13;
+    li {&#13;
+      margin-left: -1px;&#13;
+      margin-right: -1px; // may need x-browser checks&#13;
+      padding: 1.5rem;&#13;
+    }&#13;
+&#13;
+    &amp;.has-children {&#13;
+      flex-grow: 0;&#13;
+      flex-shrink: 0;&#13;
+      width: 25%;&#13;
+&#13;
+      @include wow-item-image(30px) {&#13;
+        align-items: center;&#13;
+        justify-content: center;&#13;
+        margin-right: 1rem;&#13;
+      }&#13;
+&#13;
+      .title {&#13;
+        font-size: 1.1rem;&#13;
+      }&#13;
+&#13;
+      .description {&#13;
+        display: none;&#13;
+      }&#13;
+    }&#13;
+  }&#13;
+&#13;
+  li {&#13;
+    align-items: center;&#13;
+    display: flex;&#13;
+&#13;
+    @include wow-item-image(60px) {&#13;
+      align-items: center;&#13;
+      justify-content: center;&#13;
+      margin-right: 1.5rem;&#13;
+    }&#13;
+&#13;
+    &amp;:not(:last-child) {&#13;
+      border-bottom: 1px solid darken($panel-bg, 10%);&#13;
+    }&#13;
+&#13;
+    &amp;.active {&#13;
+      background-color: $brand-info;&#13;
+&#13;
+      &amp;, * {&#13;
+        color: $white!important;&#13;
+      }&#13;
+    }&#13;
+&#13;
+    .title {&#13;
+      margin: 0;&#13;
+    }&#13;
+&#13;
+    .description {&#13;
+      margin-top: .5rem;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  .search-filter {&#13;
+    background-color: darken($panel-bg, 5%);&#13;
+    padding: .5rem 1rem;&#13;
+&#13;
+    input {&#13;
+      background-color: transparent;&#13;
+      border: none;&#13;
+      flex-grow: 1;&#13;
+      padding: .5rem;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.launch-chat {&#13;
+  align-items: flex-start;&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+  margin-bottom: 2rem;&#13;
+&#13;
+  .btn {&#13;
+    @include wow-button();&#13;
+    margin-top: 1rem;&#13;
+    &#13;
+    i {&#13;
+      color: $brand-primary;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.contact-info {&#13;
+  margin-bottom: 2rem;&#13;
+}&#13;
+&#13;
+/* --- record producer --- */&#13;
+&#13;
+.record-producer {&#13;
+  @include wow-spinner($brand-primary, 40px) {&#13;
+    .spinner {&#13;
+      margin-bottom: 10rem;&#13;
+      margin-top: 10rem;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.record-producer-widget {&#13;
+  .mark-favorite,&#13;
+  .panel &gt;.wrapper-md:nth-of-type(1),&#13;
+  .panel &gt;.wrapper-md:nth-of-type(2) {&#13;
+    display: none;&#13;
+  }&#13;
+&#13;
+  .panel &gt;.wrapper-md:nth-of-type(3) {&#13;
+    margin-top: -1rem!;&#13;
+  }&#13;
+}&#13;
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>wow-incident-wizard</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, element) {
+	scope.widgetEl = element;
+
+	var scrollableEl = $('.sp-scroll');
+
+	scope.scrollTop = function() {
+		var distance = scrollableEl.scrollTop() + ($(element).offset().top);
+
+		if (scrollableEl.scrollTop() > distance)
+			scrollableEl.animate({
+				scrollTop: distance
+			}, (distance * 5 > 500 ? 500 : distance * 5));
+	}
+}]]></link>
+        <name>Wow Incident Wizard</name>
+        <option_schema>[{"displayValue":"Record Producer","hint":"Portal \"Incident form\" field will override this","name":"recordProducer","section":"Data","label":"Record Producer","type":"reference","value":"sc_cat_item_producer","ed":{"reference":"sc_cat_item_producer"}},{"name":"descriptionVariable","section":"Data","label":"Description variable name","type":"string"},{"name":"categoryVariable","section":"Data","label":"Category variable name","type":"string"},{"name":"subcategoryVariable","section":"Data","label":"Subcategory variable name","type":"string"},{"name":"issueVariable","section":"Data","label":"Issue variable name","type":"string"},{"name":"assetVariable","section":"Data","label":"Asset variable name","type":"string"},{"name":"impactVariable","section":"Data","label":"Impact variable name","type":"string"},{"name":"urgencyVariable","section":"Data","label":"Urgency variable name","type":"string"},{"name":"title","section":"Presentation","label":"Title","type":"string"},{"name":"subtitle","section":"Presentation","label":"Subtitle","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var user = gs.getUser();
+	var portal = $sp.getPortalRecord();
+	var announcementsLimit = 3;
+	var articlesLimit = 3;
+	var resultsLimit = 10;
+
+	options.title = gs.getMessage(options.title || 'wow_log_issue');
+	options.subtitle = options.subtitle ? gs.getMessage(options.subtitle) : null;
+	options.searchPlaceholder = gs.getMessage(options.searchPlaceholder || 'wow_issue_search_placeholder');
+	options.recordProducer = portal.getValue('x_mono2_wow_incident_cat_item') || options.recordProducer || null;
+	options.articleLimit = options.articleLimit || 3;
+
+	// variables to pass through
+	options.descriptionVariable = options.descriptionVariable || null;
+	options.categoryVariable = options.categoryVariable || null;
+	options.subcategoryVariable = options.subcategoryVariable || null;
+	options.issueVariable = options.issueVariable || null;
+	options.assetVariable = options.assetVariable || null;
+	options.impactVariable = options.impactVariable || null;
+	options.urgencyVariable = options.urgencyVariable || null;
+
+
+	var util = new WowUtil();
+	var searchHelper = new WowSearch({
+		excludedIds: options.recordProducer ? [options.recordProducer] : [], // exclude the record producer from search results
+		resultType: 'incident'
+	});
+	var announcementsHelper = new WowAnnouncements({
+		queryLimit: announcementsLimit
+	});
+
+	var recordProducer = searchHelper.getCatalogItem(options.recordProducer);
+	if (!recordProducer)
+		options.recordProducer = null;
+
+	var userLanguage = util.getUserLanguage();
+	var userDomain = util.getUserDomain();
+
+	if (input) {
+		switch (input.action) {
+			case 'get_widget':
+				data.widget = getWidget(input.item);
+				return;
+
+			case 'get_record_producer':					
+				
+				var mapped = null;
+				
+//				if(input.cat && input.cat != '' ) {
+//					var rp = new global.WowTask().getCategoryRP(input.cat);
+					
+//					if(rp)
+//						mapped = searchHelper.getCatalogItem(rp);
+//				}
+				
+				recordProducer = searchHelper.getCatalogItem(options.recordProducer);
+				data.widget = getWidget(recordProducer);
+				
+				$sp.log(recordProducer);
+				$sp.log(data.widget);
+				
+				return;
+
+			case 'search':
+				data.results = getResults(input.searchTerm);
+				return;
+
+			case 'report_incident':
+				var incident = input.incident;
+				if (incident) {
+					var incidentId = announcementsHelper.reportIncident(incident.id);
+
+					if (incidentId)
+						data.redirectUrl = '?id=wow_incident&sys_id=' + incidentId;
+				}
+
+				break;
+		}
+	}
+
+	var stackHelper = new WowStack();
+
+	data.announcements = announcementsHelper.getIncidentAnnouncements();
+	data.articles = stackHelper.getCommonArticles(options.articleLimit);
+	data.ratedArticles = stackHelper.getRatedArticles(options.articleLimit);
+	data.items = getCommonItems();
+	data.assets = util.getAssets();
+	data.categories = getCategories();
+	data.impacts = getImpacts();
+	data.urgencies = getUrgencies();
+	data.contactInformation = portal.getValue('x_mono2_wow_contact_info');
+	data.hasChat = hasChat();
+
+
+	function getResults(searchTerm) {
+		searchHelper.setQueryLimit(resultsLimit);
+		searchHelper.setSearchTerm(searchTerm);
+
+		var articles = searchHelper.getArticles();
+		//var ratedArticles = searchHelper.getRatedArticles();
+		var items = searchHelper.getCatalogItems();
+
+		var results = [].concat(articles).concat(items);
+
+		results.sort(function(a, b) {
+			return b.score - a.score;
+		});
+
+		return results.slice(0, resultsLimit);
+	}
+
+
+	function getCommonItems() {
+		var items = [];
+		var searchHelper = new WowSearch({
+			queryLimit: 10,
+			resultType: 'incident',
+			advancedFilters: [
+				{
+					field: 'x_mono2_wow_common',
+					value: true
+				}
+			]
+		});
+
+		return searchHelper.getCatalogItems();
+	}
+
+
+	function getCategories() {
+		var categories = [];
+
+		var gr = new GlideRecord('sys_choice');
+		includeChoiceQuery(gr);
+		gr.addQuery('name', 'incident');
+		gr.addQuery('element', 'category');
+		gr.addQuery('u_portal', 'true');
+
+		gr.orderBy('sequence');
+		gr.query();
+
+		var categoryLookup = {};
+		var subcategories = [];
+//		var issues = []; issues were CC
+
+		while (gr.next()) {
+			var choice = getChoice(gr);
+
+			switch (gr.getValue('element')) {
+				case 'category':
+					if (hasChoice(categories, choice)) {
+						if (choice.language === userLanguage)
+							updateChoice(categories, choice);
+					}
+
+					else {
+						//choice.categories = getProducts(choice.value);
+						categories.push(choice);
+					}
+
+					break;
+
+// 				case 'u_issue':
+// 					if (hasChoice(issues, choice)) {
+// 						if (choice.language === userLanguage)
+// 							updateChoice(issues, choice);
+// 					}
+
+// 					else
+// 						issues.push(choice);
+
+// 					break;
+			}
+		}
+
+		// issues are actually mapped to categories not subcategories on sys_choice table
+// 		issues.forEach(function(issue) {
+// 			for (var i = 0; i < categories.length; i++) {
+// 				var category = categories[i];
+
+// 				if (category.value === issue.parent) {
+// 					for (var j = 0; j < category.categories.length; j++) {
+// 						var subcategory = category.categories[j];
+
+// 						if (!subcategory.categories)
+// 							subcategory.categories = [];
+
+// 						subcategory.categories.push(issue);
+// 					}
+// 				}
+// 			}
+// 		});
+
+		return categories;
+	}
+
+
+	function getProducts(category) {
+		var products = [];
+		var util = new WowTask();
+
+		var gr = new GlideRecord('cmdb_model');
+		gr.addEncodedQuery(util.productRefQual(category));
+		gr.orderBy('display_name');
+		gr.query();
+
+		while (gr.next()) {
+			products.push({
+				id: gr.getUniqueValue(),
+				label: gr.getDisplayValue('display_name'),
+				value: gr.getUniqueValue()
+			});
+		}
+
+		return products;
+	}
+
+
+	function getImpacts() {
+		var impacts = [];
+
+		var gr = new GlideRecord('sys_choice');
+		includeChoiceQuery(gr);
+		gr.addQuery('name', 'task')
+			.addOrCondition('name', 'incident');
+		gr.addQuery('element', 'impact');
+		gr.addQuery('value', '!=', '1');
+		gr.orderBy('sequence');
+		gr.query();
+		
+		while (gr.next()) {
+			var choice = getChoice(gr);
+
+			if (hasChoice(impacts, choice)) {
+				if (choice.language === userLanguage)
+					updateChoice(impacts, choice);
+			}
+
+			else
+				impacts.push(choice);
+		}
+
+		return impacts;
+	}
+
+
+	function getUrgencies() {
+		var urgencies = [];
+
+		var gr = new GlideRecord('sys_choice');
+		includeChoiceQuery(gr);
+		gr.addQuery('name', 'task')
+			.addOrCondition('name', 'incident');
+		gr.addQuery('element', 'urgency');
+		gr.addQuery('value', '!=', '1');
+		gr.orderBy('sequence');
+		gr.query();
+
+		while (gr.next()) {
+			var choice = getChoice(gr);
+
+			if (hasChoice(urgencies, choice)) {
+				if (choice.language === userLanguage)
+					updateChoice(urgencies, choice);
+			}
+
+			else
+				urgencies.push(choice);
+		}
+
+		return urgencies;
+	}
+
+
+	function getWidget(item) {
+		switch (item.className) {
+
+			case 'sc_cat_item_guide':
+				return $sp.getWidget('wow-order-guide', {
+					embedded: true,
+					favoritesPage: 'wow_order_guide',
+					sys_id: item.id
+				});
+
+			case 'sc_cat_item_content':
+				if (item.contentItem.type == 'kb' && item.contentItem.article)
+					return $sp.getWidget('wow-article', {
+						embedded: true,
+						favoritesPage: 'wow_article',
+						sys_id: item.contentItem.article.id
+					});
+
+				else
+					return $sp.getWidget('wow-catalog-item', {
+						display_cart_on_right: false,
+						embedded: true,
+						favoritesPage: 'wow_catalog_item',
+						sys_id: item.id
+					});
+
+			case 'kb_knowledge':
+				return $sp.getWidget('wow-article', {
+					embedded: true,
+					favoritesPage: 'wow_article',
+					hideRelated: true,
+					sys_id: item.id
+				});
+
+			default:
+				return $sp.getWidget('wow-catalog-item', {
+					display_cart_on_right: false,
+					embedded: true,
+					favoritesPage: 'wow_catalog_item',
+					sys_id: item.id
+				});
+		}
+	}
+
+
+	function getChoice(gr) {
+		return {
+			id: gr.getUniqueValue(),
+			label: gr.getDisplayValue('label'),
+			language: gr.getValue('language'),
+			parent: gr.getValue('dependent_value'),
+			order: gr.getValue('sequence'),
+			value: gr.getValue('value')
+		};
+	}
+
+
+	function hasChoice(choices, choice) {
+		for (var i = 0; i < choices.length; i++) {
+			if (choices[i].value === choice.value && choices[i].parent === choice.parent)
+				return true;
+		}
+
+		return false;
+	}
+
+
+	function updateChoice(choices, choice) {
+		for (var i = 0; i < choices.length; i++) {
+			if (choices[i].value === choice.value && choices[i].parent === choice.parent) {
+				choice.categories = choices[i].categories || [];
+				choices.splice(i, 1, choice);
+				return;
+			}
+		}
+	}
+
+
+	function includeChoiceQuery(gr) {
+		gr.addQuery('inactive', false);
+		gr.addQuery('sys_domain', userDomain);
+
+		if (userLanguage === 'en')
+			gr.addQuery('language', 'en');
+
+		// get english and user lanuage to ensure we have every record (in case translations don't exist)
+		else
+			gr.addQuery('language', 'en')
+				.addOrCondition('language', userLanguage);
+	}
+
+
+	function hasChat() {
+		var chatUrl = portal.getValue('x_mono2_wow_external_chat_url');
+
+		if (!chatUrl)
+			return false;
+
+		return true;
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-08-05 11:49:08</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>ad9ee20edb4b73000ef45682ca9619bb</sys_id>
+        <sys_mod_count>840</sys_mod_count>
+        <sys_name>Wow Incident Wizard</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_ad9ee20edb4b73000ef45682ca9619bb</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-20 09:29:32</sys_updated_on>
+        <template><![CDATA[<section class="panel" ng-if="::options.recordProducer">
+
+  <div class="top">
+    <h1>{{::options.title}}</h1>
+    <h3 ng-if="options.subtitle">{{::options.subtitle}}</h3>
+  </div>
+
+  <div class="wizard" ng-class="{'show-preview': showPreview}">
+
+    <aside>
+      <ol class="steps">
+        <li ng-repeat="step in steps track by $index" ng-click="gotoStep($index)" ng-class="{'active': step.active, 'visited': step.visited}" ng-bind-html="step.label"></li>
+      </ol>
+    </aside>
+
+    <main>
+
+      <div ng-show="steps[constants.STEP_KNOWN].active" class="known-issues">
+
+        <h2 class="section-title">${wow_known_issue_title}</h2>
+
+        <ul class="announcements" ng-if="data.announcements.length > 0">
+          <li class="announcement" ng-repeat="announcement in data.announcements">
+            <div class="icon">
+              <i ng-if="announcement.glyph" class="fa fa-{{announcement.glyph}}"></i>
+              <i ng-if="!announcement.glyph" class="material-icons">warning</i>
+            </div>
+            <div class="details">
+              <h4 class="title">{{announcement.title}}</h4>
+              <div class="summary" ng-if="announcement.summary" ng-bind-html="announcement.summary | nl2br"></div>
+            </div>
+            <div class="actions">
+              <button ng-click="reportIncident(announcement)" ng-disabled="!announcement.canReportIncident" class="btn btn-info">
+                <i ng-if="!announcement.canReportIncident" class="material-icons">check</i>
+                ${wow_im_impacted}
+              </button>
+            </div>
+          </li>
+        </ul>
+        
+        <p class="section-title" ng-if="data.announcements.length === 0">
+          ${wow_no_known_issues}
+        </p>
+
+        <h4 class="section-subtitle" ng-if="data.announcements.length > 0">${wow_helpful_articles}</h4>
+
+        <ul class="common-articles">
+          <li class="article" ng-repeat="article in data.articles" ng-click="openPreview(article)">
+            <wow-item-image item="article"></wow-item-image>
+            <div class="details">
+              <h4 class="title">{{article.title}}</h4>
+              <!--div class="summary">{{article.description}}</div-->
+            </div>
+          </li>
+        </ul>
+
+       <h4 class="section-subtitle" ng-if="data.announcements.length > 0">${wow_rated_articles}</h4>
+
+        <ul class="common-articles">
+          <li class="article" ng-repeat="ratedArticle in data.ratedArticles" ng-click="openPreview(ratedArticle)">
+            <wow-item-image item="article"></wow-item-image>
+            <div class="details">
+              <h4 class="title">{{ratedArticle.title}}</h4>
+              <!--div class="summary">{{ratedArticle.description}}</div-->
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div ng-show="steps[constants.STEP_COMMON].active" class="common-issues">
+        
+        <!--h4 class="section-title" ng-show="!showKeyUsers()">${wow_non_workplace_app}</h2-->
+        
+        <div class="actions">
+        <!--button ng-show="!showKeyUsers()" ng-click="c.showKeyUsersWidget()" class="btn btn-info"-->
+        <button ng-show="!showKeyUsers()" ng-click="c.showKeyUsersWidget()" class="tall-wide-btn btn-primary">
+            ${wow_non_workplace}
+        </button>
+          <br/><br/>
+        </div>
+          
+        <!--wow-spinner loading="loadingForm"></wow-spinner-->
+        <div id="key-users" ng-show="showKeyUsers()">
+        <!--div id="keyusers" ng-if="c.showKUWidget()"-->
+          <widget id="asp-contact-picker"></widget>
+        </div>
+                
+        
+        <h2 class="section-title" ng-show="!showKeyUsers()">${wow_common_issue_title}</h2>
+        
+        <ul class="common-items" ng-show="!showKeyUsers()">
+          <li class="item" ng-repeat="item in data.items" ng-click="openPreview(item)">
+            <wow-item-image item="item"></wow-item-image>
+            <div class="details">
+              <h4 class="title">{{item.label}}</h4>
+              <div class="summary">{{item.summary}}</div>
+            </div>
+          </li>
+        </ul>
+
+        <div ng-if="data.assets.length > 0">
+          <h4 class="section-subtitle" ng-show="!showKeyUsers()">${wow_device_issue_title}</h4>
+
+          <ul class="assets" ng-show="!showKeyUsers()">
+            <li class="asset" ng-repeat="asset in data.assets" ng-click="setAsset(asset)" ng-class="{'selected': selections.asset === asset}">
+              <i class="material-icons">devices_other</i>
+              <div class="details">
+                <!--h4 class="title">{{asset.description}}</h4-->
+                <h4 class="title">{{asset.assetTag}}</h4>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div ng-show="steps[constants.STEP_DESCRIBE].active" class="describe-issue">
+
+        <!--h2 class="section-title">${wow_describe_issue_title}</h2-->
+
+        <div class="impact" ng-class="{'error': validations.impact === false}">
+          <h4>${wow_describe_issue_impact}</h4>
+          <ul>
+            <li ng-repeat="impact in data.impacts" ng-click="selectImpact(impact)" ng-class="{'selected': selections.impact === impact}">
+              {{impact.label}}
+            </li>
+          </ul>
+        </div>
+
+        <div class="urgency" ng-class="{'error': validations.urgency === false}">
+          <h4>${wow_describe_issue_urgency}</h4>
+          <ul>
+            <li ng-repeat="urgency in data.urgencies" ng-click="selectUrgency(urgency)" ng-class="{'selected': selections.urgency === urgency}">
+              {{urgency.label}}
+            </li>
+          </ul>
+        </div>
+
+        <div class="launch-chat" ng-show="showChatLink()">
+          <span>${wow_is_high_impact_urgency}</span>
+          <button ng-click="launchChat()" class="btn btn-default">
+            <i class="material-icons">forum</i>
+            ${wow_launch_chat}
+          </button>
+        </div>
+
+        <div class="contact-info" ng-show="showContactInfo()" ng-bind-html="::data.contactInformation"></div>
+
+        <div class="search" ng-hide="isHighPriority()" ng-class="{'error': validations.searchTerm === false}">
+          <h4>${wow_describe_issue_subtitle}</h4>
+
+          <div class="form-group">
+            <i class="material-icons">search</i>
+            <input type="text"
+                   name="q"
+                   ng-model="c.searchTerm"
+                   ng-model-options="{debounce: 250}"
+                   ng-change="typeahead(c.searchTerm)"
+                   autocomplete="off"
+                   placeholder="{{::options.searchPlaceholder}}"
+                   aria-label="{{::options.searchPlaceholder}}"
+                   tabindex="0">
+            <span ng-show="c.searchTerm" ng-click="clearSearch()">
+              <i class="material-icons">close</i>
+            </span>
+          </div>
+
+          <ul class="results" ng-show="data.results && data.results.length > 0">
+            <li class="result" ng-repeat="result in data.results" ng-click="openPreview(result)">
+              <wow-item-image item="result"></wow-item-image>
+              <div class="details">
+                <h4 class="title">{{result.label || result.title}}</h4>
+                <div class="summary">{{result.summary || result.description}}</div>
+              </div>
+            </li>
+          </ul>
+
+          <div class="no-results" ng-show="data.results && data.results.length === 0 && !searching">
+            ${wow_no_helpful_results}
+          </div>
+
+          <wow-spinner loading="(!data.results || data.results.length === 0) && searching"></wow-spinner>
+
+        </div>
+
+      </div>
+
+      <div ng-show="steps[constants.STEP_CATEGORIZE].active" class="categorise-issue">
+
+        <h2 class="section-title">${wow_categorise_issue_title}</h2>
+        <p>${wow_categorise_issue_subtitle}</p>
+
+        <div class="category-browser" ng-class="{'error': !validations.category}">
+
+          <ul class="categories" ng-class="{'has-children': selections.category && selections.category.categories.length > 0}">
+            <li ng-repeat="category in data.categories" ng-click="selectCategory(category)" ng-class="{'active': category.active}">
+              <div class="details">
+                <h4 class="title">{{category.label}}</h4>
+              </div>
+            </li>
+          </ul>
+
+          <ul class="subcategories" ng-if="selections.category && selections.category.categories.length > 0" ng-class="{'has-children': selections.subcategory && selections.subcategory.categories.length > 0}">
+            <li ng-show="selections.category.categories.length > categoriesLimit && (!selections.subcategory || selections.subcategory.categories.length === 0)" class="search-filter">
+              <i class="material-icons">search</i>
+              <input type="text"
+                     name="scq"
+                     ng-model="c.subcategorySearchTerm"
+                     ng-model-options="{debounce: 250}"
+                     ng-change="filterCategories(selections.category.categories, c.subcategorySearchTerm)"
+                     autocomplete="off"
+                     placeholder="${wow_filter_by_searchterm}"
+                     aria-label="${wow_filter_by_searchterm}"
+                     tabindex="0">
+            </li>
+            <li ng-repeat="subcategory in limitCategories(selections.category.categories)" ng-click="selectCategory(subcategory)" ng-class="{'active': subcategory.active}">
+              <div class="details">
+                <h4 class="title">{{subcategory.label}}</h4>
+              </div>
+            </li>
+            <li ng-show="exceedsCategoriesLimit(selections.category.categories)">
+              {{"${wow_[0]_more_categories}".replace('[0]', (selections.category.categories.length - categoriesLimit))}}. ${wow_filter_by_searchterm}.
+            </li>
+          </ul>
+
+          <ul class="issues" ng-if="selections.subcategory && selections.subcategory.categories.length > 0">
+            <li ng-repeat="category in selections.subcategory.categories" ng-click="selectCategory(category)" ng-class="{'active': category.active}">
+              <div class="details">
+                <h4 class="title">{{category.label}}</h4>
+              </div>
+            </li>
+          </ul>
+
+        </div>
+        
+        <div class="launch-chat" ng-show="showChatLink()">
+          <span>${wow_no_suitable_category}</span>
+          <button ng-click="launchChat()" class="btn btn-default">
+            <i class="material-icons">forum</i>
+            ${wow_launch_chat}
+          </button>
+        </div>
+
+      </div>
+
+      <div ng-show="steps[constants.STEP_FORM].active" class="record-producer">
+
+        <h2 class="section-title">${wow_issue_details_title}</h2>
+
+        <wow-spinner loading="loadingForm"></wow-spinner>
+
+        <div class="record-producer-widget" ng-if="recordProducer">
+          <sp-widget widget="recordProducer"></sp-widget>
+        </div>
+
+      </div>
+
+      <nav>
+
+        <ul class="selected-items" ng-if="hasSelectedSomething() && !steps[constants.STEP_FORM].active">
+          <li ng-if="selections.category" class="selected-category">
+            <strong>${wow_selected_category}:</strong>
+            <span ng-if="selections.category">
+              {{selections.category.label}}
+            </span>
+            <span ng-if="selections.subcategory">
+              <i class="material-icons">chevron_right</i>
+              {{selections.subcategory.label}}
+            </span>
+            <span ng-if="selections.issue">
+              <i class="material-icons">chevron_right</i>
+              {{selections.issue.label}}
+            </span>
+          </li>
+          <li ng-if="selections.asset" class="selected-asset">
+            <strong>
+              ${wow_selected_asset}:
+            </strong>
+            <span>
+              <i class="material-icons">devices_other</i>
+              {{selections.asset.description}}
+            </span>
+          </li>
+          <li ng-if="selections.impact" class="selected-impact">
+            <strong>
+              ${wow_selected_impact}:
+            </strong>
+            <span>
+              {{selections.impact.label}}
+            </span>
+          </li>
+          <li ng-if="selections.urgency" class="selected-urgency">
+            <strong>
+              ${wow_selected_urgency}:
+            </strong>
+            <span>
+              {{selections.urgency.label}}
+            </span>
+          </li>
+        </ul>
+
+        <button ng-click="previous()" ng-disabled="!hasPrevious()" class="prev-btn btn btn-default">
+          <i class="material-icons">chevron_left</i>
+          {{getPreviousLabel()}}
+        </button>
+        <button ng-click="next()" ng-disabled="!canContinue()" ng-hide="!hasNext()" class="next-btn btn btn-primary">
+        
+          {{getNextLabel()}}
+          <i class="material-icons">chevron_right</i>
+        </button>
+      </nav>
+
+    </main>
+
+    <div class="preview">
+
+      <wow-spinner loading="loadingPreview"></wow-spinner>
+
+      <div ng-if="previewWidget" class="preview-widget">
+        <sp-widget widget="previewWidget"></sp-widget>
+      </div>
+
+      <nav>
+        <button ng-click="previous()" ng-disabled="!hasPrevious()" class="prev-btn btn btn-default">
+          <i class="material-icons">chevron_left</i>
+          ${wow_back}
+        </button>
+      </nav>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="panel no-record-producer" ng-if="::!options.recordProducer">
+  ${wow_no_record_producer}
+</section>
+]]></template>
+    </sp_widget>
+</record_update>

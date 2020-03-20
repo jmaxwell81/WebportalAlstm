@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" extends="sys_metadata" label="Элемент меню" max_length="40" name="sp_rectangle_menu_item" type="collection">
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Background color" max_length="32" name="x_mono2_wow_background_color" reference="x_mono2_wow_color" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Description" max_length="8000" name="x_mono2_wow_description" type="translated_html"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Wow Icon" max_length="32" name="x_mono2_wow_icon" reference="x_mono2_wow_icon" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Icon color" max_length="32" name="x_mono2_wow_icon_color" reference="x_mono2_wow_color" type="reference"/>
+        <element attributes="edge_encryption_enabled=true,pdf_cell_type=image" audit="false" label="Image" max_length="40" name="x_mono2_wow_image" type="user_image"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Text color" max_length="32" name="x_mono2_wow_text_color" reference="x_mono2_wow_color" type="reference"/>
+        <index name="index">
+            <element name="x_mono2_wow_icon"/>
+        </index>
+        <index name="index2">
+            <element name="x_mono2_wow_text_color"/>
+        </index>
+        <index name="index3">
+            <element name="x_mono2_wow_background_color"/>
+        </index>
+        <index name="index4">
+            <element name="x_mono2_wow_icon_color"/>
+        </index>
+    </element>
+</database>

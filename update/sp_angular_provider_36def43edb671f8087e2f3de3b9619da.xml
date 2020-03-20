@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>WowBreadcrumbService</name>
+        <script><![CDATA[function WowBreadcrumbService($rootScope) {
+	var breadcrumbs = [];
+
+	function updateBreadcrumbs(currentUrl, homepageId) {
+		var backIndex;
+		var currentPath = getUrlPath(currentUrl);
+		var currentParams = extractParams(currentPath);
+		var currentCrumb = {
+			path: currentPath,
+			params: currentParams,
+			url: currentUrl
+		};
+
+		if (!currentCrumb.params.id || currentCrumb.params.id == homepageId) {
+			backIndex = -(breadcrumbs.length + 1);
+		}
+
+		else {
+			backIndex = findCurrentInHistory(currentCrumb);
+		}
+
+		// navigating backwards, remove breadcrumbs after currentpath
+		if (backIndex !== -1) {
+			breadcrumbs = breadcrumbs.slice(0, backIndex+1);
+		}
+
+		else {
+			// direct url access (refresh, bookmark, external link...)
+			var duplicateIndex = containsDuplicateId(currentCrumb);
+			if (duplicateIndex !== -1)
+				breadcrumbs.splice(duplicateIndex, breadcrumbs.length, currentCrumb);
+
+			// if we think crumb is a category page or it contains a sys_id add it
+			else if (containsCategoryInId(currentCrumb) || containsSysId(currentCrumb))
+				breadcrumbs.push(currentCrumb);
+
+			// otherwise restart the breadcrumbs
+			else
+				breadcrumbs.splice(0, breadcrumbs.length, currentCrumb);
+		}
+
+		return breadcrumbs;
+	}
+
+	function getUrlPath(url) {
+		var split = url.split('?');
+		if (split.length > 1)
+			return split[1].split('#')[0];
+		return split[0];
+	}
+
+	function containsDuplicateId(currentCrumb) {
+		for (var i = 0; i < breadcrumbs.length; i++)
+			if (breadcrumbs[i].params.id === currentCrumb.params.id)
+				return i;
+		return -1;
+	}
+
+	function containsCategoryInId(breadcrumb) {
+		if (breadcrumb.params && breadcrumb.params.id)
+			return breadcrumb.params.id.indexOf('category') >= 0;
+		return false;
+	}
+
+	function containsSysId(breadcrumb) {
+		if (breadcrumb.params && breadcrumb.params.sys_id)
+			return true;
+		return false;
+	}
+
+	function findCurrentInHistory(current) {
+		for (var i = 0; i < breadcrumbs.length; i++)
+			if (breadcrumbs[i].path === current.path)
+				return i;
+		return -1;
+	}
+
+	function extractParams(path) {
+		var result = {};
+		path.split('&').forEach(function(part) {
+			var item = part.split('=');
+			result[item[0]] = decodeURIComponent(item[1]);
+		});
+		return result;
+	}
+
+	return {
+		updateBreadcrumbs: updateBreadcrumbs,
+		extractParams: extractParams
+	};
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-30 15:43:45</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>36def43edb671f8087e2f3de3b9619da</sys_id>
+        <sys_mod_count>29</sys_mod_count>
+        <sys_name>WowBreadcrumbService</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_36def43edb671f8087e2f3de3b9619da</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-04-05 10:20:57</sys_updated_on>
+        <type>factory</type>
+    </sp_angular_provider>
+</record_update>

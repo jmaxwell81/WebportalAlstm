@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>wowScrollBottom</name>
+        <script><![CDATA[function($timeout) {
+	return {
+		scope: {
+			wowScrollBottom: "="
+		},
+		link: function(scope, element) {
+			scope.$watchCollection('wowScrollBottom', function(newValue) {
+				if (newValue) {
+					$timeout(function() {
+						$(element).scrollTop($(element)[0].scrollHeight);
+					}, 100);
+				}
+			});
+		}
+	};
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-07 04:38:44</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>0d933f05dbff93c087e2f3de3b961975</sys_id>
+        <sys_mod_count>12</sys_mod_count>
+        <sys_name>wowScrollBottom</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_0d933f05dbff93c087e2f3de3b961975</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-03-11 12:27:17</sys_updated_on>
+        <type>directive</type>
+    </sp_angular_provider>
+</record_update>

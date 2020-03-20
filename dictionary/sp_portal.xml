@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true,synch_attachments=true" extends="sys_metadata" label="พอร์ทัลบริการ" max_length="40" name="sp_portal" type="collection">
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" audit="false" label="Contact information" max_length="8000" name="x_mono2_wow_contact_info" type="translated_html"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Copyright notice" max_length="255" name="x_mono2_wow_copyright_notice" type="translated_text"/>
+        <element audit="false" label="External chat URL" max_length="1024" name="x_mono2_wow_external_chat_url" type="url"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="Footer menu" max_length="32" name="x_mono2_wow_footer_menu" reference="sp_instance_menu" type="reference"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" audit="false" label="Incident form" max_length="32" name="x_mono2_wow_incident_cat_item" reference="sc_cat_item_producer" reference_qual="table_name=incident^EQ" reference_qual_condition="table_name=incident^EQ" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="News Knowledge Base" max_length="32" name="x_mono2_wow_news_kb" reference="kb_knowledge_base" type="reference"/>
+        <index name="index">
+            <element name="x_mono2_wow_incident_cat_item"/>
+        </index>
+        <index name="index2">
+            <element name="x_mono2_wow_news_kb"/>
+        </index>
+        <index name="index3">
+            <element name="x_mono2_wow_footer_menu"/>
+        </index>
+    </element>
+</database>

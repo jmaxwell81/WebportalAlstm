@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element audit="false" extends="sys_import_set_row" label="Wow Scoped Portal Message" max_length="40" name="x_mono2_wow_wow_scoped_portal_message" type="collection">
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Application" audit="false" label="Application" max_length="40" name="u_application" type="string"/>
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Key" audit="false" label="Key" max_length="46" name="u_key" type="string"/>
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Language" audit="false" label="Language" max_length="40" name="u_language" type="string"/>
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Message" audit="false" label="Message" max_length="263" name="u_message" type="string"/>
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Updated" audit="false" label="Updated" max_length="40" name="u_updated" type="glide_date_time"/>
+        <element attributes="edge_encryption_enabled=true,import_attribute_name=Updated by" audit="false" label="Updated by" max_length="40" name="u_updated_by" type="string"/>
+    </element>
+</database>

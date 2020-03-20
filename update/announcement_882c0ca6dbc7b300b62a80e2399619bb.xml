@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="announcement">
+    <announcement action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <click_target/>
+        <details/>
+        <details_link_text/>
+        <details_page/>
+        <details_url/>
+        <dismiss_options>session_dismissible</dismiss_options>
+        <display_first>false</display_first>
+        <display_style display_value="Normal">704dedd6e7d4030075c2a117c2f6a91b</display_style>
+        <from>2019-08-06 13:14:03</from>
+        <glyph>bell</glyph>
+        <glyph_alt_text/>
+        <name>Remedy is broken</name>
+        <public>true</public>
+        <roles/>
+        <summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. &#13;
+&#13;
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&#13;
+</summary>
+        <sys_class_name>announcement</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-06 13:14:21</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>882c0ca6dbc7b300b62a80e2399619bb</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>Remedy is broken</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>announcement_882c0ca6dbc7b300b62a80e2399619bb</sys_update_name>
+        <sys_updated_by>tuadmin_dp</sys_updated_by>
+        <sys_updated_on>2019-08-27 09:18:09</sys_updated_on>
+        <title>Remedy is broken, uhoh!</title>
+        <to/>
+        <type>eb894826dbc7b300b62a80e2399619ad,13c3ec74db78a74016a5f40b0c9619e9</type>
+        <x_mono2_wow_document/>
+        <x_mono2_wow_document_table/>
+        <x_mono2_wow_knowledge_article/>
+        <x_mono2_wow_urgency/>
+    </announcement>
+    <sys_translated_text action="delete_multiple" query="documentkey=882c0ca6dbc7b300b62a80e2399619bb"/>
+</record_update>

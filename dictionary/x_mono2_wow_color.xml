@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="Wow Colors" max_length="40" name="x_mono2_wow_color" type="collection">
+        <element audit="false" display="true" label="Name" mandatory="true" max_length="255" name="name" type="string"/>
+        <element attributes="edge_encryption_enabled=true,pdf_cell_type=image" audit="false" label="Preview" max_length="40" name="preview" type="user_image"/>
+        <element attributes="edge_encryption_enabled=true" audit="false" label="HEX Value" mandatory="true" max_length="40" name="value" type="color"/>
+    </element>
+</database>

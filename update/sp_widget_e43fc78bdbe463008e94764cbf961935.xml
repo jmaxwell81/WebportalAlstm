@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal, spUtil) {
+	var c = this;
+
+	$scope.openFeedbackModal = function() {
+
+		$scope.modal = $uibModal.open({
+			appendTo: $scope.widgetEl,
+			templateUrl: 'wowFeedbackModal.html',
+			scope: $scope
+		});
+	}
+
+	$scope.closeModal = function () {
+		if ($scope.modal)
+			$scope.modal.close();
+	}
+
+	$scope.feedbackConfirm = function (event) {
+		c.server.get({
+			feedback: c.data.feedback,
+			rating: c.data.rating
+		}).then(function (r) {
+			spUtil.addInfoMessage("${wow_feedback_received}");
+			$scope.closeModal();
+		});
+	};
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.wow-feedback {
+  position: fixed;
+  z-index: $zindex-mask;
+  overflow: visible;
+
+  @media screen and (min-width: $screen-sm-min) {
+    bottom: 50vh;
+    right: 0;
+    transform: translateX(50%);
+  }
+}
+
+.btn-feedback {
+  align-items: center;
+  border: none;
+  display: flex;
+  justify-content: center;
+  color: $white;
+  background-color: $brand-primary;
+  background-color: $feedback-btn;
+  font-size: 1rem;
+  padding: 0.75rem;
+  z-index: $zindex-mask - 1;
+  overflow: visible;
+  -ms-overflow-style: none;
+
+  @media screen and (min-width: $screen-sm-min) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transform: rotate(-90deg);
+    transform-origin: 50% 100%;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    border-bottom-right-radius: 0;
+  }
+
+  i {
+    font-size: 1.5rem;
+    margin-right: .5rem;
+  }
+}
+
+.link-feedback {
+  color: $text-color;
+  display: block;
+  line-height: 0;
+}
+
+
+@include wow-modal(460px);
+
+.modal-content {
+  color: $text-color;
+
+  .modal-body {
+    margin-top: 2rem;
+
+    &gt;p {
+      margin-bottom: 20px;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      color: $text-color;
+      margin: 2rem 0;
+    }
+
+    h4 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .rating-wrap {
+      padding-left: 1rem;
+      display: inline-block;
+      color: $text-muted;
+      color: lighten($text-muted, 10);
+
+      &amp; &gt;span {
+        display: flex;
+        align-items: center;
+      }
+
+      .glyphicon-star {
+        color: $brand-primary;
+      }
+
+      i {
+        cursor: pointer;
+        font-size: 1.5rem;
+        margin-right: .25rem;
+      }
+    }
+  }
+
+  .modal-footer {
+    border: none;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+
+    &amp; &gt;button {
+      padding: 1rem;
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-feedback</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>Wow Feedback</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var userId = gs.getUserID();
+	data.rating = null;
+
+	if (input) {
+		var gr = new GlideRecord('x_mono2_wow_feedback');
+		gr.setValue('user', userId);
+		gr.setValue('comments', input.feedback);
+		gr.setValue('rating', input.rating);
+		gr.insert();
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-09-19 13:59:12</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e43fc78bdbe463008e94764cbf961935</sys_id>
+        <sys_mod_count>148</sys_mod_count>
+        <sys_name>Wow Feedback</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_e43fc78bdbe463008e94764cbf961935</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 16:03:44</sys_updated_on>
+        <template><![CDATA[<div class="wow-feedback hidden-xs">
+  <button class="btn btn-feedback" ng-click="openFeedbackModal($event)">
+    <i class="material-icons">comment</i>
+    ${wow_feedback}
+  </button>
+</div>]]></template>
+    </sp_widget>
+</record_update>

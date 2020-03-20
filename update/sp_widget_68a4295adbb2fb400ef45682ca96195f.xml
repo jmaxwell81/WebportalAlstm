@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+.mark-favorite {
+  margin-bottom: 1rem;
+}
+
+.order-guide {
+  .panel {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .timeline-container {
+    top: calc(-54px - 4rem);
+  }
+
+  .og-timeline {
+    .iconlink {
+      align-items: center;
+      display: inline-flex;
+      justify-content: center;
+      padding: .5rem!important;
+    }
+
+    .circle_icon {
+      border: none;
+      height: 2rem;
+      width: 2rem;
+      padding: 0;
+
+      i {
+        font-size: 2rem;
+        left: auto!important;
+        top: auto!important;
+      }
+
+      +span {
+        font-size: 1.1rem;
+        font-weight: $font-weight-bold;
+        margin-left: 1rem!important;
+        top: auto!important;
+      }
+    }
+
+    .step_active {
+      i {
+        color: $brand-primary;
+      }
+
+      +span {
+        color: $text-color;
+      }
+    }
+  }
+
+  .wrapper-md {
+    padding: 2rem 0!important;
+  }
+
+  .padder-md {
+    padding: 2rem 0!important;
+
+    &gt;.row {
+      margin-bottom: 2rem;
+    }
+  }
+
+  .list-group {
+    padding: 2rem 0;
+  }
+
+  uib-accordion {
+    .panel-group {
+      margin-bottom: 0;
+    }
+
+    .accordion-header {
+      margin-bottom: .5rem;
+
+      .wrapper {
+        background-color: transparent!important;
+
+        @media screen and (min-width: $screen-xs-min) {
+          padding: 2rem!important;
+        }
+      }
+    }
+  }
+
+  .guide-nav {
+    padding: 0!important;
+
+    .btn {
+      @include wow-button();
+    }
+  }
+
+  .table +.padder-v {
+    padding: 2rem 0 !important;
+
+    .btn {
+      @include wow-button();
+    }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-order-guide</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+
+ }]]></link>
+        <name>Wow Order Guide</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+	var favoritesPage = options.favoritesPage || $sp.getParameter('id');
+	var sys_id = (input && input.sys_id) ? input.sys_id : (options.sys_id || $sp.getParameter('sys_id') || $sp.getParameter('sl_sys_id'));
+
+	options.embedded = (options.embedded == true);
+
+	data.orderGuide = $sp.getWidget('widget-sc-order-guide-v2', {
+		sys_id: sys_id
+	});
+
+	data.markAsFavorite = $sp.getWidget('wow-mark-favorite', {
+		sys_id: sys_id,
+		page: favoritesPage
+	});
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-07-24 14:46:43</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>68a4295adbb2fb400ef45682ca96195f</sys_id>
+        <sys_mod_count>35</sys_mod_count>
+        <sys_name>Wow Order Guide</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_68a4295adbb2fb400ef45682ca96195f</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-24 18:29:16</sys_updated_on>
+        <template><![CDATA[<div ng-class="{'panel': !options.embedded}">
+
+  <div class="mark-favorite">
+    <sp-widget widget="data.markAsFavorite"></sp-widget>
+  </div>
+
+  <div class="order-guide">
+    <sp-widget widget="data.orderGuide"></sp-widget>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

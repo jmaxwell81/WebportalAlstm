@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $timeout) {
+
+  var c = this;
+	
+	//runs first and only time on load
+	c.$onInit = function () {
+		
+		c.init_load = true
+		
+		c.data.currentPage = 1;
+		c.server.update().then(function(response) {
+			c.init_load = false;
+		});
+	};
+
+	$scope.getTotalPages = function() {
+		return Math.ceil(c.data.ticketCount / c.data.itemsPerPage);
+	}
+
+	$scope.updatePage = function(page) {
+		c.data.currentPage = page;
+		$timeout(update, 0);
+	}
+
+	// listen for ticket update broadcasts and get latest tickets
+	$scope.$on('ticket_updated', update);
+
+	function update() {
+		$scope.loading = true;
+
+		c.server.update().then(function() {
+			$scope.loading = false;
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$screen-lt-xs: $screen-xs-min - 1;
+
+&amp; {
+  height: 100%;
+  min-height: 300px;
+  width: 100%;
+}
+
+.title {
+  @media screen and (max-width: $screen-xs-max) {
+    font-size: 1.8rem;
+  }
+}
+
+.lowercase {
+  text-transform: lowercase;
+}
+
+.no-tickets {
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2rem;
+  justify-content: center;
+  left: 0;
+  margin: 5rem 0;
+  opacity: .5;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+
+  i {
+    font-size: 7em;
+  }
+}
+
+.tickets {
+  position: relative;
+
+  &amp;.loading {
+    ul, .pagination-wrapper {
+      opacity: .5;
+      pointer-events: none;
+    }
+  }
+}
+
+@if $things-to-action-btn != '$things-to-action-btn' {
+  @include wow-spinner($things-to-action-btn);
+}
+
+@elseif $things-to-action-text != '$things-to-action-text' {
+  @include wow-spinner($things-to-action-text);
+}
+
+@else {
+  @include wow-spinner($white);
+}
+
+wow-spinner {
+  left: calc(50% - 20px);
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  width: 40px;
+}
+
+ul, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ticket {
+  align-items: center;
+  display: flex;
+  border-bottom: 1px solid rgba($white, .25);
+
+  @if $things-to-action-text != '$things-to-action-text' {
+    border-bottom-color: rgba($things-to-action-text, .25);
+  }
+
+  padding: 1rem 0;
+
+  @media screen and (max-width: $screen-lt-xs) {
+    flex-direction: column;
+  }
+
+  &gt;a {
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+
+    @media screen and (max-width: $screen-lt-xs) {
+      width: 100%;
+    }
+  }
+
+  i {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    opacity: 0.5;
+  }
+
+  .details {
+    flex-grow: 1;
+
+    span {
+      display: block;
+      font-size: 1.1rem;
+      width: 100%;
+    }
+
+    .meta {
+      font-size: 1rem;
+      opacity: .75;
+    }
+  }
+
+  // embedded actions widget
+  .actions {
+    @media screen and (max-width: $screen-lt-xs) {
+      margin-top: 1rem;
+    }
+
+    @media screen and (min-width: $screen-xs-min) {
+      margin-left: .5rem;
+    }
+
+    @media screen and (min-width: $screen-xs-min) and (max-width: $screen-xs-max) {
+      margin-right: -1rem;
+    }
+
+    button {
+      &amp;, &amp;:active:focus {
+        align-items: center;
+        background: none;
+        border: none;
+        display: inline-flex;
+        padding: .25rem;
+        transition: transform .2s ease-in-out;
+        transform-origin: 50%;
+      }
+
+      &amp;.btn-info {
+        color: $brand-info;
+
+        svg {
+          fill: $brand-info;
+        }
+      }
+
+      &amp;.btn-success {
+        color: $brand-success;
+
+        svg {
+          fill: $brand-success;
+        }
+      }
+
+      &amp;.btn-danger {
+        color: $brand-danger;
+
+        svg {
+          fill: $brand-danger;
+        }
+      }
+
+      svg {
+        margin: 0;
+        height: 1.5rem;
+        width: 1.5rem;
+
+        @if $things-to-action-btn != '$things-to-action-btn' {
+          fill: $things-to-action-btn!important;
+        }
+      }
+
+      span {
+        display: none;
+      }
+
+      &amp;:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+@if $things-to-action-btn != '$things-to-action-btn' {
+  @include wow-pagination($things-to-action-btn);
+}
+
+@elseif $things-to-action-text != '$things-to-action-text' {
+  @include wow-pagination($things-to-action-text);
+}
+
+@else {
+  @include wow-pagination($white);
+}
+
+.pagination-wrapper {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  .counter {
+    margin-right: 1rem;
+  }
+
+  .pagination {
+    display: none;
+  }
+
+  .pagination-nav {
+    i {
+      margin: 0 .5rem;
+    }
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-things-to-action</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Things To Action</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	
+	if(!input)
+		return;
+
+	var currentPage = data.currentPage = (input && input.currentPage ? input.currentPage : 1);
+	var itemsPerPage = data.itemsPerPage = (input && input.itemsPerPage ? input.itemsPerPage : 5);
+	var ticketsHelper = new WowTickets();
+
+	ticketsHelper.setQueryLimit(options.queryLimit || 100);
+	ticketsHelper.setFilter('awaiting_user');
+
+	// handle pagination
+	var startRow = (currentPage - (currentPage > 0 ? 1 : 0)) * itemsPerPage;
+
+	var tickets = ticketsHelper.getTickets(startRow, itemsPerPage);
+	data.ticketCount = ticketsHelper.getTicketCount();
+
+	// add the actions widget for each approval ticket type
+	tickets.forEach(function(ticket) {
+		if (ticket.type == 'Approval')
+			ticket.actionsWidget = $sp.getWidget('wow-approval-actions', {
+				sys_id: ticket.id
+			});
+	});
+
+	data.tickets = tickets;
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-24 12:07:23</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>aa04113cdbe3d78087e2f3de3b9619ab</sys_id>
+        <sys_mod_count>318</sys_mod_count>
+        <sys_name>Wow Things To Action</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_aa04113cdbe3d78087e2f3de3b9619ab</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-18 17:58:17</sys_updated_on>
+        <template><![CDATA[<h2 class="title" ng-class="{'text-center': data.ticketCount == 0}">
+  <span ng-if="data.ticketCount > 0" class="lowercase">{{data.ticketCount}}{{data.ticketCount == options.limit ? '+' : ''}} {{data.ticketCount == 1 ? '${wow_thing_to_action}' : '${wow_things_to_action}'}}</span>
+  <span ng-if="data.ticketCount == 0">${wow_no_things_to_action}</span>
+</h2>
+
+<div class="initial-load" ng-show="c.init_load">
+  <h2 class="title" class="text-center">
+    <span class="">${Loading...}</span>
+  </h2>
+  <wow-spinner loading="c.init_load"></wow-spinner>
+</div>
+
+
+<span ng-if="data.ticketCount == 0" class="no-tickets">
+  <i class="material-icons">sentiment_very_satisfied</i>
+</span>
+
+<div ng-if="data.ticketCount > 0" ng-class="{'loading': loading}" class="tickets">
+
+  <ul>
+    <li class="ticket" ng-repeat="ticket in data.tickets track by $index">
+      <a href="{{ticket.href}}" class="link">
+        <i class="material-icons">{{ticket.icon}}</i>
+        <div class="details">
+          <span class="description">
+            {{ ticket.type == 'Approval' ? '${wow_approval_for} ' + ticket.description : ticket.description}}
+          </span>
+          <span class="meta">
+            {{ticket.number}} – {{ticket.type}} – {{ticket.opened | wowDate}}
+          </span>
+        </div>
+      </a>
+      <div ng-if="!loading && ticket.actionsWidget" class="actions-widget">
+        <sp-widget widget="ticket.actionsWidget"></sp-widget>
+      </div>
+    </li>
+  </ul>
+
+  <wow-spinner loading="loading"></wow-spinner>
+
+  <div class="pagination-wrapper">
+    <span class="counter">{{data.currentPage}} / {{getTotalPages()}}</span>
+
+    <wow-pagination ng-if="data.ticketCount > data.itemsPerPage"
+                    total-items="data.ticketCount"
+                    current-page="data.currentPage"
+                    items-per-page="data.itemsPerPage"
+                    max-size="5"
+                    page-changed="updatePage(data.currentPage)">
+    </wow-pagination>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

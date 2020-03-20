@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_header_footer">
+    <sp_header_footer action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function() {
+  var c = this;
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>section {
+  background-color: $footer-bg;
+  padding: 4rem 0;
+  position: relative;
+  color: $footer-text;
+
+  .container {
+    display: flex;
+    align-items: flex-start;
+
+    @media screen and (max-width: $screen-xs-max) {
+      flex-direction: column;
+    }
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    padding: 2rem 0;
+  }
+}
+
+ul.links {
+  @include wow-list-reset();
+  display: flex;
+  margin-right: 5rem;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex-direction: column;
+    margin-right: 1rem;
+    width: 100%;
+  }
+
+  li {
+    margin: 0;
+    margin-right: 2rem;
+
+    @media screen and (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+      margin-right: 1rem;
+    }
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin: 0 0 1rem;
+      width: 100%;
+    }
+
+    a {
+      color: $footer-text;
+
+      &amp;:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  text-align: right;
+  font-size: 0.8rem;
+  color: rgba($footer-text, .75);
+
+  @media screen and (max-width: $screen-xs-max) {
+    margin-top: 1rem;
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  .logo {
+    margin-bottom: 1rem;
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Footer</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var portal = $sp.getPortalRecord();
+
+	data.links = getLinks();
+	data.copyrightNotice = portal.getDisplayValue('x_mono2_wow_copyright_notice') || gs.getMessage('wow_copyright_notice');
+
+	function getLinks() {
+		var menu = portal.getValue('x_mono2_wow_footer_menu');
+
+		if (menu)
+			return $sp.getMenuItems(menu);
+
+		return [];
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_header_footer</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-09 09:21:15</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5f1ed777db479b4087e2f3de3b9619a8</sys_id>
+        <sys_mod_count>87</sys_mod_count>
+        <sys_name>Wow Footer</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_header_footer_5f1ed777db479b4087e2f3de3b9619a8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-25 09:00:26</sys_updated_on>
+        <template><![CDATA[<section id="wow-footer">
+  <div class="container">
+
+    <ul class="links">
+      <li ng-repeat="link in data.links">
+        <a href="{{link.href}}" target="{{link.url_target}}">{{link.label}}</a>
+      </li>
+    </ul>
+
+    <div class="legal">
+      <span>&copy; {{data.copyrightNotice}}</span>
+    </div>
+
+  </div>
+</section>]]></template>
+    </sp_header_footer>
+</record_update>

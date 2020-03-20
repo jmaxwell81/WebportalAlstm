@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowFilters</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowFilters</name>
+        <script><![CDATA[var WowFilters = Class.create();
+WowFilters.prototype = {
+    initialize: function () {
+		
+    },
+
+	getFilters: function (results, key) {
+		var filters = {};
+
+		for (var i in results) {
+			var result = results[i];
+			var walkers = key.split('.'); // adds support for 'category.displayValue' type filter names
+			var prop = result[walkers[0]];
+
+			if (walkers.length > 1) {
+				for (var k = 1; k < walkers.length; k++) {
+					if (prop)
+						prop = prop[walkers[k]];
+				}
+			}
+
+			if (prop) {
+				if (Array.isArray(prop)) {
+					for (var j = 0; j < prop.length; j++) {
+						if (!filters[prop[j]]) {
+							filters[prop[j]] = {
+								ids: [result.id]
+							};
+						}
+
+						else {
+							filters[prop[j]].ids.push(result.id);
+						}
+					}
+				}
+
+				else if (!filters[prop]) {
+					filters[prop] = {
+						ids: [result.id]
+					};
+				}
+
+				else {
+					filters[prop].ids.push(result.id);
+				}
+			}
+		}
+
+		return this.createFilterArrays(filters);
+	},
+
+
+	createFilterArrays: function (obj) {
+		var filters = [];
+
+		for (var key in obj) {
+			var filter = {
+				ids: obj[key].ids,
+				count: obj[key].ids.length,
+				label: key,
+				active: true,
+				selected: false
+			};
+
+			filters.push(filter);
+		}
+
+		return filters.sort(function (a, b) {
+			return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+		});
+	},
+
+
+	updateFilters: function (filterSets, results) {
+		var filterSetsSelected = this.getSelectedFilterSets(filterSets);
+		var self = this;
+
+		for (var k in filterSets) {
+			var filters = filterSets[k];
+
+			// if there are no selected filters then reset count and active state
+			if (filterSetsSelected.length == 0) {
+				filters.forEach(function(filter) {
+					filter.count = filter.ids.length;
+					filter.active = true;
+				});
+				continue;
+			}
+
+			// if only one filter set has selected filters then there is no logical AND between filter sets therefore don't update the one filter set with selected filters
+			if (filterSetsSelected.length == 1 && this.hasSelectedFilters(filters)) {
+				filters.forEach(function (filter) {
+					filter.count = filter.ids.length;
+					filter.active = true;
+				});
+				continue;
+			}
+
+			// otherwise there is a logical AND therefore update count and active states
+			filters.forEach(function (filter) {
+				filter.count = self.updateFilterCount(filter, results);
+				filter.active = filter.count > 0;
+				filter.selected = filter.count == 0 ? false : filter.selected;
+			});
+		}
+
+		return filterSets;
+	},
+
+
+	getSelectedFilterSets: function (filterSets) {
+		var selectedSets = [];
+
+		for (var k in filterSets) {
+			var filters = filterSets[k];
+
+			for (var i = 0; i < filters.length; i++) {
+				if (filters[i].selected) {
+					selectedSets.push(filters);
+					break;
+				}
+			}
+		}
+
+		return selectedSets;
+	},
+
+
+	hasSelectedFilters: function (filters) {
+		for (var i = 0; i < filters.length; i++) {
+			if (filters[i].selected)
+				return true;
+		}
+
+		return false;
+	},
+
+
+	getFilteredIds: function (filterSets) {
+		var sys_ids = [];
+		var setLookup = {}; // collected selected sys_ids and group by sets
+
+		// support single array or objects with arrays
+		if (Array.isArray(filterSets)) {
+			filterSets = {
+				filters: filterSets
+			}
+		}
+
+		for (var k in filterSets) {
+			var filters = filterSets[k];
+
+			filters.forEach(function(filter) {
+				if (!filter.selected)
+					return;
+
+				// once we have a selected filter created an array for sys_ids
+				if (!setLookup[k])
+					setLookup[k] = [];
+
+				for (var i = 0; i < filter.ids.length; i++) {
+					var id = filter.ids[i];
+					if (setLookup[k].indexOf(id) == -1)
+						setLookup[k].push(id);
+				}
+			});
+		}
+
+		var sets = [];
+		for (var l in setLookup) {
+			sets.push(setLookup[l]);
+		}
+
+		// if we've only got one set then we don't need to find matches across sets
+		if (sets.length == 1)
+			return sets[0];
+
+		// let's use the shortest array to find matches everywhere
+		sets.sort(function(a, b) {
+			return a.length - b.length;
+		});
+		
+		if (sets.length > 0) {
+			for (var i = 0; i < sets[0].length; i++) {
+				var sys_id = sets[0][i];
+
+				for (var j = 1; j < sets.length; j++) {
+					if (sets[j].indexOf(sys_id) == -1)
+						break;
+
+					// otherwise if this is the last set and we have a match then we can add this
+					else if (j == sets.length - 1)
+						sys_ids.push(sys_id);
+				}
+			}
+		}
+
+		return sys_ids;
+	},
+
+
+	updateFilterCount: function (filter, results) {
+		var count = 0;
+
+		for (var i in results) {
+			var id = results[i].id;
+			if (filter.ids.indexOf(id) != -1)
+				count++;
+		}
+
+		return count;
+	},
+
+
+    type: 'WowFilters'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-05-11 10:48:50</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>6b5c73b0dbce9f00eb8596d5db961990</sys_id>
+        <sys_mod_count>85</sys_mod_count>
+        <sys_name>WowFilters</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_6b5c73b0dbce9f00eb8596d5db961990</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-21 08:49:48</sys_updated_on>
+    </sys_script_include>
+</record_update>

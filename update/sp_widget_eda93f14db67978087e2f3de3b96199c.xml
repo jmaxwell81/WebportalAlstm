@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function ($scope, $window, $rootScope, $filter, $location, $timeout) {
+	var c = this;
+
+	$scope.active = false;
+	$scope.typeaheadEnabled = true; // by default
+	$scope.searchTerm = c.data.searchTerm;
+	$scope.submitted = $scope.searchTerm ? ($scope.searchTerm != "" || false) : false;
+
+	$rootScope.$broadcast('typeahead_loaded');
+
+	$scope.$on('activate_typeahead', function() {
+		$scope.active = true;
+		inputFocus();
+	});
+
+	$scope.close = function(e) {
+		if (e)
+			e.preventDefault();
+
+		$scope.active = false;
+		$rootScope.$broadcast('typeahead_deactivated');
+	}
+
+	$scope.clearSearch = function(e) {
+		if (e)
+			e.preventDefault();
+
+		$scope.pageChanged = false;
+		$scope.searchTerm = "";
+		$scope.submitted = false;
+		$scope.showResults = false;
+		$scope.typeahead("");
+
+		$rootScope.$broadcast('typeahead_deactivated');
+		inputFocus();
+	}
+
+	$scope.focus = function() {
+		$scope.active = true;
+	}
+
+	$scope.typeahead = function(searchTerm) {
+		$rootScope.$broadcast('search_term_updated', {
+			searchTerm: searchTerm
+		});
+
+		if (!$scope.typeaheadEnabled)
+			return;
+
+		c.server.get({
+			searchTerm: searchTerm
+		}).then(function(r) {
+			c.data.results = r.data.results;
+
+			if (r.data.categories)
+				c.data.categories = r.data.categories;
+		});
+	}
+
+	$scope.submit = function(e) {
+		if (e)
+			e.preventDefault();
+
+		if (!$scope.typeaheadEnabled)
+			return;
+
+		$scope.close();
+		$scope.submitted = true;
+		c.data.searchTerm = $scope.searchTerm || "";
+
+		$timeout(function() {
+			var url = "?id="+c.data.searchPage+"&q=" + encodeURIComponent(c.data.searchTerm);
+			$location.url(url);
+		}, 250);
+	}
+
+	$scope.$on('disable_typeahead', function(event, args) {
+		$scope.typeaheadEnabled = false;
+	});
+
+	$scope.$on('enable_typeahead', function(event, args) {
+		$scope.typeaheadEnabled = true;
+	});
+
+	$scope.$on('reset_typeahead', function(event, args) {
+		$scope.clearSearch();
+	});
+
+	// will fire on every url change
+	$scope.$on('$locationChangeSuccess', function(event, next, current) {
+		// reload page info when we change page, not when we change url
+		if (current.indexOf($location.search().id) === -1) {
+			$scope.searchTerm =  $location.search().q  || "";
+			$scope.submitted = $scope.searchTerm != "" || false;
+
+			// close results dropdown
+			$scope.close();
+		}
+	});
+
+	$scope.createUniqueUrl = function(url) {
+		// we only want relative urls
+		if (url.indexOf('?') != 0)
+			return url;
+
+		var timestamp = '&stamp='+encodeURIComponent((new Date()).toLocaleTimeString());
+		if (url.indexOf('#') > 0)
+			return url.replace('#', timestamp+'#');
+
+		return url + timestamp;
+	}
+
+	$scope.closeSearch = function(e) {
+		$rootScope.$broadcast('search_closed');
+		event.preventDefault();
+	}
+
+	function inputFocus() {
+		$timeout(function() {
+			$('input[name="q"]', $scope.widgetEl).focus();
+		}, 250);
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>// $zindex-mask set in theme
+
+$typeahead-border-radius: 6px;
+$search-height: 60px;
+
+.wow-searchbar {
+  &amp;.active {
+    pointer-events: all;
+    z-index: $zindex-mask;
+
+    .results {
+      display: flex;
+    }
+  }
+
+  .mask {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease-in-out;
+  }
+
+  &amp;.active {
+    .mask {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+}
+
+.btn {
+  padding: .5rem;
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding: .25rem;
+  }
+}
+
+.close-search,
+.clear-search {
+  color: $brand-primary;
+  background: transparent;
+  box-shadow: none; // overriding active state
+}
+
+.close-search {
+  @media screen and (min-width: $screen-sm-min) {
+    display: none;
+  }
+}
+
+.clear-search {
+  @media screen and (max-width: $screen-xs-max) {
+    display: none;
+  }
+}
+
+.mask {
+  background-color: transparent;
+  background-color: $searchbar-mask;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: $zindex-mask;
+}
+
+.typeahead {
+  align-items: center;
+  box-shadow: 0px 20px 40px 0px rgba(lighten($black, 10%), 0.1);
+  display: flex;
+  flex-direction: column;
+  margin: $grid-gutter-width auto;
+  max-width: 100%;
+  position: relative;
+  width: 100%;
+
+  .active &amp; {
+    z-index: $zindex-mask + 1;
+  }
+
+  &amp;.submitted {
+    form, input {
+      background-color: $brand-primary;
+      color: $white;
+
+      i { color: $white }
+    }
+  }
+}
+
+form {
+  align-items: center;
+  background-color: $panel-bg;
+  background-color: $searchbar-bg;
+  border-radius: $typeahead-border-radius;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  padding-right: .5rem; // for buttons
+  position: relative;
+  width: 100%;
+  z-index: 1;
+
+  .has-typeahead.active &amp; {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  input[type="text"] {
+    background-color: transparent;
+    border: none;
+    color: $searchbar-text;
+    height: $search-height;
+    flex-grow: 1;
+    font-size: 1.2rem;
+    font-weight: 300;
+    font-weight: $font-weight-light;
+    padding: 1rem;
+    @include wow-placeholder($searchbar-text);
+  }
+
+  button {
+    align-items: center;
+    background: none;
+    border: none;
+    color: $brand-info;
+    color: $searchbar-text;
+    display: inline-flex;
+    font-size: 1.75rem;
+    padding: 1rem;
+  }
+
+  i {
+    font-size: 2rem;
+    color: $brand-primary;
+    color: $searchbar-btn;
+  }
+}
+
+.results {
+  background-color: $panel-bg;
+  background-color: $searchbar-bg;
+  border-bottom-left-radius: $typeahead-border-radius;
+  border-bottom-right-radius: $typeahead-border-radius;
+  border-top: 1px solid darken($panel-bg, 20%);
+  border-top-color: darken($searchbar-bg, 20%);
+  display: none;
+  left: 0;
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 100%;
+  z-index: 0;
+
+  &amp;:before {
+    //content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -5px;
+    background-color: $panel-bg;
+    background-color: $searchbar-bg;
+    border-bottom: 1px solid darken($panel-bg, 10%);
+    border-bottom: 1px solid darken($searchbar-bg, 10%);
+    bottom: 100%;;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex-direction: column;
+
+    &gt;div:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+
+  &gt;div {
+    width: 50%;
+  }
+
+  label {
+    color: $text-muted;
+    color: $searchbar-text;
+    font-size: .9rem;
+    opacity: .8;
+  }
+
+  ul, li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin-left: .5rem;
+    margin-right: .5rem;
+  }
+
+  .result-type {
+    color: $text-muted;
+    color: $searchbar-text;
+    display: flex;
+    font-size: .7em;
+    font-weight: 600;
+    font-weight: $font-weight-bold;
+    opacity: .8;
+    text-transform: uppercase;
+  }
+
+  a {
+    color: $text-color;
+    color: $searchbar-text;
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+    padding: .5rem 0;
+    transition: color .2s linear;
+
+    &amp;:hover .result-label {
+      color: $link-color;
+      color: $searchbar-text;
+      text-decoration: underline;
+    }
+
+    @media screen and (max-width: $screem-xs-max) {
+      font-size: 1rem;
+      padding: .333rem 0;
+    }
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-searchbar</id>
+        <internal>false</internal>
+        <link><![CDATA[function (scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>Wow Searchbar</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var queryLimit = options.limit || 5;
+	var portal = $sp.getPortalRecord();
+	var searchHelper = new WowSearch();
+	var searchTerm = data.searchTerm = (input ? input.searchTerm : null);
+	var pageId = $sp.getParameter('id');
+
+	searchHelper.setQueryLimit(queryLimit)
+
+	options.searchPlaceholder = gs.getMessage(options.searchPlaceholder || 'wow_search_placeholder');
+	options.searchPage = options.searchPage || 'search';
+
+	data.searchPage = options.searchPage;
+
+	if (searchTerm) {
+		searchHelper.setSearchTerm(searchTerm);
+
+		var categories = searchHelper.getCatalogCategories();
+		var articles = searchHelper.getArticles();
+		var items = gs.isLoggedIn() ? searchHelper.getCatalogItems() : [];
+
+		var results = [].concat(articles).concat(items);
+
+		results.sort(function(a, b) {
+			return b.score - a.score;
+		});
+
+		data.results = results.slice(0, queryLimit);
+
+		if (categories.length > 0)
+			data.categories = categories;
+	}
+
+	else {
+		data.categories = searchHelper.getCatalogCategories();
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-23 10:53:58</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>eda93f14db67978087e2f3de3b96199c</sys_id>
+        <sys_mod_count>806</sys_mod_count>
+        <sys_name>Wow Searchbar</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_eda93f14db67978087e2f3de3b96199c</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-30 15:58:31</sys_updated_on>
+        <template><![CDATA[<section class="wow-searchbar" ng-class="{'active': active, 'has-typeahead': typeaheadEnabled}">
+
+  <div class="mask" ng-if="typeaheadEnabled" ng-click="close($event)" aria-hidden="{{!active}}" aria-label="Close search"></div>
+
+  <div class="typeahead">
+
+    <form ng-submit="submit($event)">
+      <input type="hidden" name="id" value="search" />
+
+      <input name="q"
+             rand="{{random}}"
+             type="text"
+             ng-model="searchTerm"
+             ng-model-options="{debounce: 250}"
+             ng-change="typeahead(searchTerm)"
+             ng-focus="focus()"
+             autocomplete="off"
+             placeholder="{{::options.searchPlaceholder}}"
+             aria-label="{{::options.searchPlaceholder}}"
+             tabindex="0">
+
+      <button ng-if="!submitted" role="button" class="btn search-button">
+        <i class="material-icons">search</i>
+      </button>
+
+      <div class="btn clear-search" ng-if="searchTerm.length > 0" ng-click="clearSearch($event)">
+        <i class="material-icons">close</i>
+      </div>
+
+      <div class="btn close-search" ng-click="close($event)">
+        <i class="material-icons">close</i>
+      </div>
+
+    </form>
+
+    <div ng-if="typeaheadEnabled" class="results">
+      <div ng-if="data.results.length > 0">
+        <label>{{"${wow_top_[0]}".replace('[0]', data.results.length)}} {{data.results.length > 1 ? "${wow_results}" : "${wow_results}"}}</label>
+        <ul>
+          <li ng-repeat="result in data.results">
+            <a href="{{result.href}}" ng-click="close()">
+              <span class="result-type">{{result.type}}</span>
+              <span class="result-label">{{result.label}}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div ng-if="data.results.length == 0 && searchTerm">
+        <label>${wow_no_results_for} "{{searchTerm}}"</label>
+      </div>
+
+      <div ng-if="data.categories.length > 0">
+        <label>${wow_categories}</label>
+        <ul>
+          <li ng-repeat="result in data.categories">
+            <a href="{{createUniqueUrl(result.href)}}" ng-click="close()">
+              <span class="result-label">{{result.label}}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</section>]]></template>
+    </sp_widget>
+</record_update>

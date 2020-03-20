@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $sce, $timeout) {
+  var c = this;
+	
+	$scope.showChat = false;
+	
+	$scope.trustSrc = function(src) {
+		return $sce.trustAsResourceUrl(src);
+	}
+
+	var toggleChatWindow = $scope.toggleChatWindow = function() {
+		$scope.showChat = !$scope.showChat;
+		toggleIndex();
+
+		if (!$scope.loadIframe) {
+			$timeout(function() {
+				$scope.loadIframe = true;
+			}, 500);
+		}
+	}
+
+	// make sure chat window is always on top
+	function toggleIndex() {
+		var chat = $('#chat');
+		var index = chat.css('z-index');
+
+		if (index == 800)
+			return chat.css('z-index', '1050');
+
+		return chat.css('z-index', '800');
+	}
+
+	$scope.$on('wow_launch_chat', toggleChatWindow);
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>&gt;div {&#13;
+  bottom: 2rem;&#13;
+  position: fixed;&#13;
+  right: 2rem;&#13;
+  z-index: 800;&#13;
+&#13;
+  button {&#13;
+    align-items: center;&#13;
+    background-color: $brand-primary;&#13;
+    background-color: $chat-btn;&#13;
+    border: none;&#13;
+    border-radius: 2rem;&#13;
+    box-shadow: $panel-shadow;&#13;
+    color: $white;&#13;
+    display: inline-flex;&#13;
+    height: 4rem;&#13;
+    justify-content: center;&#13;
+    position: relative;&#13;
+    width: 4rem;&#13;
+&#13;
+    i {&#13;
+      align-items: center;&#13;
+      bottom: 0;&#13;
+      display: inline-flex;&#13;
+      font-size: 2rem;&#13;
+      justify-content: center;&#13;
+      left: 0;&#13;
+      position: absolute;&#13;
+      right: 0;&#13;
+      top: 0;&#13;
+      @include transition(all .3s ease-out);&#13;
+    }&#13;
+&#13;
+    i.concealed {&#13;
+      opacity: 0;&#13;
+      @include transform(scale(.75));&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+.panel {&#13;
+  background: $panel-bg;&#13;
+  bottom: calc(100% + 1.5rem);&#13;
+  height: 500px;&#13;
+  margin: 0;&#13;
+  max-width: 100vw;&#13;
+  position: absolute;&#13;
+  right: 1.5rem;&#13;
+  width: 400px;&#13;
+&#13;
+  .loading-spinner {&#13;
+    @include wow-spinner($brand-primary);&#13;
+    position: absolute;&#13;
+    right: calc(50% - 20px);&#13;
+    top: 50%;&#13;
+    width: 40px;&#13;
+  }&#13;
+&#13;
+  iframe {&#13;
+    background: $panel-bg;&#13;
+    border: none;&#13;
+    height: 100%;&#13;
+    position: relative;&#13;
+    width: 100%;&#13;
+  }&#13;
+&#13;
+  .panel {&#13;
+    margin: 0;&#13;
+  }&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-external-chat</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Wow External Chat</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var portal = $sp.getPortalRecord();
+	var chatUtil = new global.WebChatUtil();
+	var chatQueue = portal.getValue('sp_chat_queue');
+
+	if (chatUtil.canView()) {
+		if (input) {
+			chatUtil.setParameters({
+				'locale': 'en_GB',
+				'reasonCode': '12'
+			});
+		}
+
+		else {
+			chatUtil.setParameters({
+				'locale': 'en_GB'
+			});
+
+			data.src = chatUtil.getURL();
+		}
+	}
+	
+	else
+		data.src = portal.getValue('x_mono2_wow_external_chat_url');
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-07-29 15:58:16</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>60256377db3a3f00b62a80e23996197b</sys_id>
+        <sys_mod_count>14</sys_mod_count>
+        <sys_name>Wow External Chat</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_60256377db3a3f00b62a80e23996197b</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-17 10:29:07</sys_updated_on>
+        <template><![CDATA[<div ng-if="data.src" class="desktop hidden-xs">
+ <!-- <button ng-click="toggleChatWindow()">
+    <i ng-class="{'concealed': showChat}" class="material-icons" aria-label="Chat">question_answer</i>
+    <i ng-class="{'concealed': !showChat}" class="material-icons" aria-label="Close">close</i>
+  </button> -->
+  <div ng-show="showChat" class="panel">
+    <div class="loading-spinner">
+      <div class="blob"></div>
+      <div class="blob"></div>
+      <div class="blob"></div>
+    </div>
+    <iframe ng-if="loadIframe" ng-src="{{::trustSrc(data.src)}}" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

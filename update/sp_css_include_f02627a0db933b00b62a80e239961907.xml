@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css_include">
+    <sp_css_include action="INSERT_OR_UPDATE">
+        <name>Wow Mixins</name>
+        <source>local</source>
+        <sp_css display_value="Wow Mixins">0b06eba0db933b00b62a80e239961908</sp_css>
+        <sys_class_name>sp_css_include</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-13 10:13:49</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>f02627a0db933b00b62a80e239961907</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Wow Mixins</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_css_include_f02627a0db933b00b62a80e239961907</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-03 14:26:55</sys_updated_on>
+        <url/>
+    </sp_css_include>
+</record_update>

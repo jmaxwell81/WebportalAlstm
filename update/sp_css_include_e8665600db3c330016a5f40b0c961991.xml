@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css_include">
+    <sp_css_include action="INSERT_OR_UPDATE">
+        <name>Wow Base</name>
+        <source>local</source>
+        <sp_css display_value="Wow Base">b4f49e00db3c330016a5f40b0c961910</sp_css>
+        <sys_class_name>sp_css_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-09 08:31:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>e8665600db3c330016a5f40b0c961991</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Wow Base</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_css_include_e8665600db3c330016a5f40b0c961991</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-04-09 08:31:26</sys_updated_on>
+        <url/>
+    </sp_css_include>
+</record_update>

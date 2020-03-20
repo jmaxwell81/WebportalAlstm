@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_instance">
+    <sp_instance action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <class_name/>
+        <color>default</color>
+        <css/>
+        <glyph/>
+        <id/>
+        <order>2</order>
+        <roles/>
+        <short_description/>
+        <size>md</size>
+        <sp_column display_value="1">9d79ab38db84bb0016a5f40b0c961905</sp_column>
+        <sp_widget display_value="Wow Content Grid">90287874dba3d78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>sp_instance</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-02-27 08:26:54</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>1178ba9c1b1b8010723ded3abc4bcbad</sys_id>
+        <sys_mod_count>22</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_instance_1178ba9c1b1b8010723ded3abc4bcbad</sys_update_name>
+        <sys_updated_by>Stefan_Petkovic</sys_updated_by>
+        <sys_updated_on>2020-03-20 09:20:40</sys_updated_on>
+        <title/>
+        <url/>
+        <widget_parameters><![CDATA[{
+	"defaultTemplate": {
+		"value": "Layout 2",
+		"displayValue": "Layout 2"
+	},
+	"approverTemplate": {
+		"value": "",
+		"displayValue": "-- None --"
+	},
+	"menu": {
+		"value": "178ed8f3dbdd338016a5f40b0c9619c7",
+		"displayValue": "Wow Content Grid"
+	},
+	"enableNews": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"enableAnimations": {
+		"value": "true",
+		"displayValue": "true"
+	},
+	"translucentTiles": {
+		"value": "",
+		"displayValue": ""
+	},
+	"addMargins": {
+		"value": "",
+		"displayValue": ""
+	}
+}]]></widget_parameters>
+    </sp_instance>
+    <sys_translated_text action="delete_multiple" query="documentkey=1178ba9c1b1b8010723ded3abc4bcbad"/>
+</record_update>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="DELETE">
+        <category>custom</category>
+        <css>#wow-header {&#13;
+  .search {&#13;
+    display: none;&#13;
+  }&#13;
+  &#13;
+  .logo {&#13;
+    transform: scale(1.5);&#13;
+  }&#13;
+}&#13;
+&#13;
+main.body {&#13;
+  padding-top: 0;&#13;
+}&#13;
+&#13;
+.welcome {&#13;
+  .image {&#13;
+    margin-right: 0%;&#13;
+    pointer-events: none;&#13;
+    transform: scale(3.5);&#13;
+    transform-origin: 100% 32%!important;&#13;
+    z-index: -1;&#13;
+  }&#13;
+}</css>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <id>wow_home_asp2</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:26</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>de4c68abdbe740909a88b1b239961955</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>wow_home_asp2</sys_name>
+        <sys_package/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope/>
+        <sys_update_name>sp_page_de4c68abdbe740909a88b1b239961955</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:26</sys_updated_on>
+        <title>Alstom WOW</title>
+    </sp_page>
+    <sys_translated_text action="DELETE" query="documentkey=de4c68abdbe740909a88b1b239961955"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application/>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_page_de4c68abdbe740909a88b1b239961955</name>
+        <order/>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page"><sp_page action="INSERT_OR_UPDATE"><category>custom</category><css>#wow-header {&#13;
+  .search {&#13;
+    display: none;&#13;
+  }&#13;
+  &#13;
+  .logo {&#13;
+    transform: scale(1.5);&#13;
+  }&#13;
+}&#13;
+&#13;
+main.body {&#13;
+  padding-top: 0;&#13;
+}&#13;
+&#13;
+.welcome {&#13;
+  .image {&#13;
+    margin-right: 0%;&#13;
+    pointer-events: none;&#13;
+    transform: scale(3.5);&#13;
+    transform-origin: 100% 32%!important;&#13;
+    z-index: -1;&#13;
+  }&#13;
+}</css><draft>false</draft><dynamic_title_structure/><id>wow_home_asp2</id><internal>false</internal><public>false</public><roles/><short_description/><sys_class_name>sp_page</sys_class_name><sys_created_by>Warren</sys_created_by><sys_created_on>2020-03-20 10:50:26</sys_created_on><sys_customer_update>false</sys_customer_update><sys_id>de4c68abdbe740909a88b1b239961955</sys_id><sys_mod_count>1</sys_mod_count><sys_name>wow_home_asp2</sys_name><sys_package/><sys_policy/><sys_replace_on_upgrade>false</sys_replace_on_upgrade><sys_scope/><sys_update_name>sp_page_de4c68abdbe740909a88b1b239961955</sys_update_name><sys_updated_by>Warren</sys_updated_by><sys_updated_on>2020-03-20 10:50:26</sys_updated_on><title>Alstom WOW</title></sp_page><sys_translated_text action="delete_multiple" query="documentkey=de4c68abdbe740909a88b1b239961955"/></record_update>]]></payload>
+        <payload_hash>-959690</payload_hash>
+        <record_name>wow_home_asp2</record_name>
+        <reverted_from/>
+        <source>90598c75db5fcc10363e8a5039961958</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:50:27</sys_created_on>
+        <sys_id>564c2cabdbe740909a88b1b239961906</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170f790cdf30000001</sys_recorded_at>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:50:27</sys_updated_on>
+        <type>Page</type>
+        <update_guid>164c2cab41e7409052331a64fce82c05</update_guid>
+        <update_guid_history>164c2cab41e7409052331a64fce82c05:-959690,5a4c68aba7e7409027d79119fadc7958:-1141527226</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-20 16:24:58">e85da42fdbe740909a88b1b2399619ee</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:54:58</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_page">sp_page</sys_db_object>
+        <sys_id>221c670719804f4486bc46b70cc65590</sys_id>
+        <sys_metadata>de4c68abdbe740909a88b1b239961955</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>wow_home_asp2</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_page_de4c68abdbe740909a88b1b239961955</sys_update_name>
+        <sys_update_version display_value="sp_page_de4c68abdbe740909a88b1b239961955">564c2cabdbe740909a88b1b239961906</sys_update_version>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:54:58</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

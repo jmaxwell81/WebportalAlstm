@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, wowUtil) {
+  var c = this;
+
+	$scope.enableParallax = c.data.background && c.data.background.parallax && !wowUtil.isInternetExploder();
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>#wow-background {
+  @include wow-position-fill(fixed);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.background {
+  @include wow-position-fill(absolute);
+  background-position: 50% 0;
+  background-repeat: no-repeat!important;
+  background-size: cover;
+  pointer-events: none;
+
+  @media screen and (max-width: $screen-sm-max) {
+    &amp;.desktop { display: none; }
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    &amp;.mobile { display: none; }
+  }
+
+  &amp;.parallax {
+    bottom: -25%;
+    will-change: scroll-position;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-backgrounds</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element) {
+	var pageElement = document.querySelector('.sp-scroll');
+	var threshold = 0.25; // bottom: -25%;
+
+	if (scope.enableParallax) {
+		scope.$on('$destroy', function() {
+			$(pageElement).off('scroll', parallax);
+		});
+
+		$(pageElement).scroll(parallax);
+	}
+
+	function parallax() {
+		var viewportHeight = pageElement.offsetHeight;
+		var pageHeight = pageElement.scrollHeight;
+		var scrollTop = pageElement.scrollTop;
+
+		if (viewportHeight < pageHeight && scrollTop <= viewportHeight)
+			$('.parallax', element).css('transform', 'translateY(-'+(scrollTop * threshold)+'px)');
+	}
+
+}]]></link>
+        <name>Wow Backgrounds</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var portal = $sp.getPortalRecord();
+	var background = getRandomBackground();
+	
+	if (background) {
+		var css = {};
+		var mobileCss = {};
+
+		if (background.image)
+			css['background-image'] = 'url('+background.image+')';
+
+		background.css.split(";").forEach(function(style) {
+			var styleArray = style.split(':');
+			if (styleArray.length == 2) {
+				// need to strip out !important statements for Chrome support
+				css[styleArray[0].trim()] = styleArray[1].replace('!important','').trim();
+			}
+		});
+
+		background.css = css;
+
+		if (background.mobileCss) {
+			if (background.image)
+				mobileCss['background-image'] = 'url('+background.image+')';
+
+			background.mobileCss.split(";").forEach(function(style) {
+				var styleArray = style.split(':');
+				if (styleArray.length == 2) {
+					// need to strip out !important statements for Chrome support
+					mobileCss[styleArray[0].trim()] = styleArray[1].replace('!important','').trim();
+				}
+			});
+
+			background.mobileCss = mobileCss;
+		}
+
+		data.background = background;
+		data.isHomepage = !$sp.getParameter('id') || $sp.getParameter('id') == portal.getValue('homepage');
+	}
+
+
+	function getRandomBackground() {
+		var backgrounds = [];
+
+		var gr = new GlideRecord('x_mono2_wow_sp_background');
+		gr.addQuery('portal', portal.getUniqueValue());
+		gr.addQuery('background.active', true);
+		gr.query();
+
+		while (gr.next()) {
+			backgrounds.push({
+				id: gr.getValue('background'),
+				image: gr.getDisplayValue('background.image'),
+				css: gr.getDisplayValue('background.css'),
+				mobileCss: gr.getDisplayValue('background.mobile_css'),
+				parallax: gr.getDisplayValue('background.parallax') == 'true'
+			});
+		}
+
+		if (backgrounds.length)
+			return backgrounds[Math.floor(Math.random() * backgrounds.length)];
+
+		return null;
+	}
+
+
+	function getCssString(obj) {
+		var css = "";
+
+		for (var key in obj) {
+			css += key + ':' + obj[key] + ';';
+		}
+
+		return css;
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-17 15:56:28</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>b244862edb1b538087e2f3de3b961996</sys_id>
+        <sys_mod_count>227</sys_mod_count>
+        <sys_name>Wow Backgrounds</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_b244862edb1b538087e2f3de3b961996</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-19 15:57:48</sys_updated_on>
+        <template><![CDATA[<div id="wow-background" ng-if="data.background" ng-class="{'is-home': data.isHomepage}">
+  <div class="background desktop"
+       ng-class="{'parallax': data.background.parallax}"
+       ng-style="data.background.css">
+  </div>
+  <div class="background mobile"
+       ng-class="{'is-home': data.isHomepage}"
+       ng-style="data.background.mobileCss || data.background.css">
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

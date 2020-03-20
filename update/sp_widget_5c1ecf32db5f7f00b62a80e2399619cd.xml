@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal) {
+	var c = this;
+
+	$scope.isToday = function(appointment) {
+		return false;
+	}
+
+	c.$onInit = function () {
+		c.formatAppointments(c.data.appointments);
+	};
+
+	c.formatAppointments = function(appointments) {
+		angular.forEach(appointments, function (item, index) {
+			c.formatDate(item);
+		});
+	}
+
+	c.cancelAppt = function(appt) {
+		var modalInstance = $uibModal.open({
+			appendTo: $scope.widgetEl || null,
+			templateUrl: 'TUcancelAppointment',
+			controller: ModalInstanceCtrl,
+			windowClass: 'appt-confirmation-modal'
+		});
+
+		modalInstance.result.then(function() {
+			c.deleteAppt(appt.id);
+		});
+
+	};
+
+	var ModalInstanceCtrl = function($scope, $uibModalInstance) {
+		$scope.cancel = function() {
+			$uibModalInstance.close();
+		};
+
+		$scope.close = function() {
+			$uibModalInstance.dismiss('cancel');
+		};
+	};
+
+	c.deleteAppt = function(sys_id) {
+		c.server.get({
+			action: 'cancel_appointment',
+			sys_id: sys_id
+		}).then(function(response) {
+			c.formatAppointments(response.data.appointments);
+			c.data.appointments = response.data.appointments;
+		});
+	};
+
+	c.formatDate = function(appt) {
+		var momentDate = moment(appt.start);
+
+		appt.work_in = momentDate.fromNow();
+		appt.today = (moment().diff(appt.start, 'days') === 0);
+		
+		if (appt.duration > 0) {
+			appt.duration = Math.floor(appt.duration / 60);
+		}
+		
+		appt.format_month = momentDate.format('MMMM');
+		appt.format_day = momentDate.format('dddd');
+		appt.format_date = momentDate.format('D');
+
+		appt.time = momentDate.format("HH:mma");
+		appt.day = momentDate.format("MMM Do");
+	}
+
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+a {
+  cursor: pointer;
+}
+
+.appointments {
+  @include wow-list-reset();
+  margin-top: 2rem;
+
+  .appointment {
+    margin-bottom: 2rem;
+    padding: 2rem;
+  }
+}
+
+.appointment {
+  align-items: center;
+  background-color: darken($panel-bg, 3%);
+  display: flex;
+  
+  @media screen and (max-width: $screen-sm-max) {
+    flex-wrap: wrap;
+  }
+}
+
+.date-time {
+  border-right: 2px solid lighten($text-muted, 20%);
+  color: $brand-primary;
+  display: flex;
+  flex-direction: column;
+  margin-right: 3rem;
+  padding-right: 3rem;
+  width: 250px;
+  
+	@media screen and (max-width: $screen-sm-max) {
+    margin-bottom: 2rem;
+    border-right: none;
+    margin-right: 0rem;
+  	padding-right: 0rem;
+  }
+  
+  .time {
+    display: flex;
+    flex-direction: column;
+    font-size: 2.2rem;
+    margin-bottom: .5rem;
+  }
+  
+  .timezone {
+    font-size: 1rem;
+  }
+
+  .date {
+    font-size: 1.3rem;
+  }
+}
+
+.info-and-actions {
+  display: flex;
+  flex: 1;
+	
+  @media screen and (max-width: $screen-sm-max) {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+}
+
+.info {
+  @media screen and (max-width: $screen-sm-max) {
+    width: 100%;
+  }
+
+  .queue-name {
+    align-items: center;
+    display: flex;
+    font-size: 1.2rem;
+    margin-bottom: .5rem;
+
+    i {
+      color: $text-muted;
+      font-size: 1.5em;
+      margin-right: .5rem;
+    }
+  }
+
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+
+    dt {
+      font-weight: 400;
+      width: 5rem;
+    }
+
+    dd {
+      width: calc(100% - 5rem);
+    }
+  }
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+
+  @media screen and (max-width: $screen-sm-max) {
+    margin-top: 2rem;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    margin-left: auto;
+  }
+
+  .btn {
+    @include wow-button();
+    margin-left: .5rem;
+    padding: 1.25rem 1rem;
+    
+    @media screen and (max-width: $screen-sm-max) {
+    	margin-left: 0rem;
+      margin-right: .5rem;
+      margin-bottom: 1rem;
+  	}
+  }
+}
+
+// modals
+
+@include wow-modal(300px);
+
+.confirmation-modal {
+  &amp;, .button-group {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .button-group {
+    margin-top: 1rem;
+    
+    .btn {
+      @include wow-button();
+      
+      &amp;.btn-default {
+        background-color: transparent!important;
+        border-color: transparent;
+        box-shadow: none!important;
+      }
+    }
+  }
+}
+
+// no appointments
+
+.no-appointments {
+  align-items: center;
+  color: $text-muted;
+  display: flex;
+  flex-direction: column;
+  font-size: 2rem;
+  height: 250px;
+  justify-content: center;
+
+  i {
+    font-size: 3em;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+	scope.widgetEl = element;
+}]]></link>
+        <name>Wow Appointments</name>
+        <option_schema>[{"name":"title","section":"Presentation","label":"Title","type":"string"},{"displayValue":"Instance with Menu","name":"menu","section":"Presentation","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var user = gs.getUser();
+	var session = gs.getSession();
+
+	options.title = options.title ? gs.getMessage(options.title) : null;
+	options.menu = options.menu || null;
+
+	if (input) {
+		switch (input.action) {
+			case 'cancel_appointment':
+				data.deleted = new global.TUTaskAppointmentUtils().cancelAppointment(input.sys_id);
+				data.appointments = getAppointments();
+				return;
+		}
+	}
+
+	data.appointments = getAppointments();
+		
+	function getAppointments() {
+		var appointments = []
+
+		try {
+			var parsedAppointments = JSON.parse(new global.TUTaskAppointmentUtils().getUserAppointments(null, user.getID(), 'interaction'));
+			
+			parsedAppointments.forEach(function(appointment) {
+				appointments.push({
+					id: appointment.sys_id,
+					calendarInvite: appointment.calendar_invite,
+					start: appointment.work_start,
+					timezone: session.getTimeZoneName(),
+					location: appointment.location_name,
+					number: appointment.number,
+					reason: appointment.reason
+				});
+			});
+		}
+
+		catch (e) {
+			gs.error(e);
+		}
+
+		return appointments;
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-08-20 08:15:07</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>5c1ecf32db5f7f00b62a80e2399619cd</sys_id>
+        <sys_mod_count>85</sys_mod_count>
+        <sys_name>Wow Appointments</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_5c1ecf32db5f7f00b62a80e2399619cd</sys_update_name>
+        <sys_updated_by>tuadmin_ws</sys_updated_by>
+        <sys_updated_on>2019-10-02 12:30:04</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <h1 ng-if="::options.title">{{::options.title}}</h1>
+
+  <widget id="wow-navigation" options="{menu: options.menu}"></widget>
+
+  <ul class="appointments">
+    <li class="appointment" ng-repeat="appointment in data.appointments track by $index" ng-class="{'is-today': isToday(appointment)}">
+
+      <div class="date-time">
+        <span class="time" uib-tooltip="{{appointment.work_in}}">
+          {{appointment.time}} <span class="timezone">({{appointment.timezone}})</span>
+        </span>
+        <span class="date">
+          {{appointment.format_day}}, {{appointment.format_date}} {{appointment.format_month}}
+        </span>
+      </div>
+
+      <div class="info-and-actions">
+        <div class="info">
+          <span class="queue-name">
+            <i class="material-icons">domain</i>
+            {{appointment.location}}
+          </span>
+          <dl>
+            <dt>${wow_reason}:</dt>
+            <dd>{{appointment.reason}}</dd>
+            <dt>${wow_reference}:</dt>
+            <dd>{{appointment.number}}</dd>
+          </dl>
+        </div>
+        <div class="actions">
+          <a role="button" class="btn btn-primary" href="{{appointment.calendarInvite}}" target="_blank" download>
+            <i class="material-icons">today</i>
+            ${wow_calendar_invite}
+          </a>
+          <a class="btn btn-danger" role="button" ng-click="c.cancelAppt(appointment)" href="javascript:void(0)">
+            <i class="material-icons">close</i>
+            ${wow_cancel}
+          </a>
+        </div>
+      </div>
+
+    </li>
+  </ul>
+
+  <div class="no-appointments" ng-if="data.appointments.length === 0">
+    <i class="material-icons">schedule</i>
+     ${wow_no_appointments}
+  </div>
+
+</div>
+
+<script type="text/ng-template" id="TUcancelAppointment">
+	<div class="confirmation-modal">
+    <h3>
+      ${wow_are_you_sure}
+    </h3>
+    <div class="button-group">
+      <button type="button" ng-click="cancel()" class="btn btn-danger desktop">
+        ${wow_confirm_cancel_appointment}
+      </button>
+      <button type="button" ng-click="close()" class="btn btn-default desktop">
+        ${wow_keep_appointment}
+      </button>
+    </div>
+  </div>
+</script>]]></template>
+    </sp_widget>
+</record_update>

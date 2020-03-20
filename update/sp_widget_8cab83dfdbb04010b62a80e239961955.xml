@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal, $window, $timeout, $location, $document, spAnnouncement, spUtil) {
+	var c = this;
+
+	c.banners = [];
+	c.modals = [];
+
+	c.bannerIndex = 0;
+	c.modalsIndex = 0;
+	
+	$scope.isMobile = false;
+	$scope.$on('open-alerts', function() {
+		c.toggleMobileView();
+		var params = {
+			moveTo: 0,
+			delay: 100,
+			toOpacity: 1
+		}
+		moveBanners(params)
+	})
+	
+	function moveBanners(animParams){
+		$timeout(function(){
+			for(var i = 0; i < c.banners.length; i++) {
+				var elem = document.getElementById('banner_'+i);
+				elem.style.opacity = animParams.toOpacity;
+				if(animParams.withOffset)	
+					elem.style.transform = 'translateY(' + (i+1) * animParams.moveTo + 'px)'
+				else
+					elem.style.transform = 'translateY(' +  animParams.moveTo + 'px)'
+			}
+		},animParams.delay)
+	}
+	
+	function getAnnouncements() {
+		// call server script which appends incident and article details to announcement
+		c.server.get({
+			action: 'map_announcements',
+			announcements: spAnnouncement.get()
+		}).then(function(r) {
+			c.banners = r.data.banners;
+			
+			//DETECT MOBILE RES
+			if($window.innerWidth < 768) {
+				$scope.isMobile = true;
+				var params = {
+					moveTo: -100,
+					withOffset: true,
+					delay: 0,
+					toOpacity: 0
+				}
+				moveBanners(params)
+			}
+
+			c.modals = r.data.modals;
+
+			if (c.modals.length > 0) {
+				c.currentModal = c.modals[0];
+				showModal();
+			}
+
+			if (c.banners.length > 0) {
+				c.bannerIndex = 0;
+				c.banners[c.bannerIndex].active = true;
+			}
+		})
+	}
+
+	function showModal() {
+		if (c.modal)
+			c.modal.close();
+
+		c.modal = $uibModal.open({
+			appendTo: $($scope.widgetEl),
+			templateUrl: 'wowAnnouncementModal.html',
+			scope: $scope,
+			backdrop: 'static'
+		});
+	}
+
+	c.closeModal = function() {
+		c.modal.close();
+		c.dismiss(c.currentModal);
+		c.modalsIndex++;
+
+		if (c.modalsIndex < c.modals.length) {
+			c.currentModal = c.modals[c.modalsIndex];
+			showModal();
+		}
+	}
+
+	c.dismiss = function(announcement) {
+		if (c.canDismiss(announcement)) {
+			spAnnouncement.dismiss(announcement.id);
+
+			for (var i = 0; i < c.banners.length; i++) {
+				if (c.banners[i].id === announcement.id) {
+					c.banners.splice(i, 1);
+
+					// reset to first banner
+					c.banners.forEach(function(banner, i) {
+						banner.active = (i === 0);
+					});
+
+					break;
+				}
+			}
+		}
+	}
+
+	c.canDismiss = function(announcement) {
+		return announcement.dismissOption != 'NOT_DISMISSIBLE'
+	}
+
+	c.reportIncident = function(announcement) {
+		if (!announcement.canReportIncident)
+			return;
+
+		c.server.get({
+			action: 'report_incident',
+			incident: announcement.incident
+		}).then(function(r) {
+			if (r.data.redirectUrl) {
+				announcement.canReportIncident = false;
+				c.closeModal();
+				spUtil.addInfoMessage("${wow_incident_reported}");
+
+				if (c.canDismiss(announcement))
+					spAnnouncement.dismiss(announcement.id);
+
+				$timeout(function() {
+					$location.url(r.data.redirectUrl);
+				}, 1500);
+			}
+		});
+	}
+
+	c.hasActions = function(announcement) {
+		return c.canDismiss(announcement) || announcement.article || announcement.canReportIncident;
+	}
+
+	c.nextBanner = function() {
+		if (c.hasNext()) {
+			c.banners[c.bannerIndex].active = false;
+			c.banners[c.bannerIndex+1].active = true;
+			c.bannerIndex++;
+		}
+	}
+
+	c.previousBanner = function() {
+		if (c.hasPrevious()) {
+			c.banners[c.bannerIndex].active = false;
+			c.banners[c.bannerIndex-1].active = true;
+			c.bannerIndex--;
+		}
+	}
+
+	c.hasNext = function() {
+		return (c.bannerIndex+1) < c.banners.length;
+	}
+
+	c.hasPrevious = function() {
+		return c.bannerIndex > 0;
+	}
+	
+	c.toggleMobileView = function() {
+		if(c.showMobileView) {
+			var params = {
+				moveTo: -100,
+				withOffset: true,
+				delay: 0,
+				toOpacity: 0
+			}
+			moveBanners(params)
+	
+			$timeout(function(){
+				c.showMobileView = !c.showMobileView;
+			}, 200)
+			return;
+		} 
+		c.showMobileView = !c.showMobileView;
+	}
+
+	$scope.$on('wow_incident_reported', function(event, args) {
+		var incidentId = args.incidentId;
+
+		for (var i = 0; i < c.banners.length; i++) {
+			if (c.banners[i].incident && c.banners[i].incident.id === incidentId) {
+				c.banners[i].canReportIncident = false;
+				break;
+			}
+		}
+
+		for (var i = 0; i < c.modals.length; i++) {
+			if (c.modals[i].incident && c.modals[i].incident.id === incidentId) {
+				c.modals[i].canReportIncident = false;
+				break;
+			}
+		}
+	});
+
+	getAnnouncements();
+	
+
+	angular.element($window).bind('resize', function(){
+		var params;
+		
+		if($window.innerWidth < 768) {
+			if(!$scope.isMobile) {
+				params = {
+					moveTo: -100,
+					withOffset: true,
+					delay: 0,
+					toOpacity: 0
+				}
+				$scope.isMobile = true;
+				moveBanners(params)
+			}
+		} else {
+			if($scope.isMobile) {
+				$scope.isMobile = false;
+				c.showMobileView = false;
+				params = {
+					moveTo: 0,
+					delay: 0,
+					toOpacity: 1
+				}
+				moveBanners(params)
+			}
+		}
+	});
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$zindex-announcements-modal: $zindex-mask + 1;
+
+.mobile-toggles {
+  @media screen and (min-width: $screen-sm-min) {
+    display: none;
+  }
+}
+
+.mobile-toggle-open {
+  align-items: center;
+  background-color: $banner-info-bg;
+  border: none;
+  color: $white;
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  width: 100%;
+}
+
+.mobile-alert-icon {
+	color: $text-color;
+  position: fixed;
+  left: 1rem;
+  top: .7rem;
+  z-index: $zindex-announcements-modal + 1;
+  font-size: 2.5rem;
+}
+
+.mobile-toggle-close {
+  color: $white;
+  position: fixed;
+  right: 1rem;
+  top: 0.7rem;
+  background: transparent;
+  border: none;
+  z-index: $zindex-announcements-modal + 1;
+  i {
+    color: $text-color;
+    font-size: 2.5rem;
+  }
+}
+
+@include wow-modal(600px);
+
+#wow-announcements-modal {
+  &amp;.urgent {
+    .modal-header {
+      i {
+      	color: $brand-danger;
+      }
+    }
+  }
+
+  .header-title {
+    align-items: center;
+    display: flex;
+    margin: .75rem 0 1rem;
+
+    i {
+      color: $brand-info;
+      font-size: 3rem;
+      margin-right: 1rem;
+    }
+  }
+
+  .actions {
+    align-items: center;
+    display: flex;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    @include wow-button();
+  }
+
+  .btn-report-incident {
+    &amp;[disabled] {
+      background-color: darken($panel-bg, 5%);
+      border: none;
+      color: $text-color;
+      font-size: 1.2rem;
+      opacity: 1;
+
+      i {
+        color: $brand-success;
+      }
+    }
+  }
+
+  .btn-dismiss {
+    margin-right: 1rem;
+  }
+
+  .btn-read-more {
+    margin-right: auto;
+  }
+
+  .btn-report-incident {
+    margin-left: auto;
+  }
+}
+
+#wow-announcements-banner {
+  padding: 0;
+  position: relative;
+  
+  @media screen and (max-width: $screen-xs-max) {
+  	&amp;:not(.open) {
+      opacity: 0;
+      z-index: -1;
+    }
+    opacity: 1;
+    transition: all 0.4s;
+    background-color: rgba($panel-bg, 0.6);
+    background: $panel-bg;
+		background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5676645658263305) 45%, rgba(255,255,255,0.3211659663865546) 100%);
+    flex-direction: column;
+  	top:0;
+    bottom: 0;
+    overflow-y: scroll;
+    position: fixed;
+    width: 100%;
+    align-items: center;
+    padding: 1rem;
+    padding-top: 4rem;
+    z-index: $zindex-announcements-modal;
+    
+  }
+
+  nav {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 160px;
+    
+    @media screen and (max-width: $screen-xs-max) {
+      display: none;
+    }
+
+    span {
+      color: $white;
+      margin-right: 1rem;
+    }
+
+    .btn {
+      align-items: center;
+      background-color: rgba(0, 0, 0, .15);
+      border-radius: 0;
+      display: inline-flex;
+      height: 2rem;
+      justify-content: center;
+      margin-left: 1px;
+      padding: 0;
+      width: 2rem;
+
+      &amp;[disabled] {
+        opacity: .2;
+      }
+
+      i {
+        color: $white;
+        font-size: 1.5rem;
+        margin: 0;
+      }
+    }
+  }
+
+  .banner {
+    align-items: center;
+    background-color: $brand-info;
+    background-color: $banner-info-bg;
+    color: $white;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+   	transform: translateY(0px);
+    @media screen and (max-width: $screen-xs-max) {
+      transition: all 0.4s;
+      align-items: flex-start;
+      //flex: 1;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem 1rem;
+      width: 100%;
+      border-radius: 6px;
+      min-height: 190px;
+      &amp;:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+     
+      .details {
+      	h2 {
+        	font-size: 1.7rem;
+        }
+      }
+    }
+
+    &amp;.urgent {
+      background-color: $brand-danger;
+      background-color: $banner-urgeny-bg;
+
+      .btn:not(.btn-dismiss) {
+        color: $text-color;
+      }
+    }
+  }
+
+  &amp;.has-nav {
+    .banner {
+      padding-right: 160px; // nav width
+    }
+  }
+
+  .fa {
+    color: $white;
+    font-size: 2rem;
+    margin-right: 1rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .summary {
+    margin-top: .5rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    margin-left: auto;
+    @media screen and (max-width: $screen-xs-max) {
+      margin-left: 0px;
+    }
+    .btn {
+      @include wow-button($white, $white, $brand-primary);
+      margin-left: 1rem;
+
+      &amp;[disabled] {
+        opacity: .5;
+      }
+      @media screen and (max-width: $screen-xs-max) {
+        margin-top:1rem;
+        margin-left: 0rem;
+        margin-right: 1rem;
+      }
+    }
+
+    .btn-dismiss {
+      @include wow-button(transparent, $white, $white);
+      border-width: 2px;
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow_announcements__backup_</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, element) {
+	scope.widgetEl = element;
+}]]></link>
+        <name>Wow announcements (BACKUP)</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var announcementsHelper = new WowAnnouncements();
+
+	if (input) {
+		switch (input.action) {
+			case 'map_announcements':
+				var announcements = announcementsHelper.mapAnnouncements(input.announcements);
+
+				announcements = announcements.filter(function(announcement) {
+					return announcement.dismissed === 'undefined' || announcement.dismissed != true;
+				});
+
+				announcements.forEach(function(announcement) {
+					announcement.types = [];
+					var types = announcement.type.split(',');
+
+					for (var i = 0; i < types.length; i++)
+						announcement.types.push(types[i].trim());
+
+					delete announcement.type;
+				});
+
+				data.banners = announcements.filter(function(announcement) {
+					return announcement.types.indexOf('Wow Banner') >= 0;
+				});
+
+				data.modals = announcements.filter(function(announcement) {
+					return announcement.types.indexOf('Wow Modal') >= 0;
+				});
+
+				break;
+
+			case 'report_incident':
+				var incident = input.incident;
+				if (incident) {
+					var incidentId = announcementsHelper.reportIncident(incident.id);
+
+					if (incidentId)
+						data.redirectUrl = '?id=wow_incident&sys_id=' + incidentId;
+				}
+
+				break;
+		}
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-04 10:55:27</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>8cab83dfdbb04010b62a80e239961955</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Wow announcements (BACKUP)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_8cab83dfdbb04010b62a80e239961955</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-04 10:55:27</sys_updated_on>
+        <template><![CDATA[<section id="wow-announcements-banner"
+         ng-if="c.banners.length > 0"
+         ng-class="{'has-nav': c.banners.length > 1 && !c.showMobileView, 'open': c.showMobileView}"
+         ng-cloak>
+
+  <div class="banner"
+       id="{{'banner_'+$index}}"
+       ng-repeat="banner in c.banners"
+       ng-show="banner.active || c.showMobileView"
+       ng-class="{'urgent': banner.urgency === 'urgent', 'on-mobile': c.showMobileView}">
+    <i ng-if="banner.glyph" class="fa fa-{{banner.glyph}}"></i>
+    <div class="details">
+      <h2 class="title">{{banner.title}}</h2>
+      <div class="summary" ng-if="banner.summary" ng-bind-html="banner.summary"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-report-incident"
+              ng-if="banner.incident"
+              ng-click="c.reportIncident(banner)"
+              ng-disabled="!banner.canReportIncident">
+        <i ng-if="!banner.canReportIncident" class="material-icons">check</i>
+        ${wow_im_impacted}
+      </button>
+      <a class="btn btn-read-more"
+         ng-href="{{banner.article.href}}"
+         ng-if="banner.article"
+         ng-click="c.dismiss()">
+        ${wow_read_more}
+      </a>
+      <button class="btn btn-dismiss"
+              ng-if="c.canDismiss(banner)"
+              ng-click="c.dismiss(banner)">
+        ${wow_dismiss}
+      </button>
+    </div>
+  </div>
+  
+
+
+  <nav ng-if="c.banners.length > 1">
+    <span class="banner-paging">
+      {{"${wow_[0]_of_[1]}".replace('[0]', (c.bannerIndex + 1)).replace('[1]', c.banners.length)}}
+    </span>
+    <button class="btn" ng-click="c.previousBanner()" ng-disabled="!c.hasPrevious()">
+      <i class="material-icons">chevron_left</i>
+    </button>
+    <button class="btn" ng-click="c.nextBanner()" ng-disabled="!c.hasNext()">
+      <i class="material-icons">chevron_right</i>
+    </button>
+  </nav>
+
+</section>
+
+<div class="mobile-toggles" ng-if="c.banners.length > 1">
+  <!-- <button class="mobile-toggle-open" 
+          ng-show="!c.showMobileView"
+          ng-click="c.toggleMobileView()">
+    ${There are announcements, click here to view}
+    <i class="material-icons">keyboard_arrow_down</i>
+  </button>-->
+	<i ng-show="c.showMobileView" class="material-icons mobile-alert-icon">notifications</i>
+  <button class="mobile-toggle-close"
+          ng-show="c.showMobileView"
+          ng-click="c.toggleMobileView()">
+    <i class="material-icons">close</i>
+  </button>
+</div>]]></template>
+    </sp_widget>
+</record_update>

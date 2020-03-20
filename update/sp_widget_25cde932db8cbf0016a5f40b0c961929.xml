@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function ($scope, spUtil) {
+  var c = this;
+
+	var ticket;
+	var permissions;
+
+	$scope.showVariables = true;
+
+	if (c.data.ticket) {
+		ticket = $scope.ticket = c.data.ticket;
+		permissions = $scope.permissions = c.data.permissions;
+
+		$scope.activityFeed = c.data.activityFeed;
+		$scope.markAsFavorite = c.data.markAsFavorite;
+
+		spUtil.recordWatch($scope, 'task', 'sys_id='+ticket.id, function(r) {
+			if (r.data.changes.length > 0) {
+				for (var i = 0; i < r.data.changes.length; i++) {
+					// if we have one change that isn't just comments then reload the ticket
+					if (r.data.changes[i] != 'comments') {
+						c.server.update();
+						break;
+					}
+				}
+			}
+		});
+	}
+
+
+	$scope.hasActions = function() {
+		if (ticket.variables.length > 0)
+			return true;
+
+		for (var key in permissions) {
+			if (permissions[key])
+				return true;
+		}
+
+		return false;
+	}
+
+	// ngClick action to chase the ticket
+	$scope.chaseTicket = function() {
+		if (permissions.canChase)
+			performAction('chase');
+	}
+
+	// ngClick action to accept the resolution of the ticket
+	$scope.acceptResolution = function() {
+		if (permissions.canAcceptResolution)
+			performAction('accept_resolution');
+	}
+
+	// ngClick action to reject the resolution of the ticket
+	$scope.rejectResolution = function() {
+		if (permissions.canRejectResolution)
+			performAction('reject_resolution');
+	}
+
+	// ngClick action to cancel the ticket
+	$scope.cancelTicket = function() {
+		if (permissions.canCancel)
+			performAction('cancel');
+	}
+
+	function performAction(action) {
+		if ($scope.updating)
+			return;
+
+		$scope.updating = true;
+
+		c.server.get({
+			action: action
+		}).then(function(r) {
+			if (r.data.ticket)
+
+			if (r.data.permissions)
+				permissions = $scope.permissions = r.data.permissions;
+
+			if (r.data.success)
+				spUtil.addInfoMessage(r.data.message || "${wow_ticket_updated}");
+
+			else
+				spUtil.addErrorMessage(r.data.message || "${wow_ticket_update_error}");
+
+			$scope.updating = false;
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$widgets-width: 380px;
+
+@include wow-panel();
+@include wow-ticket-layout();
+
+// scope everything not in embedded widget
+.wow-ticket {
+  .descriptions {
+    @include wow-inline-list();
+    margin-bottom: 2rem;
+
+    li {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+      width: 100%;
+
+      label {
+        margin-bottom: .5rem;
+      }
+    }
+  }
+
+  .variables {
+    @include wow-variables();
+    padding: 1.5rem 0;
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    li {
+      span {
+        width: 100%;
+        overflow-x: hidden;
+      }
+    }
+  }
+
+  .actions {
+    margin-bottom: 3rem;
+
+    .btn {
+      @include wow-button();
+      margin-bottom: 1rem;
+      width: 100%;
+
+      +div {
+        margin-top: 2rem;
+      }
+    }
+  }
+
+  .attachment-section {
+    @include wow-attachments();
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin-top:1rem;
+    }
+  }
+
+  .ticket-variables {
+    &gt;button {
+      align-items: center;
+      background-color: transparent;
+      border: none;
+      border-bottom: 1px solid darken($panel-bg, 20%);
+      cursor: pointer;
+      display: flex;
+      padding: 1rem 0;
+      width: 100%;
+
+      i {
+        color: $text-muted;
+        font-size: 1.8rem;
+
+        &amp;:first-child {
+          margin-right: 1rem;
+        }
+
+        &amp;:last-child {
+          margin-left: 1rem;
+        }
+      }
+
+      span {
+        font-size: 1rem;
+        font-weight: bold;
+        color: darken($text-muted, 40);
+        margin-right: auto;
+
+        + span {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-ticket</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Ticket</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var sys_id = options.sys_id || $sp.getParameter('sys_id');
+	var table = options.table || $sp.getParameter('table');
+
+	if (!(sys_id && table))
+		return;
+
+	switch (table) {
+		case 'incident':
+			data.embeddedWidget = $sp.getWidget('wow-incident', {
+				sys_id: sys_id
+			});
+			return;
+
+		case 'sc_request':
+		case 'sc_req_item':
+			data.embeddedWidget = $sp.getWidget('wow-request-item', {
+				sys_id: sys_id,
+				table: table
+			});
+
+			return;
+	}
+
+	var util = new WowUtil();
+	var ticketsHelper = new WowTickets();
+	var taskHelper = new WowTask({
+		sys_id: sys_id,
+		table: table
+	});
+
+	if (input) {
+		switch (input.action) {
+			case 'chase':
+				data.success = taskHelper.chaseTask();
+
+				if (data.success)
+					data.message = gs.getMessage('wow_ticket_chased');
+
+				else
+					data.message = gs.getMessage('wow_ticket_within_sla');
+
+				break;
+
+			case 'accept_resolution':
+				data.success = taskHelper.acceptResolution();
+				data.message = gs.getMessage('wow_ticket_resolution_accepted');
+				break;
+
+			case 'reject_resolution':
+				data.success = taskHelper.rejectResolution();
+				data.message = gs.getMessage('wow_ticket_resolution_rejected');
+				break;
+
+			case 'cancel':
+				data.success = taskHelper.cancelTask();
+				data.message = gs.getMessage('wow_ticket_cancelled');
+				break;
+		}
+	}
+
+	var ticket = ticketsHelper.getTask(table, sys_id);
+
+	if (!ticket)
+		return;
+
+	data.ticket = ticket;
+	data.permissions = taskHelper.getPermissions();
+
+	// only get these on widget load not refresh
+	if (!input) {
+		data.activityFeed = $sp.getWidget('wow-activity-feed', {
+			sys_id: sys_id,
+			table: table
+		});
+
+		data.attachmentWidget = $sp.getWidget('wow-ticket-attachments', {
+			recordId: sys_id,
+			recordTable: table
+		});
+	}
+
+	data.ticketLocation = $sp.getWidget('wow-ticket-location', {
+		sys_id: sys_id,
+		table: table
+	});
+
+	data.markAsFavorite = $sp.getWidget('wow-mark-favorite', {
+		sys_id: sys_id
+	});
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-11 11:50:12</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>25cde932db8cbf0016a5f40b0c961929</sys_id>
+        <sys_mod_count>33</sys_mod_count>
+        <sys_name>Wow Ticket</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_25cde932db8cbf0016a5f40b0c961929</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-27 14:21:12</sys_updated_on>
+        <template><![CDATA[<div ng-if="data.embeddedWidget" class="embedded-widget">
+  <sp-widget widget="data.embeddedWidget"></sp-widget>
+</div>
+
+<div ng-if="!data.embeddedWidget" class="panel">
+  <section ng-if="ticket" class="wow-ticket">
+
+    <sp-widget widget="data.markAsFavorite"></sp-widget>
+    <h1>${wow_ticket} <span>#{{ticket.number}}</span></h1>
+
+    <ul class="info">
+      <li ng-if="ticket.state">
+        <label>${wow_status}:</label>
+        <span>{{ticket.state}}</span>
+      </li>
+      <li ng-if="ticket.impact">
+        <label>${wow_impact}:</label>
+        <span>{{ticket.impact}}</span>
+      </li>
+      <li>
+        <label>${wow_created}:</label>
+        <span>{{ticket.opened | wowDate}}</span>
+      </li>
+      <li>
+        <label>${wow_last_updated}:</label>
+        <span>{{ticket.updated | wowDate}}</span>
+      </li>
+    </ul>
+
+     <ul class="info last">
+      <li ng-if="ticket.assignmentGroup">
+        <label>${wow_assignment_group}:</label>
+        <span>{{ticket.assignmentGroup}}</span>
+      </li>
+        <li ng-if="ticket.assignedTo">
+        <label>${wow_assigned_to}:</label>
+        <span>{{ticket.assignedTo}}</span>
+      </li>
+        <li ng-if="ticket.teamManager">
+        <label>${wow_team_manager}:</label>
+        <span>{{ticket.teamManager}}</span>
+      </li>
+    </ul>
+
+    <main>
+      <div class="details">
+
+        <ul class="descriptions">
+          <li ng-if="ticket.description">
+            <label>${wow_summary}</label>
+            <span>{{ticket.description}}</span>
+          </li>
+          <li ng-if="ticket.details">
+            <label>${wow_details}</label>
+            <span>{{ticket.details}}</span>
+          </li>
+        </ul>
+
+        <div class="activity-feed">
+          <sp-widget widget="data.activityFeed"></sp-widget>
+        </div>
+
+      </div>
+      <aside>
+
+        <div class="actions" ng-if="hasActions()">
+
+          <button ng-if="permissions.canChase" ng-click="chaseTicket()" ng-disabled="updating" class="btn btn-info btn-chase">
+            <i class="material-icons">schedule</i>
+            ${wow_chase_ticket}
+          </button>
+
+          <button ng-if="permissions.canAcceptResolution" ng-click="acceptResolution()" ng-disabled="updating" class="btn btn-success btn-accept-resolution">
+            <i class="material-icons">check_circle</i>
+            ${wow_accept_resolution}
+          </button>
+
+          <button ng-if="permissions.canRejectResolution" ng-click="rejectResolution()" ng-disabled="updating" class="btn btn-danger btn-reject-resolution">
+            <i class="material-icons">error</i>
+            ${wow_reject_resolution}
+          </button>
+
+          <button ng-if="permissions.canCancel" ng-click="cancelTicket()" ng-disabled="updating" class="btn btn-default btn-cancel">
+            <i class="material-icons">cancel</i>
+            ${wow_cancel_ticket}
+          </button>
+
+          <div class="ticket-variables">
+            <button ng-click="showVariables = !showVariables">
+              <i class="material-icons">list</i>
+              <span>{{showVariables ? "${wow_hide_details}" : "${wow_show_details}"}}</span>
+              <i ng-if="showVariables" class="material-icons">keyboard_arrow_down</i>
+              <i ng-if="!showVariables" class="material-icons">keyboard_arrow_up</i>
+            </button>
+            <div ng-if="showVariables">
+              <ul class="variables">
+                <li ng-repeat="variable in ticket.variables">
+                  <label>{{variable.label}}</label>
+                  <span>{{variable.display_value}}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="attachment-section">
+          <sp-widget widget="data.attachmentWidget"></sp-widget>
+        </div>
+
+      </aside>
+    </main>
+
+  </section>
+
+  <section ng-if="!ticket">
+    ${wow_no_record}
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

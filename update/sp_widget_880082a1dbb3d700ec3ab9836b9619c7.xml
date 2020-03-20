@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function ($scope, $rootScope, $uibModal, $timeout, spUtil) {
+  var c = this;
+
+	var incident;
+	var permissions;
+	var modal;
+
+	$scope.showVariables = true;
+
+	if (c.data.incident) {
+		incident = $scope.incident = c.data.incident;
+		permissions = $scope.permissions = c.data.permissions;
+
+		$scope.activityFeed = c.data.activityFeed;
+		$scope.markAsFavorite = c.data.markAsFavorite;
+
+		spUtil.recordWatch($scope, 'incident', 'sys_id='+incident.id, function(r) {
+			if (r.data.changes.length > 0) {
+				for (var i = 0; i < r.data.changes.length; i++) {
+					// if we have one change that isn't just comments then reload the incident
+					if (r.data.changes[i] != 'comments') {
+						update();
+						break;
+					}
+				}
+			}
+		});
+	}
+
+	$scope.hasActions = function() {
+		if (incident.variables.length > 0)
+			return true;
+
+		for (var key in permissions) {
+			if (permissions[key])
+				return true;
+		}
+
+		return false;
+	}
+
+	// ngClick action to chase the incident
+	$scope.chaseIncident = function() {
+		openModal('wowChaseIncident.html', 'wow-chase-incident');
+	}
+
+	$scope.confirmChaseIncident = function() {
+		if(c.data.sla.hasBreached == true){
+				performAction('update_worknotes', closeModal);
+			
+		}else{
+					if (!hasComments())
+			return spUtil.addErrorMessage("${wow_invalid_comments_min_length_[0]}".replace('[0]', c.options.minCommentsLength));
+
+		if (permissions.canChase) {
+			$scope.chasing = true;
+
+			performAction('chase', function() {
+			
+				if (c.data.sla.hasBreached) {
+					var timeout = $timeout(function() {
+						$scope.chasing = false;
+						$timeout.cancel(timeout);
+					}, 500); // add little timeout to feel slicker
+				}
+
+				else
+					closeModal();
+
+				$scope.hasChased = true;
+			});
+		}
+		}
+
+	}
+
+	// ngClick action to accept the resolution of the incident
+	$scope.acceptResolution = function() {
+		if (permissions.canAcceptResolution)
+			performAction('accept_resolution', closeModal);
+	}
+	
+	// ngClick action to reject the resolution of the incident
+	$scope.alstomRejectResolution = function() {
+		if (permissions.canRejectResolution) {
+			redirect('alstom_reject_resolution');
+		}
+	}
+
+	// ngClick action to reject the resolution of the incident
+	$scope.rejectResolution = function() {
+		openModal('wowRejectIncidentResolution.html', 'wow-reject-incident-resolution');
+	}
+
+	$scope.confirmRejectResolution = function() {
+		if (!hasComments())
+			return spUtil.addErrorMessage("${wow_invalid_comments_min_length_[0]}".replace('[0]', c.options.minCommentsLength));
+
+		if (permissions.canRejectResolution) {
+			performAction('reject_resolution', closeModal);
+		}
+	}
+
+	// ngClick action to close the incident
+	$scope.closeIncident = function() {
+		openModal('wowCloseIncident.html', 'wow-close-incident');
+	}
+
+	$scope.confirmCloseIncident = function($event) {
+		if (!hasComments())
+			return spUtil.addErrorMessage("${wow_invalid_comments_min_length_[0]}".replace('[0]', c.options.minCommentsLength));
+
+		if (permissions.canClose) {
+			performAction('close', closeModal);
+		}
+	}
+	
+	function redirect(action) {
+		//Alstom have a task_survey redirect which uses expert_shell
+		c.server.get({
+			action: action
+		}).then(function(r) {
+			if (r.data.survey_url!=''){
+				var url = r.data.survey_url;
+
+				var viewPath = r.data.survey_url;
+				var currentPath = window.location.href.substr(0, window.location.href.indexOf('/wow') + 1);
+
+				var fullPath = currentPath + viewPath;
+								
+				window.open(fullPath, '_self');
+				data.survey_url = '';				
+				
+			}
+		});
+	}
+
+	function performAction(action, callback) {
+		if ($scope.updating)
+			return;
+
+		$scope.updating = true;
+
+		c.server.get({
+			action: action,
+			comments: c.data.comments
+		}).then(function(r) {
+			if (r.data.incident)
+				incident = $scope.incident = r.data.incident;
+
+			if (r.data.permissions)
+				permissions = $scope.permissions = r.data.permissions;
+
+			if (r.data.success)
+				spUtil.addInfoMessage(r.data.message || "${wow_incident_updated}");
+
+			else
+				spUtil.addErrorMessage("${wow_incident_update_error}");
+
+			$scope.updating = false;
+			resetComments(); // reset comments after submission
+			callback();
+		});
+	}
+	
+	function update() {
+		c.server.update().then(function() {
+			if (c.data.incident)
+				incident = $scope.incident = c.data.incident;
+
+			if (c.data.permissions)
+				permissions = $scope.permissions = c.data.permissions;
+		});
+	}
+
+	var openModal = $scope.openModal = function(template, windowClass) {
+		var modalOptions = {
+			appendTo: $scope.widgetEl,
+			templateUrl: template,
+			scope: $scope
+		};
+
+		if (windowClass)
+			modalOptions.windowClass = windowClass;
+
+		modal = $uibModal.open(modalOptions);
+	}
+
+	var closeModal = $scope.closeModal = function() {
+		if (modal)
+			modal.close();
+	}
+
+	var hasComments = $scope.hasComments = function() {
+		return c.data.comments && c.data.comments.length >= c.options.minCommentsLength;
+	}
+
+	var resetComments = function() {
+		c.data.comments = "";
+	}
+
+	$scope.launchChat = function() {
+		closeModal();
+		$rootScope.$broadcast('wow_launch_chat');
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+@include wow-ticket-layout();
+
+.descriptions {
+  @include wow-inline-list();
+  margin-bottom: 2rem;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    width: 100%;
+
+    label {
+      margin-bottom: .5rem;
+    }
+  }
+}
+
+.variables {
+  @include wow-variables();
+  padding: 1.5rem 0;
+
+  li:last-child {
+    margin-bottom: 0;
+  }
+
+  li {
+    span {
+      width: 100%;
+      overflow-x: hidden;
+    }
+  }
+}
+
+.actions {
+  margin-bottom: 3rem;
+
+  .btn {
+    @include wow-button();
+    margin-bottom: 1rem;
+    width: 100%;
+
+    +div {
+      margin-top: 2rem;
+    }
+  }
+}
+
+.attachment-section {
+  @include wow-attachments();
+
+  @media screen and (max-width: $screen-xs-max) {
+    margin-top:1rem;
+  }
+}
+
+.ticket-variables {
+  &gt;button {
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid darken($panel-bg, 20%);
+    cursor: pointer;
+    display: flex;
+    padding: 1rem 0;
+    width: 100%;
+
+    i {
+      color: $text-muted;
+      font-size: 1.8rem;
+
+      &amp;:first-child {
+        margin-right: 1rem;
+      }
+
+      &amp;:last-child {
+        margin-left: 1rem;
+      }
+    }
+
+    span {
+      font-size: 1rem;
+      font-weight: bold;
+      color: darken($text-muted, 40);
+      margin-right: auto;
+
+      + span {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@include wow-modal();
+
+.modal {
+  text-align: center;
+
+  .modal-header {
+    height: 1rem;
+  }
+
+  .modal-body {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+    h4 {
+      width: 100%;
+    }
+  }
+
+  textarea {
+    margin: .5rem 0;
+    min-height: 80px;
+  }
+
+  .modal-footer {
+    align-items: center;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    .btn {
+      @include wow-button();
+
+      &amp;:not(.cancel) {
+        padding: 1em 2em;
+      }
+    }
+
+    .cancel {
+      margin-bottom: -.5rem;
+    }
+  }
+}
+
+.wow-chase-incident {
+  @include wow-spinner($brand-primary, 40px) {
+    display: block; // height issue with inline-flex
+    
+    .spinner {
+      margin-bottom: 3rem;
+      margin-top: 3rem;
+    }
+  }
+  
+  .sla-notice {
+    align-items: center;
+    display: flex;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    
+    i {
+      margin-right: .5em;
+    }
+  }
+  
+  .launch-chat {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+
+    .btn {
+      @include wow-button();
+      margin-top: 1rem;
+      padding: 1em 2em;
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-incident</id>
+        <internal>false</internal>
+        <link><![CDATA[function (scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>Wow Incident</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	
+	options.minCommentsLength = 5;
+
+	var user = gs.getUser();
+	var sys_id = options.sys_id || $sp.getParameter('sys_id');
+
+	var util = new WowUtil();
+	var ticketsHelper = new WowTickets();
+	var taskHelper = new WowTask({
+		sys_id: sys_id,
+		table: 'incident'
+	});
+
+	if (input) {
+		switch (input.action) {
+			case 'chase':
+				if (taskHelper.hasBreachedSLA()) {
+					data.success = taskHelper.chaseTask(input.comments);
+				}
+				
+				else {
+					data.success = taskHelper.addComments(input.comments);
+				}
+				
+				data.message = gs.getMessage('wow_incident_chased');
+				break;
+
+			case 'accept_resolution':
+				data.success = taskHelper.acceptResolution();
+				data.message = gs.getMessage('wow_incident_resolution_accepted');
+				break;
+
+			case 'alstom_reject_resolution':
+
+				data.sys_id = input.sys_id || $sp.getParameter("sys_id");
+							
+				// Valid GlideRecord
+				gr = new GlideRecord('incident');
+				if (!gr.isValid())
+					return;
+
+				// Valid sys_id
+				if (!gr.get(data.sys_id))
+					return;
+				var gr1 = new GlideRecord('task_survey');
+				gr1.addQuery('task',gr.sys_id);
+				gr1.addQuery('sent_to',gs.getUserID());
+				gr1.addQuery('state','requested');
+				gr1.query();
+				if(gr1.next()){
+				
+	data.survey_url ='expert_shell.do?sysparm_sys_id='+gr1.survey_wizard+'&sysparm_task_survey='+ gr1.sys_id;
+				}	
+				break;
+				
+			case 'reject_resolution':
+				data.success = taskHelper.rejectResolution(input.comments);
+				data.message = gs.getMessage('wow_incident_resolution_rejected');
+				break;
+
+			case 'close':
+				data.success = taskHelper.closeTask(input.comments);
+				data.message = gs.getMessage('wow_incident_closed');
+				break;
+				
+			case 'update_worknotes':
+				data.success = taskHelper.update_worknotes(input.comments);
+				data.message = gs.getMessage('wow_incident_chased');
+				break;
+		}
+	}
+
+	var incident = ticketsHelper.getIncident(sys_id);
+
+	if (!incident)
+		return;
+
+	data.incident = incident;
+	data.permissions = taskHelper.getPermissions();
+	data.sla = {
+		hasBreached: taskHelper.hasBreachedSLA()
+	};
+	
+	
+	// only get these on widget load not refresh
+	if (!input) {
+		data.activityFeed = $sp.getWidget('wow-activity-feed', {
+			sys_id: sys_id,
+			table: 'incident'
+		});
+
+		data.markAsFavorite = $sp.getWidget('wow-mark-favorite', {
+			sys_id: sys_id
+		});
+
+		data.attachmentWidget = $sp.getWidget('wow-ticket-attachments', {
+			recordId: sys_id,
+			recordTable: 'incident'
+		});
+
+		data.ticketLocation = $sp.getWidget('wow-ticket-location', {
+			sys_id: data.incident.id,
+			table: 'incident'
+		});
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-08 09:30:52</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>880082a1dbb3d700ec3ab9836b9619c7</sys_id>
+        <sys_mod_count>505</sys_mod_count>
+        <sys_name>Wow Incident</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_880082a1dbb3d700ec3ab9836b9619c7</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-13 20:55:08</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+  <section ng-if="incident" class="wow-incident">
+
+    <sp-widget widget="markAsFavorite"></sp-widget>
+
+    <h1>${wow_incident} <span>#{{incident.number}}</span></h1>
+
+    <ul class="info">
+      <li ng-if="incident.state">
+        <label>${wow_status}:</label>
+        <span>{{incident.state}}</span>
+      </li>
+      <li ng-if="incident.subStatus">
+        <label>${wow_substate}:</label>
+        <span>{{incident.subStatus}}</span>
+      </li>
+      <li ng-if="incident.priority">
+        <label>${wow_priority}:</label>
+        <span>{{incident.priority}}</span>
+      </li>
+      <li>
+        <label>${wow_created}:</label>
+        <span>{{incident.opened | wowDate}}</span>
+      </li>
+      <li>
+        <label>${wow_last_updated}:</label>
+        <span>{{incident.updated | wowDate}}</span>
+      </li>
+    </ul>
+
+     <ul class="info">
+      <li ng-if="incident.assignmentGroup">
+        <label>${wow_assignment_group}:</label>
+        <span>{{incident.assignmentGroup}}</span>
+      </li>
+        <li ng-if="incident.assignedTo">
+        <label>${wow_assigned_to}:</label>
+        <span>{{incident.assignedTo}}</span>
+      </li>
+        <li ng-if="incident.teamManager">
+        <label>${wow_team_manager}:</label>
+        <span>{{incident.teamManager}}</span>
+      </li>      
+        <li ng-if="incident.resolutionNotes">
+        <label>${wow_resolution_notes}:</label>
+        <span>{{incident.resolutionNotes}}</span>
+      </li>      
+    </ul>
+
+    <main>
+      <div class="details">
+
+        <ul class="descriptions">
+          <li ng-if="incident.description">
+            <label>${wow_summary}</label>
+            <span>{{incident.description}}</span>
+          </li>
+          <li ng-if="incident.details">
+            <label>${wow_details}</label>
+            <span>{{incident.details}}</span>
+          </li>
+        </ul>
+
+        <div class="activity-feed">
+          <sp-widget widget="activityFeed"></sp-widget>
+        </div>
+
+      </div>
+      <aside>
+
+        <div class="actions" ng-if="hasActions()">
+
+          <button ng-if="permissions.canChase && !hasChased" ng-click="chaseIncident()" ng-disabled="updating" class="btn btn-info btn-chase">
+            <i class="material-icons">schedule</i>
+            ${wow_chase_incident}
+          </button>
+
+          <button ng-if="permissions.canAcceptResolution" ng-click="acceptResolution()" ng-disabled="updating" class="btn btn-success btn-accept-resolution">
+            <i class="material-icons">check_circle</i>
+            ${wow_accept_resolution}
+          </button>
+
+          <button ng-if="permissions.canRejectResolution" ng-click="alstomRejectResolution()" ng-disabled="updating" class="btn btn-danger btn-reject-resolution">
+            <i class="material-icons">error</i>
+            ${wow_reject_resolution}
+          </button>
+
+          <button ng-if="permissions.canClose" ng-click="closeIncident()" ng-disabled="updating" class="btn btn-default btn-close">
+            <i class="material-icons">cancel</i>
+            ${wow_close_incident}
+          </button>
+
+          <div class="ticket-variables" ng-if="incident.variables.length > 0">
+            <button ng-click="showVariables = !showVariables">
+              <i class="material-icons">list</i>
+              <span>{{showVariables ? "${wow_hide_details}" : "${wow_show_details}"}}</span>
+              <i ng-if="showVariables" class="material-icons">keyboard_arrow_down</i>
+              <i ng-if="!showVariables" class="material-icons">keyboard_arrow_up</i>
+            </button>
+            <div ng-if="showVariables">
+              <ul class="variables">
+                <li ng-repeat="variable in incident.variables">
+                  <label>{{variable.label}}</label>
+                  <span>{{variable.display_value}}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="attachment-section">
+          <sp-widget widget="data.attachmentWidget"></sp-widget>
+        </div>
+
+      </aside>
+    </main>
+
+  </section>
+
+  <section ng-if="!incident">
+    ${wow_no_record}
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

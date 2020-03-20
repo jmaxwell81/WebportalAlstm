@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" audit="false" extends="sys_metadata" label="Wow Icons" max_length="40" name="x_mono2_wow_icon" type="collection">
+        <element audit="false" display="true" label="Label" mandatory="true" max_length="255" name="label" type="string"/>
+        <element audit="false" label="Ligature" mandatory="true" max_length="255" name="ligature" type="string"/>
+    </element>
+</database>

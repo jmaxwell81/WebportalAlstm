@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $timeout) {
+  var c = this;
+	var timeout;
+
+
+	$scope.perPageSelections = [
+		{ value: c.data.itemsPerPage },
+		{ value: c.data.itemsPerPage * 2 },
+		{ value: c.data.itemsPerPage * 4 },
+		{ value: c.data.itemsPerPage * 10 }
+	];
+
+
+	$scope.update = update;
+
+
+	$scope.updatePerPage = function(selection) {
+		$scope.itemsPerPage = selection.value;
+		c.data.itemsPerPage = $scope.itemsPerPage;
+		update(1);
+	};
+
+
+	$scope.uncheckAll = function() {
+		for (var i in c.data.filters) {
+			var filters = c.data.filters[i];
+			for (var k in filters) {
+				filters[k].selected = false;
+			}
+		}
+
+		update();
+	};
+
+	// Toggle filters added
+	$scope.showFilters = false;
+	$scope.toggleFilters = function() {
+		$scope.showFilters = !$scope.showFilters;
+	}
+
+	// Search functionality added
+	$scope.searchByTerm = function(term) {
+		if (timeout) {
+			$timeout.cancel(timeout);
+		}
+
+		timeout = $timeout(function() {
+			$scope.loading = true;
+			c.data.searchTerm = term;
+
+			c.server.update().then(function() {
+				$scope.loading = false;
+				timeout = null;
+
+			});
+		}, 1000);
+	}
+
+
+	function update(page) {
+		c.data.currentPage = page || 0;
+		$scope.loading = true;
+
+		$timeout(function() {
+			c.server.update().then(function(r) {
+				$scope.loading = false;
+			});
+		}, 0);
+	}
+
+	// sorting dropdown menu selections
+	$scope.sortByDrop = [
+		{ value: 'Newest', type: 'latest' },
+		{ value: 'A-Z', type: 'atoz' },
+		{ value: 'Z-A', type: 'ztoa' }
+	];
+		//Sorting change handler
+	$scope.sortChange = function(selected) {
+		c.data.sortBy = selected.type;
+		update();
+	}
+
+}
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css>$aside-mobile-width: 250px;
+
+@include wow-panel();
+
+a {
+  cursor: pointer;
+}
+
+section {
+  display: flex;
+  margin-top: 2rem;
+  transition: transform .4s ease-in-out;
+
+  @media screen and (max-width: $screen-xs-max) {
+    position: relative;
+    flex-direction: column;
+
+    &amp;.show-filters {
+      transform: translateX($aside-mobile-width);
+
+      aside {
+        border-color: darken($panel-bg, 10);
+      }
+    }
+  }
+
+  &amp;.no-assets {
+    align-items: center;
+    color: $text-muted;
+    display: flex;
+    flex-direction: column;
+    font-size: 2rem;
+    height: 250px;
+    justify-content: center;
+
+    i {
+      font-size: 3em;
+    }
+  }
+}
+
+aside {
+  @media screen and (max-width: $screen-xs-max) {
+    background-color: $white;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    visibility: hidden;
+    z-index: 10;
+    transition: all .1s linear;
+    transform: translateX(100%);
+
+    &amp;.show-filters {
+      transform: translateX(0);
+      visibility: visible;
+    }
+
+    .filters-wrapper {
+      height: 100%;
+      overflow-y: scroll;
+      padding: 1rem;
+      width: 100%;
+    }
+
+    .btn-close {
+      display: flex;
+      margin-left: auto;
+      background: transparent;
+      font-size: 2rem;
+      padding: 0;
+      color: $text-muted;
+    }
+
+    .filter-buttons {
+      bottom: 0;
+      left: 0;
+      display: flex;
+      position: fixed;
+      width: 100%;
+      min-height: 60px;
+
+      &gt; .f-btn {
+        @include wow-button();
+        border-radius: 0;
+        padding: 1rem;
+        flex: 1;
+      }
+    }
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    margin-right: 2rem;
+    width: 25%;
+    max-width: $aside-mobile-width;
+  }
+
+  .filters-header {
+    align-items: flex-end;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  // hide arrow on filters header
+  .filter-toggle i { display: none }
+
+  .clear-all {
+    color: $text-muted;
+    font-weight: 300;
+    font-size: 0.9rem;
+    margin-bottom: 0.25em;
+    &amp;:hover { text-decoration: underline }
+  }
+}
+
+main {
+  @include wow-dropdown-menu($text-color);
+  flex: 3;
+  position: relative;
+
+  @media screen and (max-width: $screen-sm-max) {
+    flex: 2;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex: 0 1 auto;
+    padding: 0;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    margin-left: $grid-gutter-width;
+  }
+}
+
+.subtitle {
+  color: $text-muted;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+//@include wow-filters();
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media screen and (min-width: $screen-sm-min) {
+    justify-content: flex-end;
+  }
+
+  .filter-button {
+    @include wow-button(transparent, transparent, $text-color, $text-color);
+    display: flex;
+    font-size: 1rem;
+    margin-bottom: .5rem;
+    padding: 0;
+
+    i {
+      font-size: 2rem;
+      color: $text-muted;
+    }
+
+    @media screen and (min-width: $screen-sm-min) {
+      display: none !important;
+    }
+  }
+}
+
+@include wow-filters(250px);
+@media screen and (max-width: $screen-xs-max) {
+  .filter-form {
+    height: auto;
+    max-height: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.wow-filters label {
+  text-transform: capitalize;
+}
+
+// new style added for searchbar
+.searchbar {
+  align-items: center;
+  display: flex;
+  padding-bottom: .5em;
+  border-bottom: 1px solid lighten($text-muted, 30%);
+  margin-bottom: 2rem;
+
+  @media screen and (max-width: $screen-xs-max) {
+    flex: 1;
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
+
+  i {
+    font-size: 1.6rem;
+    color: darken($text-muted, 20);
+    margin-right: 0.25em;
+  }
+
+  input {
+    background-color: $panel-bg;
+    border: 0;
+    max-width: 200px;
+    padding: 0;
+    width: 200px;
+
+    @include wow-placeholder($text-muted);
+
+    @media screen and (max-width: $screen-xs-max) {
+      width: 100%;
+    }
+  }
+}
+
+@include wow-pagination();
+@include wow-dropdown-menu($text-color);
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.loading-spinner {
+  @include wow-spinner($brand-primary);
+
+  bottom: calc(50% - 20px);
+  left: calc(50% - 20px);
+  position: absolute;
+  text-align: center;
+  width: 40px;
+  z-index: 1;
+}
+
+.is-loading {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.assets {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}
+
+.asset {
+  // border-top: 1px solid rgba(0, 0, 0, .1);
+  border-bottom: 1px solid lighten($text-muted, 30%);
+  &amp;:last-child { border: none }
+  &amp;:only-child { border-bottom: 1px solid lighten($text-muted, 30%); }
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: $text-color;
+  flex-wrap: wrap;
+  padding: 1rem;
+  transition: transform .2s ease-in-out;
+
+  .info-wrap {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    &gt;i {
+      color: lighten($text-muted, 10);
+      font-size: 2.5rem;
+      margin-right: 1rem;
+      padding: 0;
+      flex-shrink: 0;
+
+      @media screen and (max-width: $screen-xs-max) {
+        //flex: 1;
+        //margin: 0 auto;
+        //margin-bottom: 1rem;
+      }
+    }
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    //flex: 1;
+    padding: 1.5rem 0rem;
+  }
+
+  @media screen and (min-width: $screen-md-min) {
+    padding: 1.5rem 1rem;
+    //flex-wrap: nowrap;
+    // padding-right: 1rem;
+  }
+
+  &amp;.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.asset {
+  padding: 1.5rem 0;
+  width: 100%;
+  position: relative;
+  box-shadow: none;
+  margin-bottom: 0;
+
+  @media screen and (max-width: $screen-sm-max) {
+    flex-wrap: wrap;
+  }
+
+  .summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+
+    @media screen and (max-width: $screen-sm-max) {
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+  }
+
+  i {
+    font-size: 2.5rem;
+    color: $brand-info;
+    display: inline-flex;
+    margin-right: 0.5em;
+  }
+
+  .title {
+    //flex: 1;
+    //width: 100%;
+  }
+
+  .description {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+  }
+
+  .category {
+    color: $text-muted;
+  }
+
+  .toggle {
+    color: $text-color;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    width: 20%;
+
+    i {
+      color: $text-muted;
+      font-size: 1.5rem;
+      transition: transform .2s ease-out;
+    }
+
+    span {
+      word-break: normal;
+    }
+    @media screen and (max-width: $screen-xs-max) {
+    	width: 25%;
+    }
+  }
+
+  .details {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 1rem;
+
+      span {
+        &amp;:nth-child(1) {
+          color: $text-muted;
+        }
+
+        &amp;:nth-child(2) {
+          color: $text-color;
+        }
+      }
+    }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Assets</name>
+        <option_schema>[{"name":"title","section":"Presentation","default_value":"","label":"Title","type":"string"},{"displayValue":"Instance with Menu","name":"menu","section":"Presentation","label":"Menu","type":"reference","value":"sp_instance_menu","ed":{"reference":"sp_instance_menu"}}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	var util = new WowUtil();
+	var filtersHelper = new WowFilters();
+
+	options.title = options.title ? gs.getMessage(options.title) : null;
+	options.menu = options.menu || null;
+	options.maxPagination = 3;
+
+	var userId = gs.getUserID();
+	var currentPage = data.currentPage = (input && input.currentPage) ? input.currentPage : 1;
+	var itemsPerPage = data.itemsPerPage = (input && input.itemsPerPage) ? input.itemsPerPage : 10;
+	var filteredIds = (input && input.filters) ? filtersHelper.getFilteredIds(input.filters) : [];
+	var sortBy = data.sortBy = (input && input.sortBy) ? input.sortBy : 'latest';
+	var assets = util.getAssets(filteredIds);
+	
+	if (input)
+		data.filters = filtersHelper.updateFilters(input.filters, assets);
+
+	else {
+		var filters = {
+			category: filtersHelper.getFilters(assets, 'category')
+		};
+
+		data.filters = filters;
+	}
+
+	data.assetsCount = assets.length;
+
+	// handle pagination
+	var startRow = (currentPage - (currentPage > 0 ? 1 : 0)) * itemsPerPage;
+	var endRow = startRow + itemsPerPage;
+
+
+	switch(sortBy) {
+		case 'atoz':
+			assets.sort(function(a, b) {
+				return ('' + a.description).localeCompare(b.description);
+			});
+			break;
+
+		case 'ztoa':
+			assets.sort(function(a, b) {
+				return ('' + a.description).localeCompare(b.description);
+			});
+			assets.reverse();
+			break;
+
+		default:
+			assets.sort(function(a, b) {
+				return a.updated > b.updated ? -1 : (a.updated < b.updated ? 1 : 0);
+			});
+	}
+
+	assets = assets.slice(startRow, endRow);
+	data.assets = assets;
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-10 08:56:53</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>d80b485edbf35b00ec3ab9836b9619f6</sys_id>
+        <sys_mod_count>208</sys_mod_count>
+        <sys_name>Wow Assets</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_d80b485edbf35b00ec3ab9836b9619f6</sys_update_name>
+        <sys_updated_by>DI</sys_updated_by>
+        <sys_updated_on>2020-03-06 11:16:13</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+
+  <h1 ng-if="::options.title">{{::options.title}}</h1>
+
+  <widget id="wow-navigation" options="{menu: options.menu}"></widget>
+
+  <section ng-if="data.assets.length > 0">
+
+    <aside ng-class="{'show-filters': showFilters}">
+      <div class="filters-wrapper">
+
+        <button class="btn btn-close visible-xs" ng-click="toggleFilters()">
+          <i class="material-icons">close</i>
+        </button>
+
+        <div ng-if="data.filters.category.length > 0">
+          <wow-filters filter-items="data.filters.category"
+                        el-toggle="true"
+                        title="${wow_asset_category}"
+                        filters-changed="update()">
+          </wow-filters>
+        </div>
+      </div>
+
+      <div class="filter-buttons hidden-sm hidden-md hidden-lg">
+        <button class="btn btn-danger f-btn" ng-click="uncheckAll()">
+          ${wow_clear_filters}
+        </button>
+        <button class="btn btn-primary f-btn" ng-click="toggleFilters()">
+          ${wow_apply_filters}
+        </button>
+      </div>
+    </aside>
+
+    <main>
+      <div class="loading-spinner" ng-show="loading">
+        <div class="blob"></div>
+        <div class="blob"></div>
+        <div class="blob"></div>
+      </div>
+      <div ng-class="{'is-loading': loading}">
+        <div class="filters">
+          <button class="btn btn-default filter-button" ng-click="toggleFilters()">
+            <i class="material-icons">filter_list</i>
+            ${wow_filter}
+          </button>
+          <wow-dropdown-menu label="${wow_sort_by}:"
+                              menu-items="sortByDrop"
+                              display-value="true"
+                              selection-changed="sortChange(selection)">
+          </wow-dropdown-menu>
+        </div>
+        <h3>
+          ${wow_my_assets}
+        </h3>
+        <ul class="assets">
+
+          <li ng-repeat="asset in data.assets track by $index" class="asset">
+            <div class="summary">
+              <div class="info-wrap">
+                <i class="material-icons asset-icon">devices_other</i>
+
+                <div class="title">
+                  <span class="description">
+                    {{asset.description}}
+                  </span>
+                  <span class="category" ng-if="asset.category">
+                    {{asset.category}}
+                  </span>
+                </div>
+              </div>
+
+              <div class="toggle" ng-click="asset.showDetails = !asset.showDetails">
+                <i class="material-icons">info_outline</i>
+                ${wow_info}
+              </div>
+            </div>
+
+            <ul class="details" ng-hide="!asset.showDetails">
+              <li ng-if="asset.assetTag">
+                <span>${wow_asset_tag}</span>
+                <span>{{asset.assetTag}}</span>
+              </li>
+              <li ng-if="asset.serialNumber">
+                <span>${wow_serial_number}</span>
+                <span>{{asset.serialNumber}}</span>
+              </li>
+               <li ng-if="asset.assignedTo">
+                <span>${wow_assigned_to}</span>
+                <span>{{asset.assignedTo}}</span>
+              </li>
+              <li ng-if="asset.owner">
+                <span>${wow_asset_owner}</span>
+                <span>{{asset.owner}}</span>
+              </li>
+              <li ng-if="asset.pcCategory">
+                <span>${wow_pc_category}</span>
+                <span>{{asset.pcCategory}}</span>
+              </li>
+              <li ng-if="asset.usageType">
+                <span>${wow_usage_type}</span>
+                <span>{{asset.usageType}}</span>
+              </li>
+              <li ng-if="asset.state">
+                <span>${wow_state}</span>
+                <span>{{asset.state}}</span>
+              </li>
+              <li ng-if="asset.substate">
+                <span>${wow_substate}</span>
+                <span>{{asset.substate}}</span>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </div>
+
+      <div ng-if="data.assetsCount > data.assets.length" class="pagination-container">
+        <wow-pagination total-items="data.assetsCount"
+                         current-page="data.currentPage"
+                         items-per-page="data.itemsPerPage"
+                         max-size="options.maxPagination"
+                         page-changed="update(data.currentPage)">
+        </wow-pagination>
+
+        <wow-dropdown-menu ng-if="perPageSelections"
+                            label="${wow_per_page}:"
+                            menu-items="perPageSelections"
+                            selected-item-value="data.itemsPerPage"
+                            display-value="true"
+                            selection-changed="updatePerPage(selection)">
+        </wow-dropdown-menu>
+      </div>
+
+    </main>
+
+  </section>
+
+  <section ng-if="data.assets.length == 0" class="no-assets">
+    ${wow_no_assets}
+  </section>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

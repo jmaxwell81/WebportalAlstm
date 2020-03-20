@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_rectangle_menu_item">
+    <sp_rectangle_menu_item action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <color>default</color>
+        <condition/>
+        <display_1/>
+        <display_2/>
+        <display_date/>
+        <filter/>
+        <glyph/>
+        <hint/>
+        <kb_article/>
+        <kb_category/>
+        <kb_topic/>
+        <label>My Profile</label>
+        <order>500</order>
+        <record_script/>
+        <sc_cat_item/>
+        <sc_category/>
+        <short_description/>
+        <sp_page display_value="wow_profile">b11da7f8db84bb0016a5f40b0c961996</sp_page>
+        <sp_rectangle_menu display_value="Wow &quot;My Area&quot;">d2685741dbbf93c087e2f3de3b961931</sp_rectangle_menu>
+        <sp_rectangle_menu_item/>
+        <sys_class_name>sp_rectangle_menu_item</sys_class_name>
+        <sys_created_by>stefan.petkovic</sys_created_by>
+        <sys_created_on>2018-09-17 14:48:08</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>71388daedba0a34016a5f40b0c96194b</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Mon profil</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_rectangle_menu_item_71388daedba0a34016a5f40b0c96194b</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:26</sys_updated_on>
+        <table/>
+        <type>page</type>
+        <url/>
+        <url_target/>
+        <x_mono2_wow_background_color/>
+        <x_mono2_wow_description/>
+        <x_mono2_wow_icon/>
+        <x_mono2_wow_icon_color/>
+        <x_mono2_wow_image/>
+        <x_mono2_wow_text_color/>
+    </sp_rectangle_menu_item>
+    <sys_translated_text action="delete_multiple" query="documentkey=71388daedba0a34016a5f40b0c96194b"/>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>hint</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:19</sys_created_on>
+        <sys_id>21c5317bdb3c8010b62a80e2399619cc</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:19</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>hint</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:26</sys_created_on>
+        <sys_id>0f277d77db7c8010b62a80e23996190a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:26</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>label</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:19</sys_created_on>
+        <sys_id>d9c5317bdb3c8010b62a80e2399619c9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:19</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value>Meine Profil</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>label</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:26</sys_created_on>
+        <sys_id>cb277d77db7c8010b62a80e239961907</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:26</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value>Mon profil</value>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:19</sys_created_on>
+        <sys_id>59c5bd37dbf88010b62a80e2399619b5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:19</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>short_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:26</sys_created_on>
+        <sys_id>4b277973db7c8010b62a80e2399619dd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:26</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>x_mono2_wow_description</fieldname>
+        <language>de</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 17:57:19</sys_created_on>
+        <sys_id>d5c5bd37dbf88010b62a80e2399619b7</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 17:57:19</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+    <sys_translated_text action="INSERT_OR_UPDATE">
+        <documentkey>71388daedba0a34016a5f40b0c96194b</documentkey>
+        <fieldname>x_mono2_wow_description</fieldname>
+        <language>fr</language>
+        <sys_created_by>mono_se</sys_created_by>
+        <sys_created_on>2019-11-05 18:03:26</sys_created_on>
+        <sys_id>07277973db7c8010b62a80e2399619e0</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-11-05 18:03:26</sys_updated_on>
+        <tablename>sp_rectangle_menu_item</tablename>
+        <value/>
+    </sys_translated_text>
+</record_update>

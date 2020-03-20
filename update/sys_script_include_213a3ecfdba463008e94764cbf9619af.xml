@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_mono2_wow.WowOutages</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Copyright Monochrome Ltd</description>
+        <name>WowOutages</name>
+        <script><![CDATA[var WowOutages = Class.create();
+WowOutages.prototype = {
+    initialize: function() {
+		this.queryLimit = 999;
+		this.plannedNotice = 0;
+		this.filteredIds = [];
+
+		this.pages = {
+			outage: 'wow_outage'
+		};
+    },
+
+
+	setQueryLimit: function(limit) {
+		this.queryLimit = limit;
+	},
+
+
+	setPlannedNotice: function(notice) {
+		this.plannedNotice = notice;
+	},
+
+
+	setFilteredIds: function(filteredIds) {
+		this.filteredIds = filteredIds;
+	},
+
+
+	getOutage: function(sys_id) {
+		var gr = new GlideRecord('cmdb_ci_outage');
+
+		if (gr.get(sys_id))
+			return this.getOutageVariables(gr);
+
+		return null;
+	},
+
+
+	getOutages: function() {
+		var active = this.getActiveOutages();
+		var planned = this.getPlannedOutages();
+
+		var outages = [].concat(active).concat(planned);
+
+		// sort by latest beginning date
+		outages.sort(function(a, b) {
+			return b.start.value.localeCompare(a.start.value);
+		});
+
+		if (outages.length > this.queryLimit)
+			outages = outages.slice(0, this.queryLimit);
+
+		return outages;
+	},
+
+
+	getActiveOutages: function() {
+		var outages = [];
+
+		var gr = new GlideRecord('cmdb_ci_outage');
+		gr.addQuery('type', 'outage');
+		gr.addEncodedQuery("begin<=javascript:gs.endOfToday()^end>=javascript:gs.beginningOfToday()^ORendISEMPTY");
+
+		if (this.filteredIds.length)
+			gr.addQuery('sys_id', 'NOT IN', this.filteredIds);
+
+		gr.setLimit(this.queryLimit);
+		gr.orderByDesc('begin');
+		gr.query();
+
+		while (gr.next()) {
+			outages.push(this.getOutageVariables(gr));
+		}
+
+		return outages;
+	},
+
+
+	getPlannedOutages: function() {
+		var outages = [];
+
+		var gr = new GlideRecord('cmdb_ci_outage');
+		gr.addQuery('type', 'planned');
+		gr.addEncodedQuery("begin<=javascript:gs.daysAgoEnd(" + -this.plannedNotice + ")end>=javascript:gs.beginningOfToday()^ORendISEMPTY");
+
+		if (this.filteredIds.length)
+			gr.addQuery('sys_id', 'NOT IN', this.filteredIds);
+
+		gr.setLimit(this.queryLimit);
+		gr.orderByDesc('begin');
+		gr.query();
+
+		while (gr.next()) {
+			outages.push(this.getOutageVariables(gr));
+		}
+
+		return outages;
+	},
+
+
+	getOutageVariables: function(gr) {
+		return {
+			id: gr.getUniqueValue(),
+			href: '?id='+this.pages.outage+'&sys_id=' + gr.getUniqueValue(),
+			type: gr.getValue('type'),
+			description: gr.getValue('short_description'),
+			details: gr.getDisplayValue('details'),
+			message: gr.getDisplayValue('message'),
+			service: gr.getDisplayValue('cmdb_ci'),
+			start: {
+				displayValue: gr.getDisplayValue('begin'),
+				value: gr.getValue('begin')
+			},
+			end: {
+				displayValue: gr.getDisplayValue('end'),
+				value: gr.getValue('end')
+			},
+			task: {
+				number: gr.getDisplayValue('task_number'),
+				id: gr.getValue('task_number')
+			}
+		};
+	},
+
+
+    type: 'WowOutages'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-09-19 12:23:02</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>213a3ecfdba463008e94764cbf9619af</sys_id>
+        <sys_mod_count>13</sys_mod_count>
+        <sys_name>WowOutages</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sys_script_include_213a3ecfdba463008e94764cbf9619af</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 05:35:23</sys_updated_on>
+    </sys_script_include>
+</record_update>

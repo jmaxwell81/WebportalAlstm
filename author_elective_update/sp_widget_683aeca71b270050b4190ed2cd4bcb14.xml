@@ -1,0 +1,1495 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="DELETE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $uibModal, spUtil) {
+	var c = this;
+	var submitting = false;
+
+	c.data.title = "";
+	c.data.themeName = "";
+	c.data.urlSuffix = "";
+
+	$scope.create = function($event) {
+		submitting = true;
+
+		c.data.urlSuffix = $scope.validateSuffix(c.data.urlSuffix);
+		c.server.get(c.data).then(function(r) {
+
+			if (r.data.success) {
+				$scope.modalTitle = r.data.message;
+				$scope.modalLinks = r.data.links;
+
+				$scope.modal = $uibModal.open({
+					appendTo: $scope.widgetEl,
+					templateUrl: 'success.html',
+					windowClass: 'success-modal',
+					scope: $scope
+				});
+			}
+
+			else
+				spUtil.addErrorMessage(r.data.message);
+
+			resetForm();
+		});
+	}
+
+
+	$scope.validateSuffix = function(suffix) {
+		return suffix.replace(/[^a-z0-9]/gi,'');
+	}
+
+
+	$scope.canSubmit = function() {
+		return !submitting && c.data.title.length >= 3 && c.data.urlSuffix.length >= 3;
+	}
+
+
+	$scope.closeModal = function() {
+		$scope.modal.close();
+	}
+
+
+	function resetForm() {
+		c.data.title = "";
+		c.data.themeName = "";
+		c.data.urlSuffix = "";
+		submitting = false;
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.panel {
+  padding: 2rem;
+
+  h3 {
+    margin-bottom: 2rem;
+  }
+}
+
+.button-group {
+  margin-top: 1.5rem;
+  text-align: center;
+
+  .btn {
+    padding: 1rem 2rem;
+  }
+}
+
+@include wow-modal();
+
+.modal {
+  pointer-events: none; // stops clumbsy closing
+
+  .modal-dialog {
+    pointer-events: all;
+  }
+
+  h3 {
+    margin: 1rem 0;
+  }
+
+  li {
+    padding: .25rem 0;
+  }
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>wow_portal_generator</id>
+        <internal>false</internal>
+        <link><![CDATA[function(scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>WOW Portal Generator</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	
+	// Wow Portal
+	var wowPortal = '2d7ab439db2a33400ef45682ca961909';
+
+	// Wow Content Grid widget
+	var contentGridWidget = '90287874dba3d78087e2f3de3b9619a0';
+
+	// Wow Content Grid menu
+	var contentGridMenu = '178ed8f3dbdd338016a5f40b0c9619c7';
+	
+	// Wow Service Desk page
+	var deskPage = '15aba3b8db84bb0016a5f40b0c96190b';
+	
+	// Wow Service Desk widget
+	var deskWidget = '825e8cc0db3fdf8087e2f3de3b961927';
+	
+	// Wow Service Desk menu
+	var deskMenu = '2b709884db3fdf8087e2f3de3b9619b8';
+
+	// Wow theme
+	var themeId = '4de853ffdb079b4087e2f3de3b9619ac';
+
+	// Stylesheets for Wow theme
+	var stylesheets = {
+		icons: '0551ad42db2b9b8087e2f3de3b961960',
+		base: 'b4f49e00db3c330016a5f40b0c961910', // Madrid version
+		overrides: '4dc23236dbfe7b00b62a80e239961964'
+	};
+
+	var portalTitle = input.title;
+	var portalSuffix = input.urlSuffix;
+	var themeName = input.themeName;
+
+	var links = {
+		portal: '/'+portalSuffix,
+		logo: '/sp_portal.do?sys_id=',
+		brandEditor: '/sp_config?id=branding_editor',
+		theme: '/sp_theme.do?sys_id=',
+		backgrounds: '/x_mono2_wow_background_list.do',
+		colors: '/x_mono2_wow_color_list.do',
+		menu: '/sp_instance_menu.do?sys_id=',
+		desk: '/sp_instance_menu.do?sys_id=',
+		stylesheet: '/sp_css.do?sys_id='
+	};
+
+	if (input) {
+		if (portalTitle.length < 3 || portalSuffix.length < 3) {
+			data.success = false;
+			data.message = gs.getMessage("Portal title and URL suffix must be at least 3 characters");
+			return;
+		}
+
+		// first check that portal value is unique
+		if (hasPortal(portalSuffix)) {
+			data.success = false;
+			data.message = gs.getMessage("Portal record with URL suffix "+portalSuffix+" aleady exists");
+			return;
+		}
+
+		// then check that theme name is unique
+		if (themeName && hasTheme(themeName)) {
+			data.success = false;
+			data.message = gs.getMessage("Theme with name '"+themeName+"' already exists");
+			return;
+		}
+
+
+		var portal = getPortal(wowPortal);
+		var homepage = clonePage(portal.getValue('homepage'));
+
+		if (!homepage) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone homepage");
+			return;
+		}
+
+		// update cloned homepage
+		homepage.setValue('id', 'wow_home_'+portalSuffix);
+		homepage.setValue('title', portalTitle);
+		homepage.update();
+
+		// update container names
+		var containers = getContainers(homepage.getUniqueValue());
+		containers.forEach(function(container, i) {
+			container.setValue('title', portalTitle+' - Container '+i);
+			container.update();
+
+			// now look for Wow Content Grid widget instance
+			getRows(container.getUniqueValue()).forEach(function(row) {
+				getColumns(row.getUniqueValue()).forEach(function(column) {
+					getInstances(column.getUniqueValue()).forEach(function(instance) {
+						if (instance.getValue('sp_widget') == contentGridWidget) {
+							var instanceTitle = "Wow Content Grid ("+portalSuffix+")";
+							var menu = cloneMenu(contentGridMenu, instanceTitle);
+
+							var instanceParams = instance.getValue('widget_parameters');
+							instanceParams = instanceParams.replace(contentGridMenu, menu.getUniqueValue());
+							instanceParams = instanceParams.replace("Wow Content Grid", instanceTitle);
+							instance.setValue('widget_parameters', instanceParams);
+							instance.setValue('title', instanceTitle);
+							instance.update();
+
+							// add the new menu sys_id to our link
+							links.menu += menu.getUniqueValue();
+						}
+					});
+				});
+			});
+		});
+
+		// now duplicate the original portal
+		portal.setValue('logo', null);
+		portal.setValue('default', false);
+		portal.setValue('title', portalTitle);
+		portal.setValue('url_suffix', portalSuffix);
+		portal.setValue('homepage', homepage.getUniqueValue());
+		
+		// now clone the Service Desk page
+		var page = clonePage(deskPage);
+
+		if (!page) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone service desk page");
+			return;
+		}
+		
+		page.setValue('id', 'wow_desk_'+portalSuffix);
+		page.setValue('title', "Service Desk");
+		page.update();
+		
+		// update container names and look for Wow Service Desk widget instance
+		getContainers(page.getUniqueValue()).forEach(function(container, i) {
+			getRows(container.getUniqueValue()).forEach(function(row) {
+				getColumns(row.getUniqueValue()).forEach(function(column) {
+					getInstances(column.getUniqueValue()).forEach(function(instance) {
+						if (instance.getValue('sp_widget') == deskWidget) {
+							var instanceTitle = "Wow Service Desk ("+portalSuffix+")";
+							var menu = cloneMenu(deskMenu, instanceTitle);
+
+							var instanceParams = instance.getValue('widget_parameters');
+							instanceParams = instanceParams.replace(deskMenu, menu.getUniqueValue());
+							instanceParams = instanceParams.replace("Wow Service Desk", instanceTitle);
+							instance.setValue('widget_parameters', instanceParams);
+							instance.setValue('title', instanceTitle);
+							instance.update();
+
+							// add the new menu sys_id to our link
+							links.desk += menu.getUniqueValue();
+						}
+					});
+				});
+			});
+		});
+		
+		// duplicate the theme
+		if (themeName) {
+			var theme = cloneTheme(portal.getValue('theme'), themeName);
+			portal.setValue('theme', theme.getUniqueValue());
+
+			// add the new theme sys_id to our link
+			links.theme += theme.getUniqueValue();
+		}
+
+		// otherwise delete the theme and stylesheets link
+		else {
+			links.theme = null;
+			links.stylesheet = null;
+		}
+		
+		var portalId = portal.insert();
+
+		if (!portalId) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone portal");
+			return;
+		}
+		
+		// create service desk page route map for this portal
+		createPageRouteMap(portalId, deskPage, page.getUniqueValue(), "Wow Desk ("+portalSuffix+")");
+
+		// add new portal sys_id to our upload logo link
+		links.logo += portal.getUniqueValue();
+
+		// add to existing page route maps
+		addPageRouteMaps(portal.getUniqueValue());
+
+		// all successful
+		data.success = true;
+		data.message = '"'+portal.getDisplayValue('title')+'" '+gs.getMessage("portal has been created!");
+		data.links = links;
+	}
+
+
+	function hasPortal(urlSuffix) {
+		var gr = new GlideRecord('sp_portal')
+		gr.addQuery('url_suffix', urlSuffix);
+		gr.query();
+
+		while (gr.next())
+			return true;
+
+		return false;
+	}
+
+
+	function hasTheme(themeName) {
+		var gr = new GlideRecord('sp_theme')
+		gr.addQuery('name', themeName);
+		gr.query();
+
+		while (gr.next())
+			return true;
+
+		return false;
+	}
+
+
+	function getPortal(sys_id) {
+		var gr = new GlideRecord('sp_portal');
+
+		if (gr.get(sys_id)) {
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function clonePage(sys_id) {
+		var original = getPage(sys_id);
+		var clone = new global.SPClonePage().run(original);
+
+		return clone;
+	}
+
+
+	function cloneMenu(sys_id, title) {
+		var gr = new GlideRecord('sp_instance_menu');
+
+		if (gr.get(sys_id)) {
+			var menuId = gr.getUniqueValue();
+			gr.setValue('title', title);
+			gr.insert();
+
+			var menuItems = getMenuItems(menuId);
+			menuItems.forEach(function(menuItem) {
+				var itemId = menuItem.getUniqueValue();
+				menuItem.setValue('sp_rectangle_menu', gr.getUniqueValue());
+				menuItem.insert();
+
+				// now clone attachments
+				cloneAttachments(menuItem, itemId);
+			});
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function getMenuItems(menuId) {
+		var menuItems = [];
+
+		var gr = new GlideRecord('sp_rectangle_menu_item');
+		gr.addQuery('sp_rectangle_menu', menuId);
+		gr.query();
+
+		while (gr.next()) {
+			menuItems.push(getMenuItem(gr.getUniqueValue()));
+		}
+
+		return menuItems;
+	}
+
+
+	function getMenuItem(sys_id) {
+		var gr = new GlideRecord('sp_rectangle_menu_item');
+
+		if (gr.get(sys_id)) {
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function getPage(sys_id) {
+		var gr = new GlideRecord('sp_page');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getContainers(pageId) {
+		var containers = [];
+
+		var gr = new GlideRecord('sp_container');
+		gr.addQuery('sp_page', pageId);
+		gr.orderBy('order');
+		gr.query();
+
+		while (gr.next()) {
+			containers.push(getContainer(gr.getUniqueValue()));
+		}
+
+		return containers;
+	}
+
+
+	function getContainer(sys_id) {
+		var gr = new GlideRecord('sp_container');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getRows(containerId) {
+		var rows = [];
+
+		var gr = new GlideRecord('sp_row');
+		gr.addQuery('sp_container', containerId);
+		gr.query();
+
+		while (gr.next()) {
+			rows.push(getRow(gr.getUniqueValue()));
+		}
+
+		return rows;
+	}
+
+
+	function getRow(sys_id) {
+		var gr = new GlideRecord('sp_row');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getColumns(rowId) {
+		var columns = [];
+
+		var gr = new GlideRecord('sp_column');
+		gr.addQuery('sp_row', rowId);
+		gr.query();
+
+		while (gr.next()) {
+			columns.push(getColumn(gr.getUniqueValue()));
+		}
+
+		return columns;
+	}
+
+
+	function getColumn(sys_id) {
+		var gr = new GlideRecord('sp_column');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getInstances(columnId) {
+		var instances = [];
+
+		var gr = new GlideRecord('sp_instance');
+		gr.addQuery('sp_column', columnId);
+		gr.query();
+
+		while (gr.next()) {
+			instances.push(getInstance(gr.getUniqueValue())); // not sure why I have to do this...
+		}
+
+		return instances;
+	}
+
+
+	function getInstance(sys_id) {
+		var gr = new GlideRecord('sp_instance');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function cloneTheme(themeId, themeName) {
+		var gr = GlideRecord('sp_theme');
+
+		if (gr.get(themeId)) {
+			gr.setValue('name', themeName+" (Wow)");
+			gr.insert();
+
+			// first attach fonts and icons as is
+			attachStylesheet(stylesheets.icons, gr.getUniqueValue(), 0);
+			attachStylesheet(stylesheets.base, gr.getUniqueValue(), 100);
+
+			// second clone the override stylesheet, reset and attach
+			var overridesStylesheet = cloneStylesheet(stylesheets.overrides, themeName+" Overrides (Wow)");
+			if (overridesStylesheet) {
+				overridesStylesheet.setValue('css', "");
+				overridesStylesheet.update();
+				
+				attachStylesheet(overridesStylesheet.getUniqueValue(), gr.getUniqueValue(), 200);
+				links.stylesheet += overridesStylesheet.getUniqueValue();
+			}
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function attachStylesheet(stylesheetId, themeId, order) {
+		var gr = new GlideRecord('m2m_sp_theme_css_include');
+		gr.initialize();
+
+		var include = getStylesheetInclude(stylesheetId);
+		if (!include) {
+			include = createStylesheetInclude(stylesheetId);
+		}
+
+		gr.setValue('order', order);
+		gr.setValue('sp_css_include', include.getUniqueValue());
+		gr.setValue('sp_theme', themeId);
+		gr.insert();
+
+		return gr;
+	}
+
+
+	function getStylesheetInclude(stylesheetId) {
+		var gr = new GlideRecord('sp_css_include');
+		gr.addQuery('source', 'local');
+		gr.addQuery('sp_css', stylesheetId);
+		gr.query();
+
+		while (gr.next())
+			return gr;
+
+		return null;
+	}
+
+
+	function createStylesheetInclude(stylesheetId) {
+		var gr = new GlideRecord('sp_css_include');
+		gr.initialize();
+		gr.setValue('sp_css', stylesheetId);
+		gr.setValue('source', 'local');
+		gr.insert();
+
+		return gr;
+	}
+
+
+	function cloneStylesheet(stylesheetId, stylesheetName) {
+		var gr = new GlideRecord('sp_css');
+
+		if (gr.get(stylesheetId)) {
+			gr.setValue('name', stylesheetName);
+			gr.insert();
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function cloneAttachments(record, originalTableId) {
+		var attachments = {};
+		
+		var gr = new GlideRecord('sys_attachment');
+		gr.addQuery('table_sys_id', originalTableId);
+		gr.query();
+
+		while (gr.next()) {
+			var attachmentId = gr.getUniqueValue();
+			gr.setValue('table_sys_id', record.getUniqueValue());
+			gr.insert();
+
+			cloneAttachmentData(attachmentId, gr.getUniqueValue());
+			
+			// map of file_name and new sys_id so we can update original record
+			attachments[gr.getValue('file_name')] = gr.getUniqueValue();
+		}
+		
+		for (var key in attachments)
+			record.setValue(key, attachments[key]);
+		
+		record.update();
+	}
+
+
+	function cloneAttachmentData(originalAttachmentId, newAttachmentId) {
+		var gr = new GlideRecord('sys_attachment_doc');
+		gr.addQuery('sys_attachment', originalAttachmentId);
+		gr.query();
+
+		while (gr.next()) {
+			gr.setValue('sys_attachment', newAttachmentId);
+			gr.insert();
+		}
+	}
+
+
+	function addPageRouteMaps(portalId) {
+		var gr = new GlideRecord('sp_page_route_map');
+		gr.addQuery('route_to_page.id', 'LIKE', 'wow_%');
+		gr.addQuery('route_to_page.id', 'NOT LIKE', 'wow_desk%');
+		gr.query();
+
+		while (gr.next()) {
+			var portals = gr.getValue('portals').split(',');
+
+			if (portals.indexOf(portalId) == -1) {
+				portals.push(portalId);
+
+				gr.setValue('portals', portals);
+				gr.update();
+			}
+		}
+	}
+
+	
+	function createPageRouteMap(portalId, from, to, description) {
+		var gr = new GlideRecord('sp_page_route_map');
+		gr.initialize();
+		gr.setValue('portals', portalId);
+		gr.setValue('route_from_page', from);
+		gr.setValue('route_to_page', to);
+		gr.setValue('short_description', description);
+		gr.setValue('active', true);
+		gr.setValue('order', 100);
+		gr.insert();
+	}
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>tuadmin_ws</sys_created_by>
+        <sys_created_on>2020-03-20 10:41:19</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>683aeca71b270050b4190ed2cd4bcb14</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>WOW Portal Generator</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_683aeca71b270050b4190ed2cd4bcb14</sys_update_name>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:48:51</sys_updated_on>
+        <template><![CDATA[<div class="panel">
+  <h3>
+    ${Wow Portal Generator}
+  </h3>
+  <div class="form-group">
+    <input ng-model="data.title" placeholder="${Portal Title}" type="text" class="form-control">
+  </div>
+  <div class="form-group">
+    <input ng-model="data.urlSuffix" ng-change="data.urlSuffix = validateSuffix(data.urlSuffix)" placeholder="${URL Suffix (alphanumeric)}" type="text" class="form-control">
+  </div>
+  <div class="form-group">
+    <input ng-model="data.themeName" placeholder="${Theme Name (optional)}" type="text" class="form-control">
+  </div>
+  <div class="button-group">
+    <button ng-click="create($event)" ng-disabled="!canSubmit()" class="btn btn-primary">
+      ${Create Portal}
+    </button>
+  </div>
+</div>
+
+<script type="text/ng-template" id="success.html">
+  <h3 ng-if="modalTitle">
+    {{modalTitle}}
+  </h3>
+  <p ng-if="modalLinks">
+  	Click <a href="{{modalLinks.portal}}" target="_blank">here</a> to see your new portal. To complete setup of your new portal you need to...
+  </p>
+  <ol ng-if="modalLinks">
+  	<li ng-if="modalLinks.logo">
+     	Upload a logo <a href="{{modalLinks.logo}}" target="_blank">here</a>
+    </li>
+    <li ng-if="modalLinks.brandEditor">
+      Setup brand colours in the <a href="{{modalLinks.brandEditor}}" target="_blank">Branding Editor</a>
+    </li>
+    <li ng-if="modalLinks.backgrounds">
+      Choose or create <a href="{{modalLinks.backgrounds}}" target="_blank">backgrounds</a>
+    </li>
+    <li ng-if="modalLinks.colors">
+      Add brand <a href="{{modalLinks.colors}}" target="_blank">colours</a>
+    </li>
+    <li ng-if="modalLinks.menu">
+      Modify Content Grid <a href="{{modalLinks.menu}}" target="_blank">menu</a>
+    </li>
+    <li ng-if="modalLinks.desk">
+      Modify Service Desk <a href="{{modalLinks.desk}}" target="_blank">menu</a>
+    </li>
+    <li ng-if="modalLinks.theme">
+      Modify <a href="{{modalLinks.theme}}" target="_blank">theme variables</a> and fonts
+    </li>
+    <li ng-if="modalLinks.stylesheet">
+      Modify <a href="{{modalLinks.stylesheet}}" target="_blank">overrides stylesheet</a> (optional)
+    </li>
+  </ol>
+  <div class="button-group">
+    <button type="button" ng-click="closeModal()" class="btn btn-success">
+      Done!
+    </button>
+  </div>
+</script>
+]]></template>
+    </sp_widget>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Wow Portal">c22adc75dba633400ef45682ca961996</application>
+        <comments/>
+        <file_path/>
+        <instance_id>c10dc2da6f21424056007b2f5d3ee4e6</instance_id>
+        <instance_name>alstomdev</instance_name>
+        <name>sp_widget_683aeca71b270050b4190ed2cd4bcb14</name>
+        <order/>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sp_widget"&gt;&lt;sp_widget action="INSERT_OR_UPDATE"&gt;&lt;category&gt;custom&lt;/category&gt;&lt;client_script&gt;&lt;![CDATA[function($scope, $uibModal, spUtil) {
+	var c = this;
+	var submitting = false;
+
+	c.data.title = "";
+	c.data.themeName = "";
+	c.data.urlSuffix = "";
+
+	$scope.create = function($event) {
+		submitting = true;
+
+		c.data.urlSuffix = $scope.validateSuffix(c.data.urlSuffix);
+		c.server.get(c.data).then(function(r) {
+
+			if (r.data.success) {
+				$scope.modalTitle = r.data.message;
+				$scope.modalLinks = r.data.links;
+
+				$scope.modal = $uibModal.open({
+					appendTo: $scope.widgetEl,
+					templateUrl: 'success.html',
+					windowClass: 'success-modal',
+					scope: $scope
+				});
+			}
+
+			else
+				spUtil.addErrorMessage(r.data.message);
+
+			resetForm();
+		});
+	}
+
+
+	$scope.validateSuffix = function(suffix) {
+		return suffix.replace(/[^a-z0-9]/gi,'');
+	}
+
+
+	$scope.canSubmit = function() {
+		return !submitting &amp;&amp; c.data.title.length &gt;= 3 &amp;&amp; c.data.urlSuffix.length &gt;= 3;
+	}
+
+
+	$scope.closeModal = function() {
+		$scope.modal.close();
+	}
+
+
+	function resetForm() {
+		c.data.title = "";
+		c.data.themeName = "";
+		c.data.urlSuffix = "";
+		submitting = false;
+	}
+
+}]]&gt;&lt;/client_script&gt;&lt;controller_as&gt;c&lt;/controller_as&gt;&lt;css&gt;.panel {
+  padding: 2rem;
+
+  h3 {
+    margin-bottom: 2rem;
+  }
+}
+
+.button-group {
+  margin-top: 1.5rem;
+  text-align: center;
+
+  .btn {
+    padding: 1rem 2rem;
+  }
+}
+
+@include wow-modal();
+
+.modal {
+  pointer-events: none; // stops clumbsy closing
+
+  .modal-dialog {
+    pointer-events: all;
+  }
+
+  h3 {
+    margin: 1rem 0;
+  }
+
+  li {
+    padding: .25rem 0;
+  }
+}
+
+&lt;/css&gt;&lt;data_table&gt;sp_instance&lt;/data_table&gt;&lt;demo_data/&gt;&lt;description/&gt;&lt;docs/&gt;&lt;field_list/&gt;&lt;has_preview&gt;true&lt;/has_preview&gt;&lt;id&gt;wow_portal_generator&lt;/id&gt;&lt;internal&gt;false&lt;/internal&gt;&lt;link&gt;&lt;![CDATA[function(scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]&gt;&lt;/link&gt;&lt;name&gt;WOW Portal Generator&lt;/name&gt;&lt;option_schema/&gt;&lt;public&gt;false&lt;/public&gt;&lt;roles/&gt;&lt;script&gt;&lt;![CDATA[(function() {
+	
+	// Wow Portal
+	var wowPortal = '2d7ab439db2a33400ef45682ca961909';
+
+	// Wow Content Grid widget
+	var contentGridWidget = '90287874dba3d78087e2f3de3b9619a0';
+
+	// Wow Content Grid menu
+	var contentGridMenu = '178ed8f3dbdd338016a5f40b0c9619c7';
+	
+	// Wow Service Desk page
+	var deskPage = '15aba3b8db84bb0016a5f40b0c96190b';
+	
+	// Wow Service Desk widget
+	var deskWidget = '825e8cc0db3fdf8087e2f3de3b961927';
+	
+	// Wow Service Desk menu
+	var deskMenu = '2b709884db3fdf8087e2f3de3b9619b8';
+
+	// Wow theme
+	var themeId = '4de853ffdb079b4087e2f3de3b9619ac';
+
+	// Stylesheets for Wow theme
+	var stylesheets = {
+		icons: '0551ad42db2b9b8087e2f3de3b961960',
+		base: 'b4f49e00db3c330016a5f40b0c961910', // Madrid version
+		overrides: '4dc23236dbfe7b00b62a80e239961964'
+	};
+
+	var portalTitle = input.title;
+	var portalSuffix = input.urlSuffix;
+	var themeName = input.themeName;
+
+	var links = {
+		portal: '/'+portalSuffix,
+		logo: '/sp_portal.do?sys_id=',
+		brandEditor: '/sp_config?id=branding_editor',
+		theme: '/sp_theme.do?sys_id=',
+		backgrounds: '/x_mono2_wow_background_list.do',
+		colors: '/x_mono2_wow_color_list.do',
+		menu: '/sp_instance_menu.do?sys_id=',
+		desk: '/sp_instance_menu.do?sys_id=',
+		stylesheet: '/sp_css.do?sys_id='
+	};
+
+	if (input) {
+		if (portalTitle.length &lt; 3 || portalSuffix.length &lt; 3) {
+			data.success = false;
+			data.message = gs.getMessage("Portal title and URL suffix must be at least 3 characters");
+			return;
+		}
+
+		// first check that portal value is unique
+		if (hasPortal(portalSuffix)) {
+			data.success = false;
+			data.message = gs.getMessage("Portal record with URL suffix "+portalSuffix+" aleady exists");
+			return;
+		}
+
+		// then check that theme name is unique
+		if (themeName &amp;&amp; hasTheme(themeName)) {
+			data.success = false;
+			data.message = gs.getMessage("Theme with name '"+themeName+"' already exists");
+			return;
+		}
+
+
+		var portal = getPortal(wowPortal);
+		var homepage = clonePage(portal.getValue('homepage'));
+
+		if (!homepage) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone homepage");
+			return;
+		}
+
+		// update cloned homepage
+		homepage.setValue('id', 'wow_home_'+portalSuffix);
+		homepage.setValue('title', portalTitle);
+		homepage.update();
+
+		// update container names
+		var containers = getContainers(homepage.getUniqueValue());
+		containers.forEach(function(container, i) {
+			container.setValue('title', portalTitle+' - Container '+i);
+			container.update();
+
+			// now look for Wow Content Grid widget instance
+			getRows(container.getUniqueValue()).forEach(function(row) {
+				getColumns(row.getUniqueValue()).forEach(function(column) {
+					getInstances(column.getUniqueValue()).forEach(function(instance) {
+						if (instance.getValue('sp_widget') == contentGridWidget) {
+							var instanceTitle = "Wow Content Grid ("+portalSuffix+")";
+							var menu = cloneMenu(contentGridMenu, instanceTitle);
+
+							var instanceParams = instance.getValue('widget_parameters');
+							instanceParams = instanceParams.replace(contentGridMenu, menu.getUniqueValue());
+							instanceParams = instanceParams.replace("Wow Content Grid", instanceTitle);
+							instance.setValue('widget_parameters', instanceParams);
+							instance.setValue('title', instanceTitle);
+							instance.update();
+
+							// add the new menu sys_id to our link
+							links.menu += menu.getUniqueValue();
+						}
+					});
+				});
+			});
+		});
+
+		// now duplicate the original portal
+		portal.setValue('logo', null);
+		portal.setValue('default', false);
+		portal.setValue('title', portalTitle);
+		portal.setValue('url_suffix', portalSuffix);
+		portal.setValue('homepage', homepage.getUniqueValue());
+		
+		// now clone the Service Desk page
+		var page = clonePage(deskPage);
+
+		if (!page) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone service desk page");
+			return;
+		}
+		
+		page.setValue('id', 'wow_desk_'+portalSuffix);
+		page.setValue('title', "Service Desk");
+		page.update();
+		
+		// update container names and look for Wow Service Desk widget instance
+		getContainers(page.getUniqueValue()).forEach(function(container, i) {
+			getRows(container.getUniqueValue()).forEach(function(row) {
+				getColumns(row.getUniqueValue()).forEach(function(column) {
+					getInstances(column.getUniqueValue()).forEach(function(instance) {
+						if (instance.getValue('sp_widget') == deskWidget) {
+							var instanceTitle = "Wow Service Desk ("+portalSuffix+")";
+							var menu = cloneMenu(deskMenu, instanceTitle);
+
+							var instanceParams = instance.getValue('widget_parameters');
+							instanceParams = instanceParams.replace(deskMenu, menu.getUniqueValue());
+							instanceParams = instanceParams.replace("Wow Service Desk", instanceTitle);
+							instance.setValue('widget_parameters', instanceParams);
+							instance.setValue('title', instanceTitle);
+							instance.update();
+
+							// add the new menu sys_id to our link
+							links.desk += menu.getUniqueValue();
+						}
+					});
+				});
+			});
+		});
+		
+		// duplicate the theme
+		if (themeName) {
+			var theme = cloneTheme(portal.getValue('theme'), themeName);
+			portal.setValue('theme', theme.getUniqueValue());
+
+			// add the new theme sys_id to our link
+			links.theme += theme.getUniqueValue();
+		}
+
+		// otherwise delete the theme and stylesheets link
+		else {
+			links.theme = null;
+			links.stylesheet = null;
+		}
+		
+		var portalId = portal.insert();
+
+		if (!portalId) {
+			data.success = false;
+			data.message = gs.getMessage("Failed to clone portal");
+			return;
+		}
+		
+		// create service desk page route map for this portal
+		createPageRouteMap(portalId, deskPage, page.getUniqueValue(), "Wow Desk ("+portalSuffix+")");
+
+		// add new portal sys_id to our upload logo link
+		links.logo += portal.getUniqueValue();
+
+		// add to existing page route maps
+		addPageRouteMaps(portal.getUniqueValue());
+
+		// all successful
+		data.success = true;
+		data.message = '"'+portal.getDisplayValue('title')+'" '+gs.getMessage("portal has been created!");
+		data.links = links;
+	}
+
+
+	function hasPortal(urlSuffix) {
+		var gr = new GlideRecord('sp_portal')
+		gr.addQuery('url_suffix', urlSuffix);
+		gr.query();
+
+		while (gr.next())
+			return true;
+
+		return false;
+	}
+
+
+	function hasTheme(themeName) {
+		var gr = new GlideRecord('sp_theme')
+		gr.addQuery('name', themeName);
+		gr.query();
+
+		while (gr.next())
+			return true;
+
+		return false;
+	}
+
+
+	function getPortal(sys_id) {
+		var gr = new GlideRecord('sp_portal');
+
+		if (gr.get(sys_id)) {
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function clonePage(sys_id) {
+		var original = getPage(sys_id);
+		var clone = new global.SPClonePage().run(original);
+
+		return clone;
+	}
+
+
+	function cloneMenu(sys_id, title) {
+		var gr = new GlideRecord('sp_instance_menu');
+
+		if (gr.get(sys_id)) {
+			var menuId = gr.getUniqueValue();
+			gr.setValue('title', title);
+			gr.insert();
+
+			var menuItems = getMenuItems(menuId);
+			menuItems.forEach(function(menuItem) {
+				var itemId = menuItem.getUniqueValue();
+				menuItem.setValue('sp_rectangle_menu', gr.getUniqueValue());
+				menuItem.insert();
+
+				// now clone attachments
+				cloneAttachments(menuItem, itemId);
+			});
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function getMenuItems(menuId) {
+		var menuItems = [];
+
+		var gr = new GlideRecord('sp_rectangle_menu_item');
+		gr.addQuery('sp_rectangle_menu', menuId);
+		gr.query();
+
+		while (gr.next()) {
+			menuItems.push(getMenuItem(gr.getUniqueValue()));
+		}
+
+		return menuItems;
+	}
+
+
+	function getMenuItem(sys_id) {
+		var gr = new GlideRecord('sp_rectangle_menu_item');
+
+		if (gr.get(sys_id)) {
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function getPage(sys_id) {
+		var gr = new GlideRecord('sp_page');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getContainers(pageId) {
+		var containers = [];
+
+		var gr = new GlideRecord('sp_container');
+		gr.addQuery('sp_page', pageId);
+		gr.orderBy('order');
+		gr.query();
+
+		while (gr.next()) {
+			containers.push(getContainer(gr.getUniqueValue()));
+		}
+
+		return containers;
+	}
+
+
+	function getContainer(sys_id) {
+		var gr = new GlideRecord('sp_container');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getRows(containerId) {
+		var rows = [];
+
+		var gr = new GlideRecord('sp_row');
+		gr.addQuery('sp_container', containerId);
+		gr.query();
+
+		while (gr.next()) {
+			rows.push(getRow(gr.getUniqueValue()));
+		}
+
+		return rows;
+	}
+
+
+	function getRow(sys_id) {
+		var gr = new GlideRecord('sp_row');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getColumns(rowId) {
+		var columns = [];
+
+		var gr = new GlideRecord('sp_column');
+		gr.addQuery('sp_row', rowId);
+		gr.query();
+
+		while (gr.next()) {
+			columns.push(getColumn(gr.getUniqueValue()));
+		}
+
+		return columns;
+	}
+
+
+	function getColumn(sys_id) {
+		var gr = new GlideRecord('sp_column');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function getInstances(columnId) {
+		var instances = [];
+
+		var gr = new GlideRecord('sp_instance');
+		gr.addQuery('sp_column', columnId);
+		gr.query();
+
+		while (gr.next()) {
+			instances.push(getInstance(gr.getUniqueValue())); // not sure why I have to do this...
+		}
+
+		return instances;
+	}
+
+
+	function getInstance(sys_id) {
+		var gr = new GlideRecord('sp_instance');
+
+		if (gr.get(sys_id))
+			return gr;
+
+		return null;
+	}
+
+
+	function cloneTheme(themeId, themeName) {
+		var gr = GlideRecord('sp_theme');
+
+		if (gr.get(themeId)) {
+			gr.setValue('name', themeName+" (Wow)");
+			gr.insert();
+
+			// first attach fonts and icons as is
+			attachStylesheet(stylesheets.icons, gr.getUniqueValue(), 0);
+			attachStylesheet(stylesheets.base, gr.getUniqueValue(), 100);
+
+			// second clone the override stylesheet, reset and attach
+			var overridesStylesheet = cloneStylesheet(stylesheets.overrides, themeName+" Overrides (Wow)");
+			if (overridesStylesheet) {
+				overridesStylesheet.setValue('css', "");
+				overridesStylesheet.update();
+				
+				attachStylesheet(overridesStylesheet.getUniqueValue(), gr.getUniqueValue(), 200);
+				links.stylesheet += overridesStylesheet.getUniqueValue();
+			}
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function attachStylesheet(stylesheetId, themeId, order) {
+		var gr = new GlideRecord('m2m_sp_theme_css_include');
+		gr.initialize();
+
+		var include = getStylesheetInclude(stylesheetId);
+		if (!include) {
+			include = createStylesheetInclude(stylesheetId);
+		}
+
+		gr.setValue('order', order);
+		gr.setValue('sp_css_include', include.getUniqueValue());
+		gr.setValue('sp_theme', themeId);
+		gr.insert();
+
+		return gr;
+	}
+
+
+	function getStylesheetInclude(stylesheetId) {
+		var gr = new GlideRecord('sp_css_include');
+		gr.addQuery('source', 'local');
+		gr.addQuery('sp_css', stylesheetId);
+		gr.query();
+
+		while (gr.next())
+			return gr;
+
+		return null;
+	}
+
+
+	function createStylesheetInclude(stylesheetId) {
+		var gr = new GlideRecord('sp_css_include');
+		gr.initialize();
+		gr.setValue('sp_css', stylesheetId);
+		gr.setValue('source', 'local');
+		gr.insert();
+
+		return gr;
+	}
+
+
+	function cloneStylesheet(stylesheetId, stylesheetName) {
+		var gr = new GlideRecord('sp_css');
+
+		if (gr.get(stylesheetId)) {
+			gr.setValue('name', stylesheetName);
+			gr.insert();
+
+			return gr;
+		}
+
+		return null;
+	}
+
+
+	function cloneAttachments(record, originalTableId) {
+		var attachments = {};
+		
+		var gr = new GlideRecord('sys_attachment');
+		gr.addQuery('table_sys_id', originalTableId);
+		gr.query();
+
+		while (gr.next()) {
+			var attachmentId = gr.getUniqueValue();
+			gr.setValue('table_sys_id', record.getUniqueValue());
+			gr.insert();
+
+			cloneAttachmentData(attachmentId, gr.getUniqueValue());
+			
+			// map of file_name and new sys_id so we can update original record
+			attachments[gr.getValue('file_name')] = gr.getUniqueValue();
+		}
+		
+		for (var key in attachments)
+			record.setValue(key, attachments[key]);
+		
+		record.update();
+	}
+
+
+	function cloneAttachmentData(originalAttachmentId, newAttachmentId) {
+		var gr = new GlideRecord('sys_attachment_doc');
+		gr.addQuery('sys_attachment', originalAttachmentId);
+		gr.query();
+
+		while (gr.next()) {
+			gr.setValue('sys_attachment', newAttachmentId);
+			gr.insert();
+		}
+	}
+
+
+	function addPageRouteMaps(portalId) {
+		var gr = new GlideRecord('sp_page_route_map');
+		gr.addQuery('route_to_page.id', 'LIKE', 'wow_%');
+		gr.addQuery('route_to_page.id', 'NOT LIKE', 'wow_desk%');
+		gr.query();
+
+		while (gr.next()) {
+			var portals = gr.getValue('portals').split(',');
+
+			if (portals.indexOf(portalId) == -1) {
+				portals.push(portalId);
+
+				gr.setValue('portals', portals);
+				gr.update();
+			}
+		}
+	}
+
+	
+	function createPageRouteMap(portalId, from, to, description) {
+		var gr = new GlideRecord('sp_page_route_map');
+		gr.initialize();
+		gr.setValue('portals', portalId);
+		gr.setValue('route_from_page', from);
+		gr.setValue('route_to_page', to);
+		gr.setValue('short_description', description);
+		gr.setValue('active', true);
+		gr.setValue('order', 100);
+		gr.insert();
+	}
+
+
+})();]]&gt;&lt;/script&gt;&lt;servicenow&gt;false&lt;/servicenow&gt;&lt;sys_class_name&gt;sp_widget&lt;/sys_class_name&gt;&lt;sys_created_by&gt;tuadmin_ws&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2020-03-20 10:41:19&lt;/sys_created_on&gt;&lt;sys_customer_update&gt;false&lt;/sys_customer_update&gt;&lt;sys_id&gt;683aeca71b270050b4190ed2cd4bcb14&lt;/sys_id&gt;&lt;sys_mod_count&gt;1&lt;/sys_mod_count&gt;&lt;sys_name&gt;WOW Portal Generator&lt;/sys_name&gt;&lt;sys_package display_value="Wow Portal" source="x_mono2_wow"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_replace_on_upgrade&gt;false&lt;/sys_replace_on_upgrade&gt;&lt;sys_scope display_value="Wow Portal"&gt;c22adc75dba633400ef45682ca961996&lt;/sys_scope&gt;&lt;sys_update_name&gt;sp_widget_683aeca71b270050b4190ed2cd4bcb14&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;Warren&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2020-03-20 10:48:51&lt;/sys_updated_on&gt;&lt;template&gt;&lt;![CDATA[&lt;div class="panel"&gt;
+  &lt;h3&gt;
+    ${Wow Portal Generator}
+  &lt;/h3&gt;
+  &lt;div class="form-group"&gt;
+    &lt;input ng-model="data.title" placeholder="${Portal Title}" type="text" class="form-control"&gt;
+  &lt;/div&gt;
+  &lt;div class="form-group"&gt;
+    &lt;input ng-model="data.urlSuffix" ng-change="data.urlSuffix = validateSuffix(data.urlSuffix)" placeholder="${URL Suffix (alphanumeric)}" type="text" class="form-control"&gt;
+  &lt;/div&gt;
+  &lt;div class="form-group"&gt;
+    &lt;input ng-model="data.themeName" placeholder="${Theme Name (optional)}" type="text" class="form-control"&gt;
+  &lt;/div&gt;
+  &lt;div class="button-group"&gt;
+    &lt;button ng-click="create($event)" ng-disabled="!canSubmit()" class="btn btn-primary"&gt;
+      ${Create Portal}
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type="text/ng-template" id="success.html"&gt;
+  &lt;h3 ng-if="modalTitle"&gt;
+    {{modalTitle}}
+  &lt;/h3&gt;
+  &lt;p ng-if="modalLinks"&gt;
+  	Click &lt;a href="{{modalLinks.portal}}" target="_blank"&gt;here&lt;/a&gt; to see your new portal. To complete setup of your new portal you need to...
+  &lt;/p&gt;
+  &lt;ol ng-if="modalLinks"&gt;
+  	&lt;li ng-if="modalLinks.logo"&gt;
+     	Upload a logo &lt;a href="{{modalLinks.logo}}" target="_blank"&gt;here&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.brandEditor"&gt;
+      Setup brand colours in the &lt;a href="{{modalLinks.brandEditor}}" target="_blank"&gt;Branding Editor&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.backgrounds"&gt;
+      Choose or create &lt;a href="{{modalLinks.backgrounds}}" target="_blank"&gt;backgrounds&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.colors"&gt;
+      Add brand &lt;a href="{{modalLinks.colors}}" target="_blank"&gt;colours&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.menu"&gt;
+      Modify Content Grid &lt;a href="{{modalLinks.menu}}" target="_blank"&gt;menu&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.desk"&gt;
+      Modify Service Desk &lt;a href="{{modalLinks.desk}}" target="_blank"&gt;menu&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.theme"&gt;
+      Modify &lt;a href="{{modalLinks.theme}}" target="_blank"&gt;theme variables&lt;/a&gt; and fonts
+    &lt;/li&gt;
+    &lt;li ng-if="modalLinks.stylesheet"&gt;
+      Modify &lt;a href="{{modalLinks.stylesheet}}" target="_blank"&gt;overrides stylesheet&lt;/a&gt; (optional)
+    &lt;/li&gt;
+  &lt;/ol&gt;
+  &lt;div class="button-group"&gt;
+    &lt;button type="button" ng-click="closeModal()" class="btn btn-success"&gt;
+      Done!
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/script&gt;
+]]&gt;&lt;/template&gt;&lt;/sp_widget&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>1043078435</payload_hash>
+        <record_name>WOW Portal Generator</record_name>
+        <reverted_from/>
+        <source>90598c75db5fcc10363e8a5039961958</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 10:48:51</sys_created_on>
+        <sys_id>8feb646bdbe740909a88b1b23996192f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>170f78f58c80000001</sys_recorded_at>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 10:48:51</sys_updated_on>
+        <type>Widget</type>
+        <update_guid>4feb646b0ee74090d4ad1269c1081f2e</update_guid>
+        <update_guid_history>4feb646b0ee74090d4ad1269c1081f2e:1043078435,603aeca7fc27005032ceec381d8e1d17:-999322744</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="Record deleted 2020-03-20 16:30:36">839ea023db2b40909a88b1b2399619b1</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>Warren</sys_created_by>
+        <sys_created_on>2020-03-20 11:00:36</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_db_object display_value="" name="sp_widget">sp_widget</sys_db_object>
+        <sys_id>64c391bc0432463cbcdd7bd074016f01</sys_id>
+        <sys_metadata>683aeca71b270050b4190ed2cd4bcb14</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>WOW Portal Generator</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_scope_delete display_value="">26d2c04e41b94e209608b1f1d9aa6410</sys_scope_delete>
+        <sys_update_name>sp_widget_683aeca71b270050b4190ed2cd4bcb14</sys_update_name>
+        <sys_update_version display_value="sp_widget_683aeca71b270050b4190ed2cd4bcb14">8feb646bdbe740909a88b1b23996192f</sys_update_version>
+        <sys_updated_by>Warren</sys_updated_by>
+        <sys_updated_on>2020-03-20 11:00:36</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

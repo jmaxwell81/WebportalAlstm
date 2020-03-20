@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>wowPagination</name>
+        <script><![CDATA[function () {
+    return {
+        restrict: 'E',
+        scope: {
+            totalItems: '=',
+            currentPage: '=',
+            itemsPerPage: '=',
+            maxSize: '=',
+            pageChanged: '&'
+        },
+        template:
+				'<span class="pagination-nav">' +
+					'<i class="material-icons" ' +
+						'ng-class="{\'disabled\' : noPrevious}" ' +
+						'ng-click="previousPage()">arrow_back' +
+					'</i>' +
+				'</span>' +
+				'<ul uib-pagination ' +
+					'total-items="totalItems" ' +
+					'ng-model="currentPage" ' +
+					'items-per-page="itemsPerPage" ' +
+					'max-size="maxSize" ' +
+					'boundary-link-numbers="true" ' +
+					'direction-links="false" ' +
+					'rotate="false" ' +
+					'ng-change="onPageChange()">' +
+				'</ul>' +
+				'<span class="pagination-nav">' +
+					'<i class="material-icons" ' +
+						'ng-class="{\'disabled\' : noNext}" ' +
+						'ng-click="nextPage()">arrow_forward' +
+					'</i>' +
+				'</span>',
+		link: function ($scope) {
+			var totalPages;
+
+			$scope.$watch('totalItems', function (oldValue, newValue) {
+				totalPages = Math.ceil($scope.totalItems / $scope.itemsPerPage);
+				if (!$scope.currentPage) $scope.currentPage = 1;
+				updateChevrons();
+			});
+
+			function updateChevrons() {
+				$scope.noPrevious = $scope.currentPage == 1 ? true : false;
+				$scope.noNext = $scope.currentPage == totalPages ? true : false;
+			}
+
+			$scope.onPageChange = function () {
+				$scope.pageChanged();
+				updateChevrons();
+			};
+
+			$scope.previousPage = function () {
+				if (!$scope.noPrevious) {
+					if (!$scope.currentPage) $scope.currentPage = 1;
+                    $scope.currentPage--;
+                    $scope.pageChanged();
+					updateChevrons();
+                }
+			};
+			$scope.nextPage = function () {
+				if (!$scope.noNext) {
+					if (!$scope.currentPage) $scope.currentPage = 1;
+                    $scope.currentPage++;
+                    $scope.pageChanged();
+					updateChevrons();
+                }
+			};
+		}
+    };
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-09-26 08:26:27</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>a0ea1af737114340998c8ddec3990e01</sys_id>
+        <sys_mod_count>23</sys_mod_count>
+        <sys_name>wowPagination</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_angular_provider_a0ea1af737114340998c8ddec3990e01</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-04-09 09:11:01</sys_updated_on>
+        <type>directive</type>
+    </sp_angular_provider>
+</record_update>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>sc</category>
+        <client_script><![CDATA[function () {
+	var c = this;
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>@include wow-panel();
+
+.wow-cart {
+
+}
+
+.embedded-widget {
+  .btn {
+	  @include wow-button();
+  }
+
+  .btn-clear {
+    background-color: transparent!important;
+    margin: 0;
+  }
+
+  .panel {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1.padder-md {
+    padding: 0!important;
+  }
+
+  .cart-table {
+    border-top: none;
+
+    th {
+      background-color: $panel-bg;
+    }
+  }
+
+  .table-hover {
+    tr:hover {
+      background-color: transparent;
+    }
+  }
+
+  .cart-table +.wrapper {
+    padding: 2rem 0 0!important;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list>color</field_list>
+        <has_preview>false</has_preview>
+        <id>wow-cart</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Wow Cart</name>
+        <option_schema>[{"hint":"This will sync cart across different sessions","name":"autoUpdateCart","default_value":"false","section":"Behavior","label":"Auto update cart","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	data.cartWidget = $sp.getWidget('sc-shopping-cart-v2', {
+		auto_update_cart: options.autoUpdateCart
+	});
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-04-24 05:53:04</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>8bf10bb8dbcd7f0016a5f40b0c9619c9</sys_id>
+        <sys_mod_count>23</sys_mod_count>
+        <sys_name>Wow Cart</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_8bf10bb8dbcd7f0016a5f40b0c9619c9</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-07-26 07:49:16</sys_updated_on>
+        <template><![CDATA[<section class="wow-cart panel">
+  <div class="embedded-widget">
+  	<sp-widget widget="data.cartWidget"></sp-widget>
+  </div>
+</section>]]></template>
+    </sp_widget>
+</record_update>

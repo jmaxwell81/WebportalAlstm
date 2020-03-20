@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Behavior" section_id="d10b5b501bdb8010723ded3abc4bcb74" sys_domain="global" table="announcement" version="3" view="wow_portal">
+        <sys_ui_annotation action="INSERT_OR_UPDATE">
+            <is_plain_text>true</is_plain_text>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 11:08:54</sys_created_on>
+            <sys_id>aa8d57541bdb8010723ded3abc4bcb3f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 11:08:54</sys_updated_on>
+            <text>Broadcast is Modal - Recommend do NOT select "User Cannot Dismiss" option</text>
+            <type display_value="Info Box Red">823f88a80f930000b12e6903cfe01209</type>
+        </sys_ui_annotation>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>click_target</element>
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 11:08:55</sys_created_on>
+            <sys_id>628d57541bdb8010723ded3abc4bcb47</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Behavior" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">d10b5b501bdb8010723ded3abc4bcb74</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 11:08:55</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>dismiss_options</element>
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 11:08:55</sys_created_on>
+            <sys_id>628d57541bdb8010723ded3abc4bcb6d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Behavior" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">d10b5b501bdb8010723ded3abc4bcb74</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 11:08:55</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>aa8d57541bdb8010723ded3abc4bcb3f</element>
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 11:08:55</sys_created_on>
+            <sys_id>e68d57541bdb8010723ded3abc4bcb6d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Behavior" display_value="announcement" name="announcement" sys_domain="global" view="afd49bd81b9b8010723ded3abc4bcb42">d10b5b501bdb8010723ded3abc4bcb74</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 11:08:55</sys_updated_on>
+            <sys_user/>
+            <type>annotation</type>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Behavior</caption>
+            <header>false</header>
+            <name>announcement</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2020-02-27 10:57:54</sys_created_on>
+            <sys_customer_update>false</sys_customer_update>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>d10b5b501bdb8010723ded3abc4bcb74</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Behavior</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+            <sys_policy/>
+            <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+            <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+            <sys_update_name>sys_ui_section_d10b5b501bdb8010723ded3abc4bcb74</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2020-02-27 10:57:54</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Wow Portal" name="wow_portal">afd49bd81b9b8010723ded3abc4bcb42</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

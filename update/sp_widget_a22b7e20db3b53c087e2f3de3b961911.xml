@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($scope, $rootScope, $uibModal, spUtil) {
+	var c = this;
+	var approval = getApproval();
+	var modal;
+
+	c.data.comments = "";
+
+	$scope.getApprovalDetails = function() {
+		modal = $uibModal.open({
+			appendTo: $scope.widgetEl,
+			templateUrl: 'wowApprovalDetails.html',
+			windowClass: 'details-modal',
+			scope: $scope
+		});
+	}
+
+	$scope.approve = function() {
+		modal = $uibModal.open({
+			appendTo: $scope.widgetEl,
+			templateUrl: 'wowConfirmApprove.html',
+			windowClass: 'confirm-approve-modal',
+			scope: $scope
+		});
+	}
+
+	$scope.reject = function() {
+		modal = $uibModal.open({
+			appendTo: $scope.widgetEl,
+			templateUrl: 'wowConfirmReject.html',
+			windowClass: 'confirm-reject-modal',
+			scope: $scope
+		});
+	}
+
+	$scope.confirmApprove = function() {
+		$scope.updating = true;
+
+		c.server.get({
+			action: 'approve',
+			comments: getComments(),
+			sys_id: approval.id
+		}).then(function(r) {
+			setData(r.data);
+			resetComments();
+			closeModal(broadcastUpdate); // broadcast update before we set approval to null
+			$scope.updating = false;
+
+			if (approval)
+				spUtil.addInfoMessage("${wow_[0]_approved}".replace('[0]', approval.number));
+		});
+	}
+
+	$scope.confirmReject = function() {
+		if (!hasComments())
+			return spUtil.addErrorMessage("${wow_invalid_comments_min_length_[0]}".replace('[0]', c.options.minCommentsLength));
+
+		$scope.updating = true;
+
+		c.server.get({
+			action: 'reject',
+			comments: getComments(),
+			sys_id: approval.id
+		}).then(function(r) {
+			setData(r.data);
+			resetComments();
+			closeModal(broadcastUpdate); // broadcast update before we set approval to null
+			$scope.updating = false;
+
+			if (approval)
+				spUtil.addInfoMessage("${wow_[0]_rejected}".replace('[0]', approval.number));
+		});
+	}
+
+	var closeModal = $scope.closeModal = function(callback) {
+		if (callback)
+			modal.closed.then(callback);
+
+		modal.close();
+	}
+
+	var hasComments = $scope.hasComments = function() {
+		return c.data.comments.length >= c.options.minCommentsLength;
+	}
+
+	var canApprove = $scope.canApprove = function() {
+		return c.data.canApprove;
+	}
+
+	function getApproval() {
+		return c.data.approval;
+	}
+
+	function setApproval(appr) {
+		approval = appr;
+	}
+
+	function getComments() {
+		return c.data.comments;
+	}
+
+	function resetComments() {
+		c.data.comments = "";
+	}
+
+	function setData(data) {
+		c.data = data;
+		setApproval(data.approval);
+	}
+
+	function broadcastUpdate() {
+		$rootScope.$broadcast('ticket_updated', {
+			table: approval.table,
+			sys_id: approval.id
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>&amp; {
+  overflow: visible; // weird bootstrap defect / override
+}
+
+.btn {
+  @include wow-button();
+}
+
+.btn-info,
+.btn-success,
+.btn-danger {
+  color: $white;
+
+  svg {
+    fill: $white;
+  }
+}
+
+.info-button {
+  color: $text-color;
+
+  &amp;, &amp;:hover, &amp;:active, &amp;:focus {
+    background: none;
+    box-shadow: none;
+  }
+
+  @media screen and (max-width: $screen-xs-max) {
+    margin: 0;
+  }
+
+  svg {
+    fill: $text-muted;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: nowrap;
+
+  .btn:not(:last-child) {
+    margin-right: .75rem;
+  }
+}
+
+p {
+  color: $text-muted;
+}
+
+@include wow-modal();
+
+.modal {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    padding: 0;
+
+    label {
+      color: $text-muted;
+    }
+  }
+
+  .modal-dialog {
+    max-width: 600px;
+  }
+}
+
+.details-modal {
+  .item {
+    padding: 1rem 0;
+
+    &amp;:not(:last-child) {
+      border-bottom: 2px solid darken($panel-bg, 10%);
+    }
+
+    h3 {
+      margin-top: .5rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+    margin-top: 0;
+    border: none;
+  }
+
+  textarea {
+    resize: none;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  .variables {
+    @include wow-variables();
+  }
+
+  .variables &gt; li div {
+    width: 100%;
+
+    span {
+      width: 100%;
+    }
+  }
+}
+
+.confirm-approve-modal,
+.confirm-reject-modal {
+  text-align: center;
+
+  .modal-body {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+    h4 {
+      width: 100%;
+    }
+  }
+
+  textarea {
+    margin: .5rem 0;
+    min-height: 80px;
+  }
+
+  .btn:not(.cancel) {
+    justify-content: center;
+    margin: .5rem 0;
+    width: 100%;
+  }
+
+  .cancel {
+    color: $text-muted;
+    margin-bottom: -.5rem;
+  }
+}
+
+.confirm-approve-modal {
+  .modal-dialog {
+    max-width: 250px;
+  }
+}
+
+.confirm-reject-modal {
+  .modal-dialog {
+    max-width: 300px;
+  }
+}
+
+.loading-spinner {
+  @include wow-spinner($brand-primary);
+  margin: 5rem auto;
+  max-width: 40px;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-approval-actions</id>
+        <internal>false</internal>
+        <link><![CDATA[function (scope, widgetEl) {
+	scope.widgetEl = widgetEl;
+}]]></link>
+        <name>Wow Approval Actions</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+
+	options.minCommentsLength = 5;
+
+	var ticketsHelper = new WowTickets();
+
+	if (input) {
+		switch (input.action) {
+			case 'approve':
+				ticketsHelper.approve(input.sys_id, input.comments);
+				break;
+
+			case 'reject':
+				ticketsHelper.reject(input.sys_id, input.comments);
+				break;
+		}
+	}
+
+	var approval = ticketsHelper.getApproval(input && input.sys_id ? input.sys_id : options.sys_id);
+
+	data.approval = approval;
+	data.canApprove = (approval.state == ticketsHelper.getLabel('awaiting_my_input'));
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-05 11:21:17</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>a22b7e20db3b53c087e2f3de3b961911</sys_id>
+        <sys_mod_count>168</sys_mod_count>
+        <sys_name>Wow Approval Actions</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_a22b7e20db3b53c087e2f3de3b961911</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-09-02 08:44:26</sys_updated_on>
+        <template><![CDATA[<div ng-if="canApprove()" class="actions">
+  <button ng-click="getApprovalDetails()" ng-disabled="updating" class="btn info-button">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve"><g><path d="M12,1C5.9,1,1,5.9,1,12s4.9,11,11,11s11-4.9,11-11S18.1,1,12,1z M12,21c-5,0-9-4-9-9c0-5,4-9,9-9c5,0,9,4,9,9C21,17,17,21,12,21z"/><path d="M12,11c-0.6,0-1,0.4-1,1v4c0,0.6,0.4,1,1,1c0.6,0,1-0.4,1-1v-4C13,11.4,12.6,11,12,11z"/><path d="M11.8,7c-0.1,0-0.1,0-0.2,0.1c-0.1,0-0.1,0.1-0.2,0.1c-0.1,0-0.1,0.1-0.1,0.1C11.1,7.5,11,7.7,11,8s0.1,0.5,0.3,0.7c0,0,0.1,0.1,0.1,0.1c0.1,0,0.1,0.1,0.2,0.1c0.1,0,0.1,0,0.2,0.1c0.1,0,0.1,0,0.2,0c0.3,0,0.5-0.1,0.7-0.3C12.9,8.5,13,8.3,13,8c0-0.3-0.1-0.5-0.3-0.7C12.5,7.1,12.1,7,11.8,7z"/></g></svg>
+    <span>${wow_info}</span>
+  </button>
+  <button ng-click="approve()" ng-disabled="updating" class="btn btn-success approve-button">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve"><g><path d="M16.3,8.3L10,14.6l-2.3-2.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l3,3C9.5,16.9,9.7,17,10,17c0,0,0,0,0,0c0.3,0,0.5-0.1,0.7-0.3l7-7c0.4-0.4,0.4-1,0-1.4C17.3,7.9,16.7,7.9,16.3,8.3z"/><path d="M12.4,1c-6.1,0-11,4.9-11,11s4.9,11,11,11s11-4.9,11-11S18.4,1,12.4,1z M12.4,21c-5,0-9-4-9-9c0-5,4-9,9-9c5,0,9,4,9,9C21.4,17,17.3,21,12.4,21z"/></g></svg>
+    <span>${wow_approve}</span>
+  </button>
+  <button ng-click="reject()" ng-disabled="updating" class="btn btn-danger reject-button">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 22 22" style="enable-background:new 0 0 22 22;" xml:space="preserve"><g><path d="M11,0C4.9,0,0,4.9,0,11s4.9,11,11,11s11-4.9,11-11S17.1,0,11,0z M11,20c-5,0-9-4-9-9c0-5,4-9,9-9c5,0,9,4,9,9C20,16,16,20,11,20z"/><path d="M14.7,7.3c-0.4-0.4-1-0.4-1.4,0L11,9.6L8.7,7.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4L9.6,11l-2.3,2.3c-0.4,0.4-0.4,1,0,1.4C7.5,14.9,7.7,15,8,15s0.5-0.1,0.7-0.3l2.3-2.3l2.3,2.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3c0.4-0.4,0.4-1,0-1.4L12.4,11l2.3-2.3C15.1,8.3,15.1,7.7,14.7,7.3z"/></g></svg>
+    <span>${wow_reject}</span>
+  </button>
+</div>]]></template>
+    </sp_widget>
+</record_update>

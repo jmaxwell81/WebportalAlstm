@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function spTicketConversation($scope, nowAttachmentHandler, $animate, $rootScope, cabrillo, $uibModal, $timeout, snRecordWatcher, spUtil) {
+	var c = this;
+	var existingEntries = {}
+	var skipNextRecordWatchUpdate = false;
+
+	$scope.msg = "";
+	$scope.isNative = cabrillo.isNative();
+	$scope.typing = [];
+
+	if (!$scope.data.hasReadableJournalField)
+		console.warn("No readable journal field (comments, work notes, etc.) available in the stream for this record");
+
+	if ($scope.page && $scope.page.g_form)
+		hideParentJournalFields();
+
+	function hideParentJournalFields() {
+		var g_form = $scope.page.g_form;
+		var fields = $scope.data.stream.journal_fields;
+		for (var f in fields) {
+			g_form.setDisplay(fields[f].name, false);
+		}
+	}
+
+	function setupAttachmentHandler(){
+		$scope.attachmentHandler = new nowAttachmentHandler(attachSuccess, appendError);
+
+		function attachSuccess() {
+			$rootScope.$broadcast("sp.attachments.update", $scope.data.sys_id);
+		}
+
+		function appendError(error) {
+			$scope.errorMessages.push(error);
+		}
+
+		$timeout(function() {
+			var sizeLimit = 1024 * 1024 * 24; // 24MB
+			$scope.attachmentHandler.setParams($scope.data.table, $scope.data.sys_id, sizeLimit);
+		})
+	}
+	setupAttachmentHandler();
+
+	var recordWatcherTimer;
+	spUtil.recordWatch($scope, $scope.data.table, 'sys_id='+$scope.data.sys_id, function(name, data) {
+		// Use record watcher update if this record was updated AND This widget didn't trigger the update.
+		$timeout.cancel(recordWatcherTimer);
+		recordWatcherTimer = $timeout(function(){
+			if (skipNextRecordWatchUpdate)
+				skipNextRecordWatchUpdate = false;
+			else
+				spUtil.update($scope).then(function(r){
+					$scope.data.stream = r.stream;
+				});
+		}, 250);
+	});
+
+	$scope.$on('sp.sessions', function(evt, sessions) {
+		$scope.typing = [];
+		Object.keys(sessions).forEach(function (session) {
+			session = sessions[session];
+			if (session.status != 'typing')
+				return;
+
+			$scope.typing.push(session);
+		})
+	})
+
+	$scope.$on('sp.conversation_title.changed', function(evt, text) {
+		$scope.data.ticketTitle = text;
+	})
+
+	$scope.$watch("data.canWrite", function() {
+		$rootScope.$broadcast("sp.record.can_write", $scope.data.canWrite);
+	});
+
+	var streamUpdateTimer;
+	$scope.$watch("data.stream", function() {
+		$timeout.cancel(streamUpdateTimer);
+		streamUpdateTimer = $timeout(function() {
+			mergeStreamEntries();
+		}, 50);
+	});
+
+	function mergeStreamEntries() {
+		$scope.placeholder = $scope.data.placeholderNoEntries;
+		if (!$scope.data.stream || !$scope.data.stream.entries)
+			return;
+
+		$scope.placeholder = $scope.data.placeholder;
+		var entries = $scope.data.stream.entries;
+		if (!$scope.data.mergedEntries) {
+			$scope.data.mergedEntries = $scope.data.stream.entries.slice().reverse();
+
+			for (var i = 0; i < entries.length; i++) {
+				existingEntries[entries[i].sys_id] = true;
+			}
+
+			return;
+		}
+
+		var mergedEntries = $scope.data.mergedEntries;
+		for (var i = entries.length-1; i >= 0; i--) {
+			var curEntry = entries[i];
+			if (existingEntries[curEntry.sys_id])
+				continue;
+
+			mergedEntries.push(curEntry);
+			existingEntries[curEntry.sys_id] = true;
+		}
+
+	}
+
+	var colorCache;
+	$scope.getFieldColor = function(fieldName) {
+		var defaultColor = "transparent";
+		if (colorCache) {
+			if (fieldName in colorCache)
+				return colorCache[fieldName];
+			else
+				return defaultColor;
+		}
+
+		colorCache = {};
+		var jf = $scope.data.stream.journal_fields;
+		for (var i=0; i<jf.length;i++) {
+			colorCache[jf[i].name] = jf[i].color || defaultColor;
+		}
+		return $scope.getFieldColor(fieldName);
+	}
+
+	$scope.$on("attachment.upload.start", function() {
+		$scope.msg = $scope.data.uploadingAttachmentMsg;
+	})
+
+	$scope.$on("attachment.upload.stop", function() {
+		$scope.msg = "";
+		//update the stream so we get the new attachment
+		spUtil.update($scope).then(function(r) {
+			$scope.data.stream = r.stream;
+		});
+	});
+
+	$scope.data.isPosting = false;
+	$scope.postEntry = function(input) {
+		if (!input)
+			return;
+
+		input = input.trim();
+		$scope.data.journalEntry = input;
+
+		if ($scope.data.useSecondaryJournalField)
+			$scope.data.journalEntryField = $scope.data.secondaryJournalField.name;
+		else
+			$scope.data.journalEntryField = $scope.data.primaryJournalField.name;
+		$scope.data.isPosting = true;
+		spUtil.update($scope).then(function(){$scope.data.isPosting = false; reset();});
+		skipNextRecordWatchUpdate = true;
+	};
+
+	var reset = function(){
+		$scope.userTyping("");
+		$scope.data.journalEntry = "";
+		$scope.data.useSecondaryJournalField = false;
+		$scope.data.journalEntryField = "";
+	};
+
+	$scope.keyPress = function(event) {
+		if (event.keyCode === 13 && !event.shiftKey) {
+			event.preventDefault();
+			if ($scope.data.journalEntry)
+				$scope.postEntry($scope.data.journalEntry);
+		}
+	};
+
+	$scope.userTyping = function(input) {
+		var status = "viewing";
+		if (input.length)
+			status = "typing";
+
+		$scope.$emit("record.typing", {status: status, value: input, table: $scope.data.table, sys_id: $scope.data.sys_id});
+	};
+
+	$scope.paste = function(event) {
+		var files = [];
+		var clipData = event.originalEvent.clipboardData;
+
+		angular.forEach(clipData.items, function(item, key) {
+			if (clipData.items[key].type.match(/image.*/)) {
+				files.push(clipData.items[key].getAsFile());
+				$scope.attachmentHandler.onFileSelect(files);
+			}
+		});
+	}
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.activity {
+  @media screen and (max-width: $screen-sm-max) {
+    width: 100%;
+  }
+
+  &gt; h3 { margin-top: 0; }
+
+  .no-resize {
+    resize: none;
+  }
+
+  .messages {
+    @media screen and (min-width: $screen-md-min) {
+      position: relative;
+
+      &amp;::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 5px; // allowing for scrollbar
+        height: 5%;
+        //background-image: linear-gradient(to bottom, rgba($panel-bg, 1) 0%, rgba($panel-bg, 1) 75%, rgba($panel-bg, 0) 100%);
+        background-color: rgba($panel-bg, .5);
+        pointer-events: none;
+      }
+    }
+  }
+
+  .messages &gt; ul {
+    @include wow-scrollbar($brand-primary, $panel-bg, 0);
+    display: flex;
+    list-style: none;
+    flex-flow: column nowrap;
+    margin-top: 2rem;
+
+    @media screen and (min-width: $screen-md-min) {
+      max-height: 35rem;
+    }
+
+    flex: 1 1 0;
+    padding-right: .5rem;
+    overflow-x: auto;
+
+    li {
+      background: darken($panel-bg, 5);
+      border-radius: $border-radius;
+      display: flex;
+      flex-flow: row nowrap;
+      height: 100%;
+      margin-bottom: 2rem;
+      margin-right: .5rem;
+      padding: 1rem;
+      width: 80%;
+
+      @media screen and (max-width: $screen-xs-max) {
+        width: 90%;
+        margin-right: 0;
+      }
+
+      &amp;:first-child {
+        margin-top: 30px;
+      }
+
+      &amp;.loggedUser {
+        color: $white;
+        background: $brand-primary;
+        margin-left: auto;
+        border: none;
+
+        .time {
+          color: $white !important;
+          opacity: 0.6;
+        }
+
+        .attachment-info {
+          color: $white !important;
+        }
+      }
+
+      .avatar-container {
+        height: 36px;
+        width: 36px;
+      }
+
+      .sub-avatar {
+        line-height: 36px;
+
+        span {
+          font-size: .9rem;
+          font-weight: 400;
+          line-height: 36px;
+        }
+      }
+
+      .avatar-small {
+        margin-right: 1rem;
+
+        .soloAvatar {
+          background: $brand-info;
+        }
+      }
+
+      .msg-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        padding-top: .4rem;
+        font-weight: 300;
+        width: 100%;
+
+        .author-name {
+          font-weight: 600;
+          @media screen and (max-width: $screen-xs-max) {
+            display: block;
+            margin-bottom: .5rem;
+          }
+
+          .time {
+            color: $text-muted;
+            font-size: .8rem;
+            margin-left: .5rem;
+            font-weight: 300;
+
+            @media screen and (max-width: $screen-xs-max) {
+              display: block;
+              margin-left: 0;
+            }
+          }
+        }
+
+        .msg-text {
+          font-weight: 300;
+          font-size: 1rem;
+        }
+
+        .attachment {
+          display: flex;
+          align-items: center;
+          margin: 0.5rem 0;
+
+          .attachment-info {
+            align-items: center;
+            color: $text-color;
+            display: flex;
+            font-weight: 600;
+
+            i {
+              font-size: 1.5rem;
+              margin-right: .5rem;
+            }
+
+            .size {
+              font-size: .8rem;
+              margin-left: .5rem;
+            }
+          }
+        }
+      }
+    }
+  } // end: ./messages
+
+  .textarea {
+    display: flex;
+    flex-direction: column;
+
+    @media screen and (max-width: $screen-xs-max) {
+      margin-bottom: 3rem;
+    }
+
+    textarea {
+      @include wow-placeholder($text-muted);
+      background-color: transparent;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba($text-muted, .5);
+    }
+
+    .buttons {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+       // sp-attachment-button
+      .file-upload-input {
+        .panel-button {
+          align-items: center;
+          display: inline-flex;
+          margin-left: 0;
+          float: left;
+          font-size: 1rem;
+          margin-right: .5rem;
+          text-decoration: none;
+          padding-left: 0;
+
+          span {
+            color: $text-muted;
+            font-size: 1.5rem;
+            margin-right: .5rem;
+            transform: rotate(-45deg);
+          }
+        }
+
+        .sp-attachment-add {
+          &amp;:after {
+            color: $text-color;
+            content: attr(title);
+            font-weight: $font-weight-normal;
+          }
+        }
+      }
+
+      .btn-square {
+        border-radius: $border-radius;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+      }
+    }
+
+    .typing {
+      padding: 1rem 0;
+      display: flex;
+      list-style: none;
+
+      .user-typing {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        color: $text-muted;
+        font-size: .8rem;
+        justify-content: flex-end;
+
+        .material-icons { width: 1rem; }
+      }
+    }
+  }
+} // end: ./div</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Copyright Monochrome Ltd</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>wow-activity-feed</id>
+        <internal>false</internal>
+        <link/>
+        <name>Wow Activity Feed</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	
+	var util = new WowUtil();
+
+	data.uploadingAttachmentMsg = gs.getMessage('wow_uploading_attachment');
+	data.viewMsg = gs.getMessage('wow_view');
+	data.sys_id = (input && input.sys_id) ? input.sys_id : (options.sys_id || $sp.getParameter('sys_id'));
+	data.table = (input && input.table) ? input.table : (options.table || $sp.getParameter('table'));
+
+	// don't use options.title unless sys_id and table also come from options
+	if (options && options.sys_id && options.table)
+		data.ticketTitle = options.title;
+
+	data.placeholder = options.placeholder || gs.getMessage('wow_write_message');
+	data.placeholderNoEntries = options.placeholderNoEntries || gs.getMessage('wow_type_message_here');
+	data.btnLabel = options.btnLabel || gs.getMessage('wow_send');
+	data.includeExtended = options.includeExtended || false;
+
+	var doc = new GlideRecord(data.table);
+	if (!doc.isValid())
+		return;
+
+	if (!doc.get(data.sys_id))
+		return;
+
+	data.canRead = doc.canRead();
+	if (!data.canRead)
+		return;
+
+	data.number = doc.getDisplayValue('number');
+	data.created_on = doc.getValue('sys_created_on');
+
+	if (input) { // if we have input then we're saving
+		if (input.journalEntry && input.journalEntryField){
+			if (doc.canWrite(input.journalEntryField)){
+				doc[input.journalEntryField] = input.journalEntry;
+				doc.update();
+				$sp.logStat("Comments", data.table, data.sys_id, input.journalEntry);
+			}
+		}
+		data.ticketTitle = input.ticketTitle;
+		data.placeholder = input.placeholder;
+		data.btnLabel = input.btnLabel;
+		data.includeExtended = input.includeExtended;
+	}
+
+	else {
+		if (!data.ticketTitle) {
+			if (doc.short_description && doc.short_description.canRead())
+				data.ticketTitle = doc.getDisplayValue('short_description');
+
+			if (!data.ticketTitle)
+				data.ticketTitle = data.number;
+		}
+
+		$sp.logStat("Task View", data.table, data.sys_id);
+	}
+
+	data.canWrite = doc.canWrite();
+	data.canAttach = gs.hasRole(gs.getProperty('glide.attachment.role')) &&
+		(new GlideRecord(data.table)).getAttribute('no_attachment') != 'true' && util.getBoolean(doc.getValue('active'));
+	data.isNewRecord = data.sys_id == -1 || doc.isNewRecord();
+	data.hasWritableJournalField = false;
+	data.hasReadableJournalField = false;
+
+	if (!data.isNewRecord) {
+		data.stream = $sp.getStream(data.table, data.sys_id);
+		// Journal fields come in correct order already
+		// so grab the first 2 writeable fields
+		if ('journal_fields' in data.stream) {
+			var jf = data.stream.journal_fields;
+
+			for (var i = 0; i < jf.length; i++) {
+				if (jf[i].can_read === true)
+					data.hasReadableJournalField = true;
+
+				if (jf[i].can_write === true){
+					data.hasWritableJournalField = true;
+
+					if (!data.primaryJournalField)
+						data.primaryJournalField = jf[i];
+
+					else if (data.includeExtended && !data.secondaryJournalField)
+						data.secondaryJournalField = jf[i];
+
+					else
+						break;
+				}
+			}
+		}
+	}
+
+	data.tableLabel = doc.getLabel();
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-08-07 04:39:50</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>ed337bcddbbf93c087e2f3de3b96195f</sys_id>
+        <sys_mod_count>177</sys_mod_count>
+        <sys_name>Wow Activity Feed</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_widget_ed337bcddbbf93c087e2f3de3b96195f</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-10-24 14:30:58</sys_updated_on>
+        <template><![CDATA[<div class="activity">
+
+  <div ng-if="data.canRead && data.hasReadableJournalField && data.mergedEntries.length > 0"
+       class="messages">
+    <ul class="list-group"
+        wow-scroll-bottom="data.mergedEntries">
+      <li ng-repeat="e in data.mergedEntries track by e.sys_id"
+          ng-class="{'loggedUser': e.user_sys_id == user.sys_id}">
+        <div>
+          <sn-avatar primary="e.user_sys_id" class="avatar-small" show-presence="false" enable-context-menu="false"></sn-avatar>
+        </div>
+        <div class="msg-body">
+          <p class="author-name">
+            {{::e.name}}
+            <span class="time text-muted"> {{::e.sys_created_on_adjusted | wowDate}}</span>
+          </p>
+          <span ng-if="e.element != 'attachment'" class="msg-text" ng-bind-html="::e.value | nl2br"></span>
+          <div ng-if="e.element == 'attachment'" class="attachment">
+            <a class="attachment-info" href="/sys_attachment.do?sys_id={{e.attachment.sys_id}}" target="_blank" title="{{dataViewMsg}}">
+              <i class="material-icons">attachment</i>
+              <span class="name">{{e.attachment.file_name}}</span>
+              <span class="size">({{e.attachment.size}})</span>
+            </a>
+          </div>
+        </div>
+
+      </li>
+    </ul>
+  </div> <!-- end: ./messages -->
+
+  <div class="textarea">
+
+    <form ng-submit="postEntry(data.journalEntry)" id="sand">
+      <div ng-show="data.primaryJournalField">
+        <textarea id="post-input"
+                  class="form-control no-resize"
+                  autocomplete="off"
+                  placeholder="{{placeholder}}"
+                  rows="4"
+                  ng-keypress="keyPress($event)"
+                  ng-model="data.journalEntry"
+                  ng-change="userTyping(data.journalEntry)"
+                  ng-paste="paste($event)" />
+        <span class="journal-field-indicator" ng-style="{'background-color': data.useSecondaryJournalField ? data.secondaryJournalField.color : data.primaryJournalField.color}"></span>
+      </div>
+      <div class="buttons">
+        <div>
+          <sp-attachment-button ng-if="data.canWrite && data.canAttach"></sp-attachment-button>
+        </div>
+        <input ng-if="data.hasWritableJournalField" type="submit" class="btn btn-info btn-square btn-lg" value="{{data.btnLabel}}" ng-disabled="data.isPosting || data.journalEntry.length == 0"/>
+      </div>
+      <div ng-if="data.secondaryJournalField && data.secondaryJournalField.can_write">
+        <label class="pull-right"><input type="checkbox" ng-model="data.useSecondaryJournalField"/> {{::data.secondaryJournalField.label}}</label>
+      </div>
+    </form>
+
+  </div> <!-- end: ./textarea -->
+
+</div> ]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css">
+    <sp_css action="INSERT_OR_UPDATE">
+        <css>/* === Fonts ====================== */&#13;
+&#13;
+html, body {&#13;
+  font-family: 'Montserrat', sans-serif;&#13;
+  font-size: 14px;&#13;
+  word-break: break-word;&#13;
+}&#13;
+&#13;
+&#13;
+/* === Layout ================== */&#13;
+&#13;
+* {&#13;
+  outline: none!important; /* temporary and should be removed */&#13;
+}&#13;
+&#13;
+section.page {&#13;
+  /*IE 11 overflow fix*/&#13;
+  overflow-x: hidden;&#13;
+  z-index: 1;&#13;
+  display: flex;&#13;
+  flex-direction: column;&#13;
+}&#13;
+&#13;
+main.body {&#13;
+  flex: 1 0 auto;&#13;
+  padding-bottom: 10rem;&#13;
+  padding-top: 1rem;&#13;
+  position: relative;&#13;
+}&#13;
+&#13;
+main.body + footer,&#13;
+section.page &gt; footer {&#13;
+  flex-shrink: 0;&#13;
+}&#13;
+&#13;
+.container {&#13;
+  max-width: 1250px;&#13;
+  width: 100%!important;&#13;
+}&#13;
+&#13;
+.material-icons {&#13;
+  font-size: 1em;&#13;
+}&#13;
+&#13;
+/* === Panels ===================== */&#13;
+&#13;
+.panel {&#13;
+  border-radius: 0;&#13;
+  box-shadow: 0 20px 20px rgba(0, 0, 0, 0.075);&#13;
+}&#13;
+&#13;
+.panel .panel {&#13;
+  box-shadow: none;&#13;
+}&#13;
+&#13;
+&#13;
+/* === Buttons ==================== */&#13;
+&#13;
+.btn {&#13;
+  align-items: center;&#13;
+  display: inline-flex;&#13;
+  font-size: 1rem;&#13;
+  justify-content: center;&#13;
+  padding: .666em 1em;&#13;
+}&#13;
+&#13;
+.btn svg {&#13;
+  height: 1.333rem;&#13;
+  margin-right: .5em;&#13;
+}&#13;
+&#13;
+&#13;
+/* === Notifications ============== */&#13;
+&#13;
+#uiNotificationContainer {&#13;
+  margin-top: 1rem;&#13;
+}&#13;
+&#13;
+#uiNotificationContainer .dismiss-notifications {&#13;
+  color: #fff;&#13;
+  font-size: 1.5rem;&#13;
+  margin-left: auto;&#13;
+  padding: 0;&#13;
+  padding-left: .5em;&#13;
+  position: relative;&#13;
+  right: 0;&#13;
+  top: 0;&#13;
+}&#13;
+&#13;
+#uiNotificationContainer .dismiss-notifications:hover {&#13;
+  text-decoration: none;&#13;
+}&#13;
+&#13;
+.alert {&#13;
+  align-items: center;&#13;
+  display: flex;&#13;
+}&#13;
+&#13;
+.alert,&#13;
+.alert a,&#13;
+.alert a:hover,&#13;
+.alert a:focus,&#13;
+.alert a:visited {&#13;
+  color: #fff;&#13;
+}&#13;
+&#13;
+.alert a {&#13;
+  text-decoration: underline;&#13;
+}&#13;
+&#13;
+.alert span + a {&#13;
+  margin-left: .25em;&#13;
+}&#13;
+&#13;
+.alert span.fa {&#13;
+  color: #fff;&#13;
+  font-size: 1.5rem;&#13;
+  margin-right: .5em!important;&#13;
+}&#13;
+&#13;
+.alert &gt;span:not(.fa) {&#13;
+  font-size: 1.1rem;&#13;
+}&#13;
+&#13;
+.alert i.fa {&#13;
+  font-size: 1.5rem;&#13;
+  margin-left: auto;&#13;
+  padding-left: .5em;&#13;
+}&#13;
+&#13;
+.alert-success {&#13;
+  background-color: #5cb85c;&#13;
+  border-color: #5cb85c&#13;
+}&#13;
+&#13;
+.alert-danger {&#13;
+  background-color: #d9534f;&#13;
+  border-color: #d9534f;&#13;
+}&#13;
+&#13;
+.alert-info {&#13;
+  background-color: #fff;&#13;
+  border-color: #5bc0de;&#13;
+  color: #5bc0de !important;&#13;
+}&#13;
+&#13;
+&#13;
+/* === IE 11 ================= */&#13;
+&#13;
+.msie11 sp-attachment-button .glyphicon-paperclip {&#13;
+  display: none!important;&#13;
+}&#13;
+&#13;
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {&#13;
+  main.body {&#13;
+    min-height: calc(100% - 228px);&#13;
+  }&#13;
+  @media screen and (max-width: $screen-xs-max) {&#13;
+    main.body {&#13;
+      min-height: calc(100% - 251px);&#13;
+    }&#13;
+  }&#13;
+}</css>
+        <name>Wow Base (London)</name>
+        <sys_class_name>sp_css</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-11 13:10:01</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>33856628db1b1f4087e2f3de3b9619eb</sys_id>
+        <sys_mod_count>76</sys_mod_count>
+        <sys_name>Wow Base (London)</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_css_33856628db1b1f4087e2f3de3b9619eb</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-04-09 08:24:59</sys_updated_on>
+    </sp_css>
+</record_update>

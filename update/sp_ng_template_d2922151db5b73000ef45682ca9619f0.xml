@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowContentGridLayout2.html</id>
+        <sp_widget display_value="Wow Content Grid">90287874dba3d78087e2f3de3b9619a0</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-08-15 08:34:42</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>d2922151db5b73000ef45682ca9619f0</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>wowContentGridLayout2.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_d2922151db5b73000ef45682ca9619f0</sys_update_name>
+        <sys_updated_by>Kiruthiga</sys_updated_by>
+        <sys_updated_on>2020-03-19 10:35:34</sys_updated_on>
+        <template><![CDATA[<div class="box-wrapper">
+
+  <a href="{{grid[0].href}}" target="{{grid[0].target}}" class="two-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[0].backgroundColor}">
+    <div ng-if="grid[0].image || grid[0].icon" class="image-wrapper">
+      <div ng-if="grid[0].image" ng-style="{'background-image': 'url('+grid[0].image+')'}" class="image"></div>
+      <i ng-if="!grid[0].image && grid[0].icon" ng-style="{'color': grid[0].iconColor}" class="material-icons">{{grid[0].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[0].textColor}">{{grid[0].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[0].textColor}">{{grid[0].shortDescription}}</div>
+    </div>
+  </a>
+  
+  <!--<a href="{{grid[1].href}}" target="{{grid[1].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[1].backgroundColor}">
+    <div ng-if="grid[1].image || grid[1].icon" class="image-wrapper">
+      <div ng-if="grid[1].image" ng-style="{'background-image': 'url('+grid[1].image+')'}" class="image"></div>
+      <i ng-if="!grid[1].image && grid[1].icon" ng-style="{'color': grid[1].iconColor}" class="material-icons">{{grid[1].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[1].textColor}">{{grid[1].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[1].textColor}">{{grid[1].shortDescription}}</div>
+    </div>
+  </a>-->
+  
+  <a href="{{grid[3].href}}" target="{{grid[3].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[3].backgroundColor}">
+    <div ng-if="grid[3].image || grid[3].icon" class="image-wrapper">
+      <div ng-if="grid[3].image" ng-style="{'background-image': 'url('+grid[3].image+')'}" class="image"></div>
+      <i ng-if="!grid[3].image && grid[3].icon" ng-style="{'color': grid[3].iconColor}" class="material-icons">{{grid[3].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[3].textColor}">{{grid[3].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[3].textColor}">{{grid[3].shortDescription}}</div>
+    </div>
+  </a>
+  
+  <a href="{{grid[4].href}}" target="{{grid[4].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[4].backgroundColor}">
+    <div ng-if="grid[4].image || grid[4].icon" class="image-wrapper">
+      <div ng-if="grid[4].image" ng-style="{'background-image': 'url('+grid[4].image+')'}" class="image"></div>
+      <i ng-if="!grid[4].image && grid[4].icon" ng-style="{'color': grid[4].iconColor}" class="material-icons">{{grid[4].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[4].textColor}">{{grid[4].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[4].textColor}">{{grid[4].shortDescription}}</div>
+    </div>
+  </a>
+  
+  <!--<a href="{{grid[2].href}}" target="{{grid[2].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[2].backgroundColor}">
+    <div ng-if="grid[2].image || grid[2].icon" class="image-wrapper">
+      <div ng-if="grid[2].image" ng-style="{'background-image': 'url('+grid[2].image+')'}" class="image"></div>
+      <i ng-if="!grid[2].image && grid[2].icon" ng-style="{'color': grid[2].iconColor}" class="material-icons">{{grid[2].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[2].textColor}">{{grid[2].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[2].textColor}">{{grid[2].shortDescription}}</div>
+    </div>
+  </a>-->
+
+</div>
+<div class="box-wrapper">
+
+ <!-- <a href="{{grid[3].href}}" target="{{grid[3].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[3].backgroundColor}">
+    <div ng-if="grid[3].image || grid[3].icon" class="image-wrapper">
+      <div ng-if="grid[3].image" ng-style="{'background-image': 'url('+grid[3].image+')'}" class="image"></div>
+      <i ng-if="!grid[3].image && grid[3].icon" ng-style="{'color': grid[3].iconColor}" class="material-icons">{{grid[3].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[3].textColor}">{{grid[3].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[3].textColor}">{{grid[3].shortDescription}}</div>
+    </div>
+  </a>-->
+  
+  <a href="{{grid[1].href}}" target="{{grid[1].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[1].backgroundColor}">
+    <div ng-if="grid[1].image || grid[1].icon" class="image-wrapper">
+      <div ng-if="grid[1].image" ng-style="{'background-image': 'url('+grid[1].image+')'}" class="image"></div>
+      <i ng-if="!grid[1].image && grid[1].icon" ng-style="{'color': grid[1].iconColor}" class="material-icons">{{grid[1].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[1].textColor}">{{grid[1].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[1].textColor}">{{grid[1].shortDescription}}</div>
+    </div>
+  </a>
+  
+  <a href="{{grid[2].href}}" target="{{grid[2].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[2].backgroundColor}">
+    <div ng-if="grid[2].image || grid[2].icon" class="image-wrapper">
+      <div ng-if="grid[2].image" ng-style="{'background-image': 'url('+grid[2].image+')'}" class="image"></div>
+      <i ng-if="!grid[2].image && grid[2].icon" ng-style="{'color': grid[2].iconColor}" class="material-icons">{{grid[2].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[2].textColor}">{{grid[2].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[2].textColor}">{{grid[2].shortDescription}}</div>
+    </div>
+  </a>
+  
+ <!-- <a href="{{grid[4].href}}" target="{{grid[4].target}}" class="one-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[4].backgroundColor}">
+    <div ng-if="grid[4].image || grid[4].icon" class="image-wrapper">
+      <div ng-if="grid[4].image" ng-style="{'background-image': 'url('+grid[4].image+')'}" class="image"></div>
+      <i ng-if="!grid[4].image && grid[4].icon" ng-style="{'color': grid[4].iconColor}" class="material-icons">{{grid[4].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[4].textColor}">{{grid[4].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[4].textColor}">{{grid[4].shortDescription}}</div>
+    </div>
+  </a>-->
+  
+  <a href="{{grid[5].href}}" target="{{grid[5].target}}" class="two-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[5].backgroundColor}">
+    <div ng-if="grid[5].image || grid[5].icon" class="image-wrapper">
+      <div ng-if="grid[5].image" ng-style="{'background-image': 'url('+grid[5].image+')'}" class="image"></div>
+      <i ng-if="!grid[5].image && grid[5].icon" ng-style="{'color': grid[5].iconColor}" class="material-icons">{{grid[5].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[5].textColor}">{{grid[5].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[5].textColor}" ng-bind-html="grid[5].shortDescription"></div>
+    </div>
+  </a>
+
+</div>
+<div class="box-wrapper">
+  
+  <a ng-if="!(data.hasNews && options.enableDeviceScorecard)" href="{{grid[6].href}}" target="{{grid[6].target}}" class="two-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[6].backgroundColor}">
+    <div ng-if="grid[6].image || grid[6].icon" class="image-wrapper">
+      <div ng-if="grid[6].image" ng-style="{'background-image': 'url('+grid[6].image+')'}" class="image"></div>
+      <i ng-if="!grid[6].image && grid[6].icon" ng-style="{'color': grid[6].iconColor}" class="material-icons">{{grid[6].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[6].textColor}">{{grid[6].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[6].textColor}" ng-bind-html="grid[6].shortDescription"></div>
+    </div>
+  </a>
+
+  <a ng-if="!data.hasNews && !options.enableDeviceScorecard" href="{{grid[7].href}}" target="{{grid[7].target}}" class="two-box" ng-class="{'hover-animations': options.enableAnimations}" ng-style="{'background-color': grid[7].backgroundColor}">
+    <div ng-if="grid[7].image || grid[7].icon" class="image-wrapper">
+      <div ng-if="grid[7].image" ng-style="{'background-image': 'url('+grid[7].image+')'}" class="image"></div>
+      <i ng-if="!grid[7].image && grid[7].icon" ng-style="{'color': grid[7].iconColor}" class="material-icons">{{grid[7].icon}}</i>
+    </div>
+    <div class="text-wrapper">
+      <div class="title" ng-style="{'color': grid[7].textColor}">{{grid[7].title}}</div>
+      <div class="subtitle" ng-style="{'color': grid[7].textColor}" ng-bind-html="grid[7].shortDescription"></div>
+    </div>
+  </a>
+  
+  <!-- <div ng-if="options.enableDeviceScorecard" class="two-box device-scorecard">
+    <widget id="wow-device-scorecard"></widget>
+  </div> -->
+  
+  <div ng-if="options.enable_key_users" class="two-box news">
+    <widget id="alstom-key-users"></widget>
+  </div>  
+
+  <div ng-if="data.hasNews" class="two-box news">
+    <div class="background" style="opacity: {{options.translucentTiles ? 0.8 : 1}}"></div>
+    <widget id="wow-news-ticker"></widget>
+  </div>
+
+</div>
+<div class="box-wrapper">
+
+  <div class="four-box things-to-action">
+    <div class="background" style="opacity: {{options.translucentTiles ? 0.8 : 1}}"></div>
+    <widget id="wow-things-to-action"></widget>
+  </div>
+
+</div>]]></template>
+    </sp_ng_template>
+</record_update>

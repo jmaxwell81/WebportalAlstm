@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_ng_template">
+    <sp_ng_template action="INSERT_OR_UPDATE">
+        <id>wowConfirmApprove.html</id>
+        <sp_widget display_value="Wow Approval Actions">a22b7e20db3b53c087e2f3de3b961911</sp_widget>
+        <sys_class_name>sp_ng_template</sys_class_name>
+        <sys_created_by>elgarsi</sys_created_by>
+        <sys_created_on>2018-07-30 14:07:41</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>f3096c76db271f8087e2f3de3b961972</sys_id>
+        <sys_mod_count>39</sys_mod_count>
+        <sys_name>wowConfirmApprove.html</sys_name>
+        <sys_package display_value="Wow Portal" source="x_mono2_wow">c22adc75dba633400ef45682ca961996</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="Wow Portal">c22adc75dba633400ef45682ca961996</sys_scope>
+        <sys_update_name>sp_ng_template_f3096c76db271f8087e2f3de3b961972</sys_update_name>
+        <sys_updated_by>mono_se</sys_updated_by>
+        <sys_updated_on>2019-08-29 15:56:06</sys_updated_on>
+        <template><![CDATA[<div class="modal-header">
+  <button ng-click="closeModal()" class="close" aria-label="Close">
+    <i class="material-icons">close</i>
+  </button>
+</div>
+
+<div class="modal-body">
+
+  <h4>${wow_confirm_approve}</h4>
+
+  <button ng-click="confirmApprove($event)" ng-disabled="updating" class="btn btn-success">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve"><g><path d="M16.3,8.3L10,14.6l-2.3-2.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l3,3C9.5,16.9,9.7,17,10,17c0,0,0,0,0,0c0.3,0,0.5-0.1,0.7-0.3l7-7c0.4-0.4,0.4-1,0-1.4C17.3,7.9,16.7,7.9,16.3,8.3z"/><path d="M12.4,1c-6.1,0-11,4.9-11,11s4.9,11,11,11s11-4.9,11-11S18.4,1,12.4,1z M12.4,21c-5,0-9-4-9-9c0-5,4-9,9-9c5,0,9,4,9,9C21.4,17,17.3,21,12.4,21z"/></g></svg>
+    ${wow_approve}
+  </button>
+
+  <button ng-click="closeModal()" class="btn cancel">
+    ${wow_cancel}
+  </button>
+
+</div>]]></template>
+    </sp_ng_template>
+</record_update>
